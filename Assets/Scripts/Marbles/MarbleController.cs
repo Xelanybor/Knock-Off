@@ -49,6 +49,9 @@ public class MarbleController : MonoBehaviour
 
     public void Jump()
     {
+        if (!canJump) return;
+        
+        rb.linearVelocityY = 0;
         rb.AddForce(Vector2.up * JUMP_FORCE, ForceMode2D.Impulse);
         canJump = false;
     }
