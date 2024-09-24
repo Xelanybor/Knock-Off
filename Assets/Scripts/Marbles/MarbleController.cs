@@ -6,11 +6,10 @@ public class MarbleController : MonoBehaviour
     private Rigidbody2D rb;
 
     // Constants
-    [Header("Basic Movement")]
 
-    [SerializeField] private float MAX_SPEED = 5f;
-    [SerializeField] private float ACCELERATION = 10f;
-    [SerializeField] private float JUMP_FORCE = 5f;
+    private float MAX_SPEED = 5f;
+    private float ACCELERATION = 10f;
+    private float JUMP_FORCE = 5f;
 
     // State Variables
 
