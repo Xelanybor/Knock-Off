@@ -7,13 +7,13 @@ public class MarbleController : MonoBehaviour
 
     // Constants
 
-    private float MAX_SPEED = 5f;
-    private float ACCELERATION = 10f;
-    private float JUMP_FORCE = 5f;
+    private float MAX_SPEED = 5f; // Maximum speed the marble can reach
+    private float ACCELERATION = 10f; // Force added to the marble to move it
+    private float JUMP_FORCE = 5f; // Force added to the marble to make it jump
 
     // State Variables
 
-    private bool canJump = true;
+    private bool canJump = true; // Self-explanatory ngl if you don't know what this does you may be stupid
 
     // Interior Values
 
@@ -30,6 +30,8 @@ public class MarbleController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
         if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
         {
             rb.AddForce(Vector2.right * ACCELERATION);
@@ -49,8 +51,11 @@ public class MarbleController : MonoBehaviour
 
     public void Jump()
     {
+        // Ground check, this variable resets every time the marble touches the ground
+        // I've implemented it like this rather than directly doing a ground check to make it easier to add a double jump later if we decide to
         if (!canJump) return;
-        
+
+        // Reset the vertical velocity to 0 to make the jump feel snappier
         rb.linearVelocityY = 0;
         rb.AddForce(Vector2.up * JUMP_FORCE, ForceMode2D.Impulse);
         canJump = false;
@@ -60,6 +65,7 @@ public class MarbleController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // On collision with the map geometry
         if (collision.gameObject.CompareTag("Ground"))
         {
             canJump = true;
