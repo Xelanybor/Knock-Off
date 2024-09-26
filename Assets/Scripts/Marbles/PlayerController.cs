@@ -36,5 +36,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnFlick(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            marble.StartChargingFlick();
+        }
+        else if (context.canceled)
+        {
+            marble.ReleaseFlick();
+        }
+    }
+
 
 }

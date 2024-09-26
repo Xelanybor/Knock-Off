@@ -11,9 +11,12 @@ public class MarbleController : MonoBehaviour
     private float ACCELERATION = 10f; // Force added to the marble to move it
     private float JUMP_FORCE = 5f; // Force added to the marble to make it jump
 
+    private float FLICK_FORCE = 20f; // Force added to the marble to make it flick
+
     // State Variables
 
     private bool canJump = true; // Self-explanatory ngl if you don't know what this does you may be stupid
+    private bool chargingFlick = false; // Whether the marble is currently charging a flick
 
     // Interior Values
 
@@ -31,14 +34,17 @@ public class MarbleController : MonoBehaviour
     void Update()
     {
 
-        // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
-        if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
-        {
-            rb.AddForce(Vector2.right * ACCELERATION);
-        }
-        else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
-        {
-            rb.AddForce(Vector2.left * ACCELERATION);
+        if (chargingFlick) {}
+        else {
+            // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
+            if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
+            {
+                rb.AddForce(Vector2.right * ACCELERATION);
+            }
+            else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
+            {
+                rb.AddForce(Vector2.left * ACCELERATION);
+            }
         }
     }
 
@@ -59,6 +65,23 @@ public class MarbleController : MonoBehaviour
         rb.linearVelocityY = 0;
         rb.AddForce(Vector2.up * JUMP_FORCE, ForceMode2D.Impulse);
         canJump = false;
+    }
+
+    public void StartChargingFlick()
+    {
+        chargingFlick = true;
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0;
+    }
+
+    public void ReleaseFlick()
+    {
+        if (!chargingFlick) return;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 1;
+        rb.AddForce(movementInput.normalized * FLICK_FORCE, ForceMode2D.Impulse);
+        chargingFlick = false;
     }
 
     // Collision Methods
