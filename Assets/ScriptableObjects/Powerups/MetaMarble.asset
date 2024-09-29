@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: MetaMarble
   m_EditorClassIdentifier: 
   prefab: {fileID: 2109847022893814344, guid: 38c96990a7001b14aab954d87e377251, type: 3}
-  damageAmount: 0
+  duration: 10
+  damageBoost: 1

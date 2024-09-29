@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class MarbleController : MonoBehaviour
@@ -18,6 +19,8 @@ public class MarbleController : MonoBehaviour
     // Interior Values
 
     private Vector2 movementInput;
+
+    public bool hasPowerup = false;
 
 
 
@@ -72,4 +75,20 @@ public class MarbleController : MonoBehaviour
         }
     }
 
+
+    public void ApplyPowerup(PowerupEffect powerup)
+    {
+        hasPowerup = true;
+        StartCoroutine(PowerupCoroutine(powerup));
+    }
+
+    private IEnumerator PowerupCoroutine(PowerupEffect powerup)
+    {
+        powerup.Apply(this);
+
+        // wait for effect to finish
+        yield return new WaitForSeconds(powerup.duration);
+        hasPowerup = false;
+        powerup.Remove(this);
+    }
 }
