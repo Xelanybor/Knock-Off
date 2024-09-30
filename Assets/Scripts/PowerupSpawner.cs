@@ -55,7 +55,7 @@ public class PowerUpSpawner : MonoBehaviour
     }
     
     // spawns a random powerup at a random location and returns the reference object for the powerup
-    GameObject SpawnPowerUp()
+    IEnumerator SpawnPowerUp()
     {
         Debug.Log("Powerup spawned");
         int randomSpawn = Random.Range(0, spawnPoints.Length);
