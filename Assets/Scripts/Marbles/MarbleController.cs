@@ -23,6 +23,11 @@ public class MarbleController : MonoBehaviour
     private bool chargingFlick = false; // Whether the marble is currently charging a flick
     private bool lastMovementInputWasZero = false; // Whether the last movement input was the zero vector
 
+    // Game Variables
+    public int stockCount = 3; // Default stock count for the player.
+
+
+
     // Interior Values
 
     private Vector2 movementInput;
