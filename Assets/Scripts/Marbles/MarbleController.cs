@@ -5,6 +5,8 @@ public class MarbleController : MonoBehaviour
 {
     // Components
     private Rigidbody2D rb;
+    private LineRenderer lineRenderer;
+    [SerializeField] private Shader flickTrajectoryShader;
 
     // Constants
 
@@ -12,36 +14,85 @@ public class MarbleController : MonoBehaviour
     private float ACCELERATION = 10f; // Force added to the marble to move it
     private float JUMP_FORCE = 5f; // Force added to the marble to make it jump
 
+    private float FLICK_FORCE = 20f; // Force added to the marble to make it flick
+    private float FLICK_SLOWDOWN = 0.1f; // Slowdown applied to the flick force when the marble is charging it
+    private float FLICK_BUFFER_TIME = 0.2f; // How long the flick direction is remembered after the joystick is released
+
     // State Variables
 
     private bool canJump = true; // Self-explanatory ngl if you don't know what this does you may be stupid
+    private bool chargingFlick = false; // Whether the marble is currently charging a flick
+    private bool lastMovementInputWasZero = false; // Whether the last movement input was the zero vector
 
     // Interior Values
 
     private Vector2 movementInput;
 
     public bool hasPowerup = false;
-
+    private float flickBufferTimer = 0;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // Initialize the LineRenderer used to draw flick trajectory
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        
+        Material trajectoryMaterial = new Material(flickTrajectoryShader);
+        lineRenderer.material = trajectoryMaterial;
+        // lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.textureMode = LineTextureMode.Tile;
+
+        Gradient trajectoryGradient = new Gradient();
+        trajectoryGradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.red, 0.0f), new GradientColorKey(Color.white, 1.0f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) }
+        );
+        lineRenderer.colorGradient = trajectoryGradient;
+
+        // Make the circles 2/5 of the size
+        lineRenderer.widthMultiplier = 0.4f;
+        lineRenderer.textureScale = new Vector2(2.5f, 1f);
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
-        if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
+        // Timer before flick direction buffer is set to zero
+        if (lastMovementInputWasZero)
         {
-            rb.AddForce(Vector2.right * ACCELERATION);
+            if (flickBufferTimer <= 0)
+            {
+                movementInput = Vector2.zero;
+            }
+            else
+            {
+                flickBufferTimer -= Time.deltaTime;
+            }
+            
         }
-        else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
-        {
-            rb.AddForce(Vector2.left * ACCELERATION);
+
+        if (chargingFlick) {
+
+            drawTrajectory(transform.position, movementInput, FLICK_FORCE);
+
+        } else {
+
+            // Clear the trajectory line when not charging a flick
+            lineRenderer.positionCount = 0;
+
+            // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
+            if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
+            {
+                rb.AddForce(Vector2.right * ACCELERATION);
+            }
+            else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
+            {
+                rb.AddForce(Vector2.left * ACCELERATION);
+            }
         }
     }
 
@@ -49,7 +100,22 @@ public class MarbleController : MonoBehaviour
 
     public void MovementInput(Vector2 input)
     {
-        movementInput = input;
+        if (input != Vector2.zero)
+        {
+            movementInput = input.normalized;
+            lastMovementInputWasZero = false;
+            flickBufferTimer = FLICK_BUFFER_TIME;
+        }
+        else
+        {
+            // when a zero input is received, this boolean starts a
+            // countdown before the direction buffer is also set to zero
+
+            // this makes the flicking feel better by giving the player
+            // a small window to release the joystick without losing the flick direction
+            lastMovementInputWasZero = true;
+        }
+        
     }
 
     public void Jump()
@@ -64,6 +130,26 @@ public class MarbleController : MonoBehaviour
         canJump = false;
     }
 
+    public void StartChargingFlick()
+    {
+        chargingFlick = true;
+        rb.linearVelocity *= FLICK_SLOWDOWN;
+        rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
+    }
+
+    public void ReleaseFlick()
+    {
+        if (!chargingFlick) return;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 1;
+        rb.AddForce(movementInput * FLICK_FORCE, ForceMode2D.Impulse);
+        chargingFlick = false;
+
+        // Reset the flick direction buffer
+        movementInput = Vector2.zero;
+    }
+
     // Collision Methods
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -74,7 +160,6 @@ public class MarbleController : MonoBehaviour
             canJump = true;
         }
     }
-
 
     public void ApplyPowerup(PowerupEffect powerup)
     {
@@ -90,5 +175,34 @@ public class MarbleController : MonoBehaviour
         yield return new WaitForSeconds(powerup.duration);
         hasPowerup = false;
         powerup.Remove(this);
+    }
+    
+    // Drawing the flick trajectory
+
+    private void drawTrajectory(Vector2 start, Vector2 direction, float force)
+    {
+
+        // Clear line if not pointing in a direction
+        if (direction == Vector2.zero) {
+            lineRenderer.positionCount = 0;
+            return;
+        }
+
+        // Render the line by calculating the trajectory of the flick
+        int segments = 10;
+        float timeStep = 0.01f;
+        float time = 0;
+
+        Vector2 velocity = direction * force;
+        Vector2 position = start;
+
+        lineRenderer.positionCount = segments;
+        for (int i = 0; i < segments; i++)
+        {
+            lineRenderer.SetPosition(i, position);
+            position += velocity * time + 0.5f * Physics2D.gravity * time * time;
+            velocity += Physics2D.gravity * time;
+            time += timeStep;
+        }
     }
 }

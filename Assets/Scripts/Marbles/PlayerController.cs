@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        marble = Instantiate(marblePrefab);
+        marble = Instantiate(marblePrefab, new Vector3(-4, -1, 0), Quaternion.identity);
     }
 
     // Update is called once per frame
@@ -33,6 +33,18 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             marble.Jump();
+        }
+    }
+
+    public void OnFlick(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            marble.StartChargingFlick();
+        }
+        else if (context.canceled)
+        {
+            marble.ReleaseFlick();
         }
     }
 
