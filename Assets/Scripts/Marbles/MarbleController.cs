@@ -14,6 +14,7 @@ public class MarbleController : MonoBehaviour
     private float JUMP_FORCE = 5f; // Force added to the marble to make it jump
 
     private float FLICK_FORCE = 20f; // Force added to the marble to make it flick
+    private float FLICK_SLOWDOWN = 0.1f; // Slowdown applied to the flick force when the marble is charging it
 
     // State Variables
 
@@ -98,8 +99,8 @@ public class MarbleController : MonoBehaviour
     public void StartChargingFlick()
     {
         chargingFlick = true;
-        rb.linearVelocity = Vector2.zero;
-        rb.gravityScale = 0;
+        rb.linearVelocity *= FLICK_SLOWDOWN;
+        rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
     }
 
     public void ReleaseFlick()
