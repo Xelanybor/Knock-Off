@@ -15,15 +15,19 @@ public class MarbleController : MonoBehaviour
 
     private float FLICK_FORCE = 20f; // Force added to the marble to make it flick
     private float FLICK_SLOWDOWN = 0.1f; // Slowdown applied to the flick force when the marble is charging it
+    private float FLICK_BUFFER_TIME = 0.2f; // How long the flick direction is remembered after the joystick is released
 
     // State Variables
 
     private bool canJump = true; // Self-explanatory ngl if you don't know what this does you may be stupid
     private bool chargingFlick = false; // Whether the marble is currently charging a flick
+    private bool lastMovementInputWasZero = false; // Whether the last movement input was the zero vector
 
     // Interior Values
 
     private Vector2 movementInput;
+
+    private float flickBufferTimer = 0;
 
 
 
@@ -56,6 +60,20 @@ public class MarbleController : MonoBehaviour
     void Update()
     {
 
+        // Timer before flick direction buffer is set to zero
+        if (lastMovementInputWasZero)
+        {
+            if (flickBufferTimer <= 0)
+            {
+                movementInput = Vector2.zero;
+            }
+            else
+            {
+                flickBufferTimer -= Time.deltaTime;
+            }
+            
+        }
+
         if (chargingFlick) {
 
             drawTrajectory(transform.position, movementInput, FLICK_FORCE);
@@ -81,7 +99,21 @@ public class MarbleController : MonoBehaviour
 
     public void MovementInput(Vector2 input)
     {
-        movementInput = input.normalized;
+        if (input != Vector2.zero)
+        {
+            movementInput = input.normalized;
+            flickBufferTimer = FLICK_BUFFER_TIME;
+        }
+        else
+        {
+            // when a zero input is received, this boolean starts a
+            // countdown before the direction buffer is also set to zero
+
+            // this makes the flicking feel better by giving the player
+            // a small window to release the joystick without losing the flick direction
+            lastMovementInputWasZero = true;
+        }
+        
     }
 
     public void Jump()
@@ -111,6 +143,9 @@ public class MarbleController : MonoBehaviour
         rb.gravityScale = 1;
         rb.AddForce(movementInput * FLICK_FORCE, ForceMode2D.Impulse);
         chargingFlick = false;
+
+        // Reset the flick direction buffer
+        movementInput = Vector2.zero;
     }
 
     // Collision Methods
