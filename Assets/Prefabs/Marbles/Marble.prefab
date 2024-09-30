@@ -110,9 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3e750f2fe3041a47aba5e5f2b9b659a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MAX_SPEED: 5
-  ACCELERATION: 10
-  JUMP_FORCE: 5
+  flickTrajectoryShader: {fileID: -6465566751694194690, guid: 1fb274543548e4d4a818ba4a954dcd29, type: 3}
 --- !u!1 &8806327356653908346
 GameObject:
   m_ObjectHideFlags: 0
