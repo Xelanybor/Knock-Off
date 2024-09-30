@@ -37,12 +37,12 @@ public class PowerUpSpawner : MonoBehaviour
             {
                 // check if timer started to spawn object after time threshold
                 if (!TimerOn) { spawnTime = Random.Range(0, MAX_POWERUP_TIME); TimerOn = true; }    // create random time to spawn and start timer
-                if (TimerOn) { spawnTime-=Time.deltaTime; } // count down timer
+                if (TimerOn) { spawnTime -= Time.deltaTime; } // count down timer
                 if (spawnTime <= 0)     // spawn and reset timer
-                { 
+                {
                     currentPowerUp = SpawnPowerUp();
                     powerupRenderer = currentPowerUp.GetComponent<SpriteRenderer>();
-                    TimerOn = false; 
+                    TimerOn = false;
                 }
             }
             // powerup on stage and not blinking (going to die)
@@ -53,9 +53,9 @@ public class PowerUpSpawner : MonoBehaviour
             }
         }
     }
-    
+
     // spawns a random powerup at a random location and returns the reference object for the powerup
-    IEnumerator SpawnPowerUp()
+    GameObject SpawnPowerUp()
     {
         Debug.Log("Powerup spawned");
         int randomSpawn = Random.Range(0, spawnPoints.Length);
@@ -88,7 +88,9 @@ public class PowerUpSpawner : MonoBehaviour
 
                 elapsedTime += Time.deltaTime;
                 yield return null; // Wait for the next frame
-            } else {
+            }
+            else
+            {
                 blinking = false;
                 currentPowerUp = null;
                 yield break; // exit coroutine when player collides with powerup during blinking
