@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 public class PowerUpSpawner : MonoBehaviour
 {
     // spawning time related     
@@ -12,14 +13,14 @@ public class PowerUpSpawner : MonoBehaviour
     private float idleTime = 0;
     private bool TimerOn = false;
 
-    [SerializeField] private Transform[] spawnPoints;           // spawnpoints for powerups
+    private List<Vector3> spawnPoints;           // spawnpoints for powerups
     [SerializeField] private PowerupEffect[] powerUpSOList;     // powerup SO's
 
     private GameObject currentPowerUp;
 
     [SerializeField] private float blinkDestroyDuration = 8f;  // duration of the blinking effect before the object is destroyed
-    [SerializeField] private float blinkSpawnDuration = 4f;
-    [SerializeField] private float blinkSpeed = 3f;     // how fast the object fades in and out
+    [SerializeField] private float blinkSpawnDuration = 0.1f;
+    //[SerializeField] private float blinkSpeed = 3f;     // how fast the object fades in and out
     private bool blinking;
     private SpriteRenderer powerupRenderer;
 
@@ -31,6 +32,8 @@ public class PowerUpSpawner : MonoBehaviour
         currentPowerUp = null;
         powerupRenderer = null;
         blinking = false;
+        Map map = FindObjectOfType<Map>();
+        spawnPoints = map.getSpawnPoints();
     }
 
     void Update()
@@ -63,7 +66,7 @@ public class PowerUpSpawner : MonoBehaviour
     // spawns a random powerup at a random location and returns the reference object for the powerup
     IEnumerator SpawnPowerUp()
     {
-        int randomSpawn = Random.Range(0, spawnPoints.Length);
+        int randomSpawn = Random.Range(0, spawnPoints.Count);
         int randomPowerUp = Random.Range(0, powerUpSOList.Length);
         idleTime = 0;
         blinking = true;
@@ -73,7 +76,7 @@ public class PowerUpSpawner : MonoBehaviour
         powerupRenderer = currentPowerUp.GetComponent<SpriteRenderer>();
 
         powerUpObject.SetActive(true);
-        powerUpObject.transform.position = spawnPoints[randomSpawn].position;
+        powerUpObject.transform.position = spawnPoints[randomSpawn];
 
         yield return StartCoroutine(animateSpawn(powerUpObject));
         powerUpObject.GetComponent<BoxCollider2D>().enabled = true; // enable collider after spawn blinkiing
@@ -90,7 +93,7 @@ public class PowerUpSpawner : MonoBehaviour
         {
             float normalizedTime = elapsedTime / blinkSpawnDuration;
 
-            float alpha = Mathf.Sin(normalizedTime * Mathf.PI / 2f); ;
+            float alpha = Mathf.Sin(normalizedTime * Mathf.PI / 2f);
 
             Color newColour = originalColour;
             newColour.a = alpha;
