@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         marble = Instantiate(marblePrefab, new Vector3(-4, -1, 0), Quaternion.identity);
+        marble.name = "Player Marble";
     }
 
     // Update is called once per frame

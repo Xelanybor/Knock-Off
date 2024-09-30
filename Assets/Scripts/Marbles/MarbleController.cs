@@ -16,18 +16,26 @@ public class MarbleController : MonoBehaviour
     private float FLICK_FORCE = 20f; // Force added to the marble to make it flick
     private float FLICK_SLOWDOWN = 0.1f; // Slowdown applied to the flick force when the marble is charging it
     private float FLICK_BUFFER_TIME = 0.2f; // How long the flick direction is remembered after the joystick is released
+    private float FLICK_MOVEMENT_LOCKOUT = 0.5f; // How long the marble is locked out of movement after a flick
+
+    private float EQUAL_MOMENTUM_SCALE_FACTOR = 5f; // How much the marbles bounce back when they have equal momentum
 
     // State Variables
 
     private bool canJump = true; // Self-explanatory ngl if you don't know what this does you may be stupid
     private bool chargingFlick = false; // Whether the marble is currently charging a flick
     private bool lastMovementInputWasZero = false; // Whether the last movement input was the zero vector
+    private bool resetMomentumNextUpdate = false; // Whether the marble's momentum should be reset on the next update
 
     // Interior Values
 
     private Vector2 movementInput;
 
     private float flickBufferTimer = 0;
+    private float flickMovementLockoutTimer = 0;
+
+    private float momentum = 0;
+    private Vector3 movementDirection = Vector3.zero; // Buffer for rb.linearVelocity, used for calculations as it's only updated once a frame
 
 
 
@@ -60,6 +68,19 @@ public class MarbleController : MonoBehaviour
     void Update()
     {
 
+        // Reset momentum if needed
+        // Done it this way because resetting momentum in OnCollisionEnter2D causes inconsistent behavior due to
+        // each marble's collision methods being called asynchronously. Instead of resetting momentum in the collision
+        // method, we set a flag to reset it in the next update
+        if (resetMomentumNextUpdate)
+        {
+            momentum = 0;
+            resetMomentumNextUpdate = false;
+        }
+
+        // Update the movement direction buffer
+        movementDirection = rb.linearVelocity.normalized;
+
         // Timer before flick direction buffer is set to zero
         if (lastMovementInputWasZero)
         {
@@ -74,23 +95,37 @@ public class MarbleController : MonoBehaviour
             
         }
 
+        // Timer before the marble can move again after a flick
+        if (flickMovementLockoutTimer > 0)
+        {
+            flickMovementLockoutTimer -= Time.deltaTime;
+        }
+
         if (chargingFlick) {
 
-            drawTrajectory(transform.position, movementInput, FLICK_FORCE);
+            DrawTrajectory(transform.position, movementInput, FLICK_FORCE);
 
         } else {
 
             // Clear the trajectory line when not charging a flick
             lineRenderer.positionCount = 0;
 
-            // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
-            if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
+            // REGULAR MOVEMENT
+            // Only allow movement if the marble is not locked out from flicking
+            if (flickMovementLockoutTimer <= 0)
             {
-                rb.AddForce(Vector2.right * ACCELERATION);
-            }
-            else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
-            {
-                rb.AddForce(Vector2.left * ACCELERATION);
+                // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
+                if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
+                {
+                    rb.AddForce(Vector2.right * ACCELERATION);
+                }
+                else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
+                {
+                    rb.AddForce(Vector2.left * ACCELERATION);
+                }
+
+                // Moving resets momentum to zero
+                momentum = 0;
             }
         }
     }
@@ -147,6 +182,12 @@ public class MarbleController : MonoBehaviour
 
         // Reset the flick direction buffer
         movementInput = Vector2.zero;
+
+        // Lock the marble out of movement for a short time after a flick
+        flickMovementLockoutTimer = FLICK_MOVEMENT_LOCKOUT;
+
+        // Set the marble's momentum (temporary value until we add flick charge levels)
+        momentum = 20f;
     }
 
     // Collision Methods
@@ -158,11 +199,64 @@ public class MarbleController : MonoBehaviour
         {
             canJump = true;
         }
+
+        // On collision with another marble
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Transform otherTransform = collision.gameObject.transform;
+            MarbleController otherMarbleController = collision.gameObject.GetComponent<MarbleController>();
+            // Get the marbles' effective momentum
+            float effectiveMomentum = GetEffectiveMomentum(otherTransform.position);
+            float enemyMomentum = otherMarbleController.GetEffectiveMomentum(transform.position);
+
+            // Determine which marble is the attacker and which is the defender
+            // The attacker is the marble with the higher effective momentum
+
+            Debug.Log(name + " effective momentum: " + effectiveMomentum);
+
+            if (effectiveMomentum > enemyMomentum)
+            {
+                // This marble is the attacker
+                Debug.Log(name + " is the attacker");
+                rb.linearVelocity = Vector2.zero;
+                // float momentumDifference = enemyMomentum + effectiveMomentum;
+                float force = 5f;
+                Debug.Log(name + " force: " + force);
+                rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
+            }
+            else if (effectiveMomentum == enemyMomentum)
+            {
+                // Both marbles are equally strong so they just bounce back
+                Debug.Log(name + " has equal momentum");
+                rb.linearVelocity = Vector2.zero;
+                float force = 5f;
+                Debug.Log(name + " force: " + force);
+                rb.AddForce((transform.position - otherTransform.position).normalized * EQUAL_MOMENTUM_SCALE_FACTOR, ForceMode2D.Impulse);
+            }
+            else
+            {
+                // The other marble is the attacker
+                Debug.Log(name + " is the defender");
+                rb.linearVelocity = Vector2.zero;
+                float momentumDifference = enemyMomentum + effectiveMomentum;
+                float force = momentumDifference * 1.5f;
+                Debug.Log(name + " force: " + force);
+                rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
+            }
+
+            // Set a flag to reset momentum on the next update
+            resetMomentumNextUpdate = true;
+        }
+    }
+
+    public float GetEffectiveMomentum(Vector3 otherPosition)
+    {
+        return Mathf.Max(0f, momentum * Vector2.Dot(movementDirection, (otherPosition - transform.position).normalized));
     }
 
     // Drawing the flick trajectory
 
-    private void drawTrajectory(Vector2 start, Vector2 direction, float force)
+    private void DrawTrajectory(Vector2 start, Vector2 direction, float force)
     {
 
         // Clear line if not pointing in a direction
