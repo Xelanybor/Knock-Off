@@ -102,6 +102,7 @@ public class MarbleController : MonoBehaviour
         if (input != Vector2.zero)
         {
             movementInput = input.normalized;
+            lastMovementInputWasZero = false;
             flickBufferTimer = FLICK_BUFFER_TIME;
         }
         else
