@@ -57,7 +57,7 @@ public class PowerUpSpawner : MonoBehaviour
             else if (!blinking)
             {
                 idleTime += Time.deltaTime;
-                Debug.Log(idleTime);
+                // Debug.Log(idleTime);
                 if (idleTime >= PowerUpIdleTime) { StartCoroutine(animateThenDestroy(currentPowerUp)); blinking = true; }
             }
         }
@@ -87,7 +87,7 @@ public class PowerUpSpawner : MonoBehaviour
         float elapsedTime = 0f;
         Color originalColour = powerupRenderer.color + new Color(0f, 0f, 0f, 1f);
 
-        Debug.Log("Powerup spawning...");
+        // Debug.Log("Powerup spawning...");
 
         while (elapsedTime < blinkSpawnDuration)
         {
@@ -113,7 +113,7 @@ public class PowerUpSpawner : MonoBehaviour
         float elapsedTime = 0f;
         Color originalColour = powerupRenderer.color;
 
-        Debug.Log("Powerup blinking.");
+        // Debug.Log("Powerup blinking.");
         // start blinking for a few seconds
         while (elapsedTime < blinkDestroyDuration)
         {
@@ -149,7 +149,7 @@ public class PowerUpSpawner : MonoBehaviour
         if (currentPowerUp != null)
         {
             powerupRenderer.color = originalColour;
-            Debug.Log("Powerup destroyed");
+            // Debug.Log("Powerup destroyed");
             Destroy(currentPowerUp);
         }
         blinking = false;
