@@ -40,6 +40,7 @@ public class MarbleController : MonoBehaviour
     private float flickChargeTimer = 0; // Timer for how long the flick has been charging
 
     private float momentum = 0;
+
     private Vector3 movementDirection = Vector3.zero; // Buffer for rb.linearVelocity, used for calculations as it's only updated once a frame
 
 
@@ -142,7 +143,7 @@ public class MarbleController : MonoBehaviour
 
             // REGULAR MOVEMENT
             // Only allow movement if the marble is not locked out from flicking
-            if (flickMovementLockoutTimer <= 0)
+            if (flickMovementLockoutTimer <= 0 && movementInput.x != 0)
             {
                 // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
                 if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
@@ -164,6 +165,10 @@ public class MarbleController : MonoBehaviour
 
     public void MovementInput(Vector2 input)
     {
+
+        // Don't allow movement if the marble is locked out from flicking
+        if (!chargingFlick && flickMovementLockoutTimer > 0) return;
+
         if (input != Vector2.zero)
         {
             movementInput = input.normalized;
@@ -317,6 +322,13 @@ public class MarbleController : MonoBehaviour
             velocity += Physics2D.gravity * time;
             time += timeStep;
         }
+    }
+
+    // Getters and Setters
+
+    public float GetMomentum()
+    {
+        return momentum;
     }
 
 }
