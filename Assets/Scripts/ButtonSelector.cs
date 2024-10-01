@@ -31,11 +31,11 @@ public class ButtonSelector : MonoBehaviour
 
     public void MoveSelection(InputAction.CallbackContext context)
     {
-        Debug.LogError("Called Move");
+        // Debug.LogError("Called Move");
         if (context.performed && Time.time - lastNavigationTime >= NAVIGATION_COOLDOWN)
         {
             Vector2 direction = context.ReadValue<Vector2>();
-            Debug.LogError("Called Move");
+            // Debug.LogError("Called Move");
             if (direction.y != 0) // Only respond to vertical input
             {
                 int change = direction.y > 0 ? -1 : 1; // Up decreases index, Down increases
@@ -57,6 +57,6 @@ public class ButtonSelector : MonoBehaviour
     {
         activeButton = buttonList[index];
         activeButton.Select();
-        Debug.Log($"Selected button: {activeButton.name} (Index: {index})");
+        // Debug.Log($"Selected button: {activeButton.name} (Index: {index})");
     }
 }

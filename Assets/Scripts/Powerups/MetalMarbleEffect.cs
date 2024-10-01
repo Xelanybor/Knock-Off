@@ -7,14 +7,14 @@ public class MetalMarbleEffect : PowerupEffect
 
     public override void Apply(MarbleController target)
     {
-        Debug.Log("Metal marble applied!");
+        // Debug.Log("Metal marble applied!");
 
         // player.damage += damageBoost;
     }
 
     public override void Remove(MarbleController target)
     {
-        Debug.Log("Metal marble removed!");
+        // Debug.Log("Metal marble removed!");
         // player.damage -= damageBoost;
     }
 }

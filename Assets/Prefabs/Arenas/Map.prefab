@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 215682855937281917}
   - component: {fileID: 1088803791229047546}
   m_Layer: 0
-  m_Name: PowerUpPosition2
+  m_Name: PowerUpPosition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -266,7 +266,7 @@ GameObject:
   - component: {fileID: 4990152726216952261}
   - component: {fileID: 2715182595886738631}
   m_Layer: 0
-  m_Name: PowerUpPosition1
+  m_Name: PowerUpPosition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
