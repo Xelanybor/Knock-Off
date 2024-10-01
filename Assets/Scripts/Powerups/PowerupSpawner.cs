@@ -32,7 +32,7 @@ public class PowerUpSpawner : MonoBehaviour
         currentPowerUp = null;
         powerupRenderer = null;
         blinking = false;
-        Map map = FindObjectOfType<Map>();
+        Map map = FindFirstObjectByType<Map>();
         spawnPoints = map.getSpawnPoints();
     }
 
