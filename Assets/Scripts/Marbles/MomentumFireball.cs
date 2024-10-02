@@ -24,12 +24,9 @@ public class MomentumFireball : MonoBehaviour
     {
         SetMomentum(marbleController.GetMomentum());
 
+        if (spriteRenderer.enabled) {
         t.localRotation = Quaternion.Euler(0, 0, -marbleTransform.eulerAngles.z + Mathf.Atan2(marbleRb.linearVelocityY, marbleRb.linearVelocityX) * Mathf.Rad2Deg);
-
-        // if (spriteRenderer.enabled) {
-            // t.localEulerAngles.Set(0, 0, -marbleTransform.localEulerAngles.z);
-            Debug.Log("Fireball effect rotation: " + t.localEulerAngles.z);
-        // }
+        }
     }
 
     void SetMomentum(float momentum) {

@@ -54,8 +54,6 @@ public class MarbleController : MonoBehaviour
 
         // Initialize the LineRenderer used to draw flick trajectory
         lineRenderer = gameObject.AddComponent<LineRenderer>();
-
-        // Debug.Log("LineRenderer: " + lineRenderer);
         
         Material trajectoryMaterial = new Material(flickTrajectoryShader);
         lineRenderer.material = trajectoryMaterial;
