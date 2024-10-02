@@ -277,7 +277,7 @@ public class MarbleController : MonoBehaviour
                 // The other marble is the attacker
                 Debug.Log(name + " is the defender");
                 rb.linearVelocity = Vector2.zero;
-                float momentumDifference = enemyMomentum + effectiveMomentum;
+                float momentumDifference = enemyMomentum - effectiveMomentum;
                 float force = momentumDifference * 1.5f;
                 Debug.Log(name + " force: " + force);
                 rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
