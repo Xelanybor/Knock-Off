@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class MarbleController : MonoBehaviour
@@ -35,6 +36,7 @@ public class MarbleController : MonoBehaviour
 
     private Vector2 movementInput;
 
+    public bool hasPowerup = false;
     private float flickBufferTimer = 0;
     private float flickMovementLockoutTimer = 0;
     private int flickChargeLevel = -1; // The current charge level of the flick. -1 means the marble is not flicking
@@ -340,6 +342,22 @@ public class MarbleController : MonoBehaviour
         return Mathf.Max(0f, momentum * Vector2.Dot(movementDirection, (otherPosition - transform.position).normalized));
     }
 
+    public void ApplyPowerup(PowerupEffect powerup)
+    {
+        hasPowerup = true;
+        StartCoroutine(PowerupCoroutine(powerup));
+    }
+
+    private IEnumerator PowerupCoroutine(PowerupEffect powerup)
+    {
+        powerup.Apply(this);
+
+        // wait for effect to finish
+        yield return new WaitForSeconds(powerup.duration);
+        hasPowerup = false;
+        powerup.Remove(this);
+    }
+    
     // Drawing the flick trajectory
 
     private void DrawTrajectory(Vector2 start, Vector2 direction, float force)
