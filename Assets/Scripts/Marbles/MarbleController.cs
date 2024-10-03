@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MarbleController : MonoBehaviour
@@ -43,7 +44,63 @@ public class MarbleController : MonoBehaviour
 
     private Vector3 movementDirection = Vector3.zero; // Buffer for rb.linearVelocity, used for calculations as it's only updated once a frame
 
+    // MODIFIABLE STATS
 
+    private Dictionary<string, float> stats = new Dictionary<string, float> {
+        // Dashing
+        {"DASH_DISTANCE", 1f},
+        {"DASH_RECHARGE_TIME_MULTIPLIER", 1f},
+
+        // Movement
+        {"MAX_SPEED", 5f},
+        {"ACCELERATION", 10f},
+        {"JUMP_FORCE", 5f},
+
+        // Flicks
+        {"FLICK_CHARGE_SPEED_MULTIPLIER", 1f},
+        {"FLICK_FORCE_MULTIPLIER", 1f},
+        {"FLICK_MOMENTUM_MULTIPLIER", 1f},
+
+        // Basic Stats
+        {"KNOCKBACK_RESISTANCE", 0f},
+        {"PERCENTAGE_DAMAGE_RESISTANCE", 0f},
+
+        // Attacking
+        {"EXTRA_KNOCKBACK_DEALT", 0f},
+        {"EXTRA_PERCENTAGE_DAMAGE_DEALT", 0f},
+
+    };
+
+    // Set specific stats
+    public void SetStats(Dictionary<string, float> newStats) {
+        
+        foreach (string key in newStats.Keys) {
+            stats[key] = newStats[key];
+        }
+
+    }
+
+    // Modify stats
+    public void ModifyStats(Dictionary<string, float> statChanges) {
+        
+        foreach (string key in statChanges.Keys) {
+            stats[key] += statChanges[key];
+        }
+
+    }
+
+    public void UndoStatChanges(Dictionary<string, float> statChanges) {
+        
+        foreach (string key in statChanges.Keys) {
+            stats[key] -= statChanges[key];
+        }
+
+    }
+
+    // Get specific stat
+    public float GetStat(string stat) {
+        return stats[stat];
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -251,35 +308,25 @@ public class MarbleController : MonoBehaviour
             // Determine which marble is the attacker and which is the defender
             // The attacker is the marble with the higher effective momentum
 
-            Debug.Log(name + " effective momentum: " + effectiveMomentum);
-
             if (effectiveMomentum > enemyMomentum)
             {
                 // This marble is the attacker
-                Debug.Log(name + " is the attacker");
                 rb.linearVelocity = Vector2.zero;
-                // float momentumDifference = enemyMomentum + effectiveMomentum;
                 float force = 5f;
-                Debug.Log(name + " force: " + force);
                 rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
             }
             else if (effectiveMomentum == enemyMomentum)
             {
                 // Both marbles are equally strong so they just bounce back
-                Debug.Log(name + " has equal momentum");
                 rb.linearVelocity = Vector2.zero;
-                float force = 5f;
-                Debug.Log(name + " force: " + force);
                 rb.AddForce((transform.position - otherTransform.position).normalized * EQUAL_MOMENTUM_SCALE_FACTOR, ForceMode2D.Impulse);
             }
             else
             {
                 // The other marble is the attacker
-                Debug.Log(name + " is the defender");
                 rb.linearVelocity = Vector2.zero;
                 float momentumDifference = enemyMomentum - effectiveMomentum;
                 float force = momentumDifference * 1.5f;
-                Debug.Log(name + " force: " + force);
                 rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
             }
 
