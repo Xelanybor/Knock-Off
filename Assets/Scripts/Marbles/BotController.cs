@@ -7,10 +7,10 @@ public class BotController : MonoBehaviour
     private MarbleController marble;
     private Transform marbleTransform;
 
-    private float FLICK_COOLDOWN = 0.5f; // How long the bot waits between flicks
+    private float FLICK_COOLDOWN = 1f; // How long the bot waits between flicks
     private float flickCooldownTimer = 0; // Timer for the flick cooldown
 
-    private float FLICK_CHARGE_TIME = 0.2f; // How long the bot charges the flick
+    private float FLICK_CHARGE_TIME = 0.7f; // How long the bot charges the flick
     private float flickChargeTimer = 0; // Timer for the flick charge
 
     private bool isFlicking = false; // Whether the bot is currently flicking
@@ -24,7 +24,7 @@ public class BotController : MonoBehaviour
             Debug.LogError("Marble prefab does not have a Transform component!");
         }
 
-        // marble.MovementInput(Vector2.right);
+        marble.name = "Bot Marble";
     }
 
     // Update is called once per frame
