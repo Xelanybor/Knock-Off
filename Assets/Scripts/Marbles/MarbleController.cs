@@ -298,6 +298,12 @@ public class MarbleController : MonoBehaviour
             canJump = true;
         }
 
+        // On collision with a kill zone
+        if (collision.gameObject.CompareTag("KillZone"))
+        {
+            Debug.Log(name + " died");
+        }
+
         // On collision with another marble
         if (collision.gameObject.CompareTag("Player"))
         {
