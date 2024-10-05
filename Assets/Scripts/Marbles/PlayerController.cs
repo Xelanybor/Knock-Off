@@ -20,33 +20,9 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    // Player Input Methods
-
-    // These methods are called by the Input System package when the player presses a key,
-    // and then they call the corresponding method in the MarbleController class
-    public void OnMove(InputAction.CallbackContext context)
+    public MarbleController GetMarble()
     {
-        marble.MovementInput(context.ReadValue<Vector2>());
-    }
-
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            marble.Jump();
-        }
-    }
-
-    public void OnFlick(InputAction.CallbackContext context)
-    {
-        if (context.started)
-        {
-            marble.StartChargingFlick();
-        }
-        else if (context.canceled)
-        {
-            marble.ReleaseFlick();
-        }
+        return marble;
     }
 
 

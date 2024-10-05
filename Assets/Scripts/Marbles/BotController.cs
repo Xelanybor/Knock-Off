@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BotController : MonoBehaviour
 {
@@ -23,8 +24,6 @@ public class BotController : MonoBehaviour
         {
             Debug.LogError("Marble prefab does not have a Transform component!");
         }
-
-        marble.name = "Bot Marble";
     }
 
     // Update is called once per frame
