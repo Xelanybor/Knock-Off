@@ -45,15 +45,12 @@ public class PlayerJoin : MonoBehaviour
         // First we clear every StockContainer in the scene
         foreach (StockContainer existingStockContainer in player_containers.Values)
         {
-            Debug.Log("Destroying StockContainer");
             Destroy(existingStockContainer.gameObject);
         }
         player_containers.Clear();
         // Now we can create the StockContainers for the players
-        Debug.Log(playerInput.playerIndex);
         for (int i = 0; i <= playerInput.playerIndex; i++)
         {
-            Debug.Log("Trying to create StockContainer");
             // Make sure the parent of the StockContainer is the parent of the PlayerJoin script
             StockContainer stockContainer = Instantiate(stockContainerPrefab, UI_Locations[playerInput.playerIndex+1][i], Quaternion.identity);
             stockContainer.setPlayerName("Player " + (i + 1));
