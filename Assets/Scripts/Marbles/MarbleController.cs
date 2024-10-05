@@ -32,6 +32,11 @@ public class MarbleController : MonoBehaviour
     private bool lastMovementInputWasZero = false; // Whether the last movement input was the zero vector
     private bool resetMomentumNextUpdate = false; // Whether the marble's momentum should be reset on the next update
 
+    // Game Variables
+    public int stockCount = 3; // Default stock count for the player.
+
+
+
     // Interior Values
 
     private Vector2 movementInput;
