@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class MarbleController : MonoBehaviour
@@ -6,6 +8,7 @@ public class MarbleController : MonoBehaviour
     private Rigidbody2D rb;
     private LineRenderer lineRenderer;
     [SerializeField] private Shader flickTrajectoryShader;
+    private ChargeIndicator flickChargeIndicator;
 
     // Constants
 
@@ -13,15 +16,21 @@ public class MarbleController : MonoBehaviour
     private float ACCELERATION = 10f; // Force added to the marble to move it
     private float JUMP_FORCE = 5f; // Force added to the marble to make it jump
 
-    private float FLICK_FORCE = 20f; // Force added to the marble to make it flick
+    private float [] FLICK_FORCE = {10f, 20f, 30f}; // Force added to the marble to make it flick, for different charge levels
+    private float [] FLICK_CHARGE_TIMES = {0, 0.5f, 2.5f}; // Time needed to charge the flick for different charge levels
+    private float [] FLICK_MOMENTUM = {10f, 20f, 30f}; // Momentum added to the marble when it flicks, for different charge levels
     private float FLICK_SLOWDOWN = 0.1f; // Slowdown applied to the flick force when the marble is charging it
     private float FLICK_BUFFER_TIME = 0.2f; // How long the flick direction is remembered after the joystick is released
+    private float FLICK_MOVEMENT_LOCKOUT = 0.5f; // How long the marble is locked out of movement after a flick
+
+    private float EQUAL_MOMENTUM_SCALE_FACTOR = 5f; // How much the marbles bounce back when they have equal momentum
 
     // State Variables
 
     private bool canJump = true; // Self-explanatory ngl if you don't know what this does you may be stupid
     private bool chargingFlick = false; // Whether the marble is currently charging a flick
     private bool lastMovementInputWasZero = false; // Whether the last movement input was the zero vector
+    private bool resetMomentumNextUpdate = false; // Whether the marble's momentum should be reset on the next update
 
     // Game Variables
     public int stockCount = 3; // Default stock count for the player.
@@ -32,14 +41,80 @@ public class MarbleController : MonoBehaviour
 
     private Vector2 movementInput;
 
+    public bool hasPowerup = false;
     private float flickBufferTimer = 0;
+    private float flickMovementLockoutTimer = 0;
+    private int flickChargeLevel = -1; // The current charge level of the flick. -1 means the marble is not flicking
+    private float flickChargeTimer = 0; // Timer for how long the flick has been charging
 
+    private float momentum = 0;
 
+    private Vector3 movementDirection = Vector3.zero; // Buffer for rb.linearVelocity, used for calculations as it's only updated once a frame
+
+    // MODIFIABLE STATS
+
+    private Dictionary<string, float> stats = new Dictionary<string, float> {
+        // Dashing
+        {"DASH_DISTANCE", 1f},
+        {"DASH_RECHARGE_TIME_MULTIPLIER", 1f},
+
+        // Movement
+        {"MAX_SPEED", 5f},
+        {"ACCELERATION", 10f},
+        {"JUMP_FORCE", 5f},
+
+        // Flicks
+        {"FLICK_CHARGE_SPEED_MULTIPLIER", 1f},
+        {"FLICK_FORCE_MULTIPLIER", 1f},
+        {"FLICK_MOMENTUM_MULTIPLIER", 1f},
+
+        // Basic Stats
+        {"KNOCKBACK_RESISTANCE", 0f},
+        {"PERCENTAGE_DAMAGE_RESISTANCE", 0f},
+
+        // Attacking
+        {"EXTRA_KNOCKBACK_DEALT", 0f},
+        {"EXTRA_PERCENTAGE_DAMAGE_DEALT", 0f},
+
+    };
+
+    // Set specific stats
+    public void SetStats(Dictionary<string, float> newStats) {
+        
+        foreach (string key in newStats.Keys) {
+            stats[key] = newStats[key];
+        }
+
+    }
+
+    // Modify stats
+    public void ModifyStats(Dictionary<string, float> statChanges) {
+        
+        foreach (string key in statChanges.Keys) {
+            stats[key] += statChanges[key];
+        }
+
+    }
+
+    public void UndoStatChanges(Dictionary<string, float> statChanges) {
+        
+        foreach (string key in statChanges.Keys) {
+            stats[key] -= statChanges[key];
+        }
+
+    }
+
+    // Get specific stat
+    public float GetStat(string stat) {
+        return stats[stat];
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        flickChargeIndicator = GetComponentInChildren<ChargeIndicator>();
+        flickChargeIndicator.UpdateChargeValue(0); // Initialize the charge indicator to 0
 
         // Initialize the LineRenderer used to draw flick trajectory
         lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -65,6 +140,19 @@ public class MarbleController : MonoBehaviour
     void Update()
     {
 
+        // Reset momentum if needed
+        // Done it this way because resetting momentum in OnCollisionEnter2D causes inconsistent behavior due to
+        // each marble's collision methods being called asynchronously. Instead of resetting momentum in the collision
+        // method, we set a flag to reset it in the next update
+        if (resetMomentumNextUpdate)
+        {
+            momentum = 0;
+            resetMomentumNextUpdate = false;
+        }
+
+        // Update the movement direction buffer
+        movementDirection = rb.linearVelocity.normalized;
+
         // Timer before flick direction buffer is set to zero
         if (lastMovementInputWasZero)
         {
@@ -79,23 +167,58 @@ public class MarbleController : MonoBehaviour
             
         }
 
+        // Charge the flick if the marble is charging it and the charge level is not maxed out
+        if (flickChargeLevel != -1)
+        {
+            if (flickChargeLevel < FLICK_FORCE.Length - 1)
+            {
+                // Update the charge indicator
+                flickChargeIndicator.UpdateChargeValue(Mathf.InverseLerp(FLICK_CHARGE_TIMES[flickChargeLevel], FLICK_CHARGE_TIMES[flickChargeLevel + 1], flickChargeTimer));
+
+                flickChargeTimer += Time.deltaTime;
+                // Increase the flick charge level if the timer reaches the next level
+                if (flickChargeTimer >= FLICK_CHARGE_TIMES[flickChargeLevel + 1])
+                {
+                    ++flickChargeLevel;
+                }
+            }
+            else
+            {
+                flickChargeIndicator.UpdateChargeValue(0);
+            }
+        }
+
+        // Timer before the marble can move again after a flick
+        if (flickMovementLockoutTimer > 0)
+        {
+            flickMovementLockoutTimer -= Time.deltaTime;
+        }
+
         if (chargingFlick) {
 
-            drawTrajectory(transform.position, movementInput, FLICK_FORCE);
+            DrawTrajectory(transform.position, movementInput, FLICK_FORCE[flickChargeLevel]);
 
         } else {
 
             // Clear the trajectory line when not charging a flick
             lineRenderer.positionCount = 0;
 
-            // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
-            if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
+            // REGULAR MOVEMENT
+            // Only allow movement if the marble is not locked out from flicking
+            if (flickMovementLockoutTimer <= 0 && movementInput.x != 0)
             {
-                rb.AddForce(Vector2.right * ACCELERATION);
-            }
-            else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
-            {
-                rb.AddForce(Vector2.left * ACCELERATION);
+                // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
+                if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
+                {
+                    rb.AddForce(Vector2.right * ACCELERATION);
+                }
+                else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
+                {
+                    rb.AddForce(Vector2.left * ACCELERATION);
+                }
+
+                // Moving resets momentum to zero
+                momentum = 0;
             }
         }
     }
@@ -104,6 +227,10 @@ public class MarbleController : MonoBehaviour
 
     public void MovementInput(Vector2 input)
     {
+
+        // Don't allow movement if the marble is locked out from flicking
+        if (!chargingFlick && flickMovementLockoutTimer > 0) return;
+
         if (input != Vector2.zero)
         {
             movementInput = input.normalized;
@@ -139,6 +266,7 @@ public class MarbleController : MonoBehaviour
         chargingFlick = true;
         rb.linearVelocity *= FLICK_SLOWDOWN;
         rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
+        flickChargeLevel = 0;
     }
 
     public void ReleaseFlick()
@@ -147,11 +275,22 @@ public class MarbleController : MonoBehaviour
 
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 1;
-        rb.AddForce(movementInput * FLICK_FORCE, ForceMode2D.Impulse);
+        rb.AddForce(movementInput * FLICK_FORCE[flickChargeLevel], ForceMode2D.Impulse);
         chargingFlick = false;
 
         // Reset the flick direction buffer
         movementInput = Vector2.zero;
+
+        // Lock the marble out of movement for a short time after a flick
+        flickMovementLockoutTimer = FLICK_MOVEMENT_LOCKOUT;
+
+        // Set the marble's momentum (temporary value until we add flick charge levels)
+        momentum = FLICK_MOMENTUM[flickChargeLevel];
+
+        // Reset the flick charge
+        flickChargeTimer = 0;
+        flickChargeLevel = -1;
+        flickChargeIndicator.UpdateChargeValue(0);
     }
 
     // Collision Methods
@@ -163,11 +302,76 @@ public class MarbleController : MonoBehaviour
         {
             canJump = true;
         }
+
+        // On collision with a kill zone
+        if (collision.gameObject.CompareTag("KillZone"))
+        {
+            // TODO: Code for respawning goes here !!!
+        }
+
+        // On collision with another marble
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Transform otherTransform = collision.gameObject.transform;
+            MarbleController otherMarbleController = collision.gameObject.GetComponent<MarbleController>();
+            // Get the marbles' effective momentum
+            float effectiveMomentum = GetEffectiveMomentum(otherTransform.position);
+            float enemyMomentum = otherMarbleController.GetEffectiveMomentum(transform.position);
+
+            // Determine which marble is the attacker and which is the defender
+            // The attacker is the marble with the higher effective momentum
+
+            if (effectiveMomentum > enemyMomentum)
+            {
+                // This marble is the attacker
+                rb.linearVelocity = Vector2.zero;
+                float force = 5f;
+                rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
+            }
+            else if (effectiveMomentum == enemyMomentum)
+            {
+                // Both marbles are equally strong so they just bounce back
+                rb.linearVelocity = Vector2.zero;
+                rb.AddForce((transform.position - otherTransform.position).normalized * EQUAL_MOMENTUM_SCALE_FACTOR, ForceMode2D.Impulse);
+            }
+            else
+            {
+                // The other marble is the attacker
+                rb.linearVelocity = Vector2.zero;
+                float momentumDifference = enemyMomentum - effectiveMomentum;
+                float force = momentumDifference * 1.5f;
+                rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
+            }
+
+            // Set a flag to reset momentum on the next update
+            resetMomentumNextUpdate = true;
+        }
     }
 
+    public float GetEffectiveMomentum(Vector3 otherPosition)
+    {
+        return Mathf.Max(0f, momentum * Vector2.Dot(movementDirection, (otherPosition - transform.position).normalized));
+    }
+
+    public void ApplyPowerup(PowerupEffect powerup)
+    {
+        hasPowerup = true;
+        StartCoroutine(PowerupCoroutine(powerup));
+    }
+
+    private IEnumerator PowerupCoroutine(PowerupEffect powerup)
+    {
+        powerup.Apply(this);
+
+        // wait for effect to finish
+        yield return new WaitForSeconds(powerup.duration);
+        hasPowerup = false;
+        powerup.Remove(this);
+    }
+    
     // Drawing the flick trajectory
 
-    private void drawTrajectory(Vector2 start, Vector2 direction, float force)
+    private void DrawTrajectory(Vector2 start, Vector2 direction, float force)
     {
 
         // Clear line if not pointing in a direction
@@ -192,6 +396,13 @@ public class MarbleController : MonoBehaviour
             velocity += Physics2D.gravity * time;
             time += timeStep;
         }
+    }
+
+    // Getters and Setters
+
+    public float GetMomentum()
+    {
+        return momentum;
     }
 
 }
