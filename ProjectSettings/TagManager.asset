@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Ground
   - PowerupSpawnPoint
+  - KillZone
   layers:
   - Default
   - TransparentFX
