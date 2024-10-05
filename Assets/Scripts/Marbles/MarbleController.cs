@@ -301,7 +301,7 @@ public class MarbleController : MonoBehaviour
         // On collision with a kill zone
         if (collision.gameObject.CompareTag("KillZone"))
         {
-            Debug.Log(name + " died");
+            // TODO: Code for respawning goes here !!!
         }
 
         // On collision with another marble
