@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
+using UnityEngine.InputSystem;
 
 public class MarbleController : MonoBehaviour
 {
@@ -403,6 +405,31 @@ public class MarbleController : MonoBehaviour
     public float GetMomentum()
     {
         return momentum;
+    }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        this.MovementInput(context.ReadValue<Vector2>());
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            this.Jump();
+        }
+    }
+
+    public void OnFlick(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            this.StartChargingFlick();
+        }
+        else if (context.canceled)
+        {
+            this.ReleaseFlick();
+        }
     }
 
 }

@@ -380,7 +380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c9d5c06ca86c14482003440a450263, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  marblePrefab: {fileID: 6756715709604684513, guid: 9be4a5168013e6440844c5ef6c67fda5, type: 3}
+  marblePrefab: {fileID: 7077144143077462397, guid: 5a42565d9c449a84e946d81f73658357, type: 3}
 --- !u!4 &759881215
 Transform:
   m_ObjectHideFlags: 0
@@ -521,6 +521,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1576648909}
   - component: {fileID: 1576648908}
+  - component: {fileID: 1576648910}
   m_Layer: 0
   m_Name: Player Manager
   m_TagString: Untagged
@@ -547,9 +548,9 @@ MonoBehaviour:
   m_PlayerJoinedEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1434760051}
-        m_TargetAssemblyTypeName: PlayerJoin, Assembly-CSharp
-        m_MethodName: newPlayerJoin
+      - m_Target: {fileID: 1576648910}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: OnPlayerJoined
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -602,7 +603,7 @@ MonoBehaviour:
         m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
-  m_PlayerPrefab: {fileID: 2158745739888785759, guid: 84bb04654d9d94e45af8ecee802e8b01, type: 3}
+  m_PlayerPrefab: {fileID: 7186582236043504616, guid: 9be4a5168013e6440844c5ef6c67fda5, type: 3}
   m_SplitScreen: 0
   m_MaintainAspectRatioInSplitScreen: 0
   m_FixedNumberOfSplitScreens: -1
@@ -627,6 +628,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1576648910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576648907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b4065c43d4f7a8459249749951d579f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4455258927691120840
 PrefabInstance:
   m_ObjectHideFlags: 0
