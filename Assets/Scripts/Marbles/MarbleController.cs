@@ -321,6 +321,8 @@ public class MarbleController : MonoBehaviour
             float effectiveMomentum = GetEffectiveMomentum(otherTransform.position);
             float enemyMomentum = otherMarbleController.GetEffectiveMomentum(transform.position);
 
+            float force = 0f;
+
             // Determine which marble is the attacker and which is the defender
             // The attacker is the marble with the higher effective momentum
 
@@ -328,23 +330,25 @@ public class MarbleController : MonoBehaviour
             {
                 // This marble is the attacker
                 rb.linearVelocity = Vector2.zero;
-                float force = 5f;
-                rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
+                force = 5f;
             }
             else if (effectiveMomentum == enemyMomentum)
             {
                 // Both marbles are equally strong so they just bounce back
                 rb.linearVelocity = Vector2.zero;
-                rb.AddForce((transform.position - otherTransform.position).normalized * EQUAL_MOMENTUM_SCALE_FACTOR, ForceMode2D.Impulse);
+                force = EQUAL_MOMENTUM_SCALE_FACTOR;
             }
             else
             {
                 // The other marble is the attacker
                 rb.linearVelocity = Vector2.zero;
-                float momentumDifference = enemyMomentum - effectiveMomentum;
-                float force = momentumDifference * 1.5f;
-                rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
+
+                force = (enemyMomentum - effectiveMomentum) * 1.5f;
             }
+
+            // Apply the force
+            force /= 1 + stats["KNOCKBACK_RESISTANCE"];
+            rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 
             // Set a flag to reset momentum on the next update
             resetMomentumNextUpdate = true;
