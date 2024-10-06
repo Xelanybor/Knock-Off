@@ -12,6 +12,9 @@ public class MarbleController : MonoBehaviour
 
     // Constants
 
+    private float DASH_DISTANCE = 1f; // Distance the marble dashes
+    private float DASH_COOLDOWN = 1f; // Multiplier for the time it takes to recharge the dash
+
     private float MAX_SPEED = 5f; // Maximum speed the marble can reach
     private float ACCELERATION = 10f; // Force added to the marble to move it
     private float JUMP_FORCE = 5f; // Force added to the marble to make it jump
@@ -56,12 +59,12 @@ public class MarbleController : MonoBehaviour
     private Dictionary<string, float> stats = new Dictionary<string, float> {
         // Dashing
         {"DASH_DISTANCE", 1f},
-        {"DASH_RECHARGE_TIME_MULTIPLIER", 1f},
+        {"DASH_COOLDOWN_MULTIPLIER", 1f},
 
         // Movement
-        {"MAX_SPEED", 5f},
-        {"ACCELERATION", 10f},
-        {"JUMP_FORCE", 5f},
+        {"MAX_SPEED_MULTIPLIER", 1f},
+        {"ACCELERATION_MULTIPLIER", 1f},
+        {"JUMP_FORCE_MULTIPLIER", 1f},
 
         // Flicks
         {"FLICK_CHARGE_SPEED_MULTIPLIER", 1f},
@@ -175,7 +178,7 @@ public class MarbleController : MonoBehaviour
                 // Update the charge indicator
                 flickChargeIndicator.UpdateChargeValue(Mathf.InverseLerp(FLICK_CHARGE_TIMES[flickChargeLevel], FLICK_CHARGE_TIMES[flickChargeLevel + 1], flickChargeTimer));
 
-                flickChargeTimer += Time.deltaTime;
+                flickChargeTimer += Time.deltaTime * stats["FLICK_CHARGE_SPEED_MULTIPLIER"];
                 // Increase the flick charge level if the timer reaches the next level
                 if (flickChargeTimer >= FLICK_CHARGE_TIMES[flickChargeLevel + 1])
                 {
@@ -196,7 +199,7 @@ public class MarbleController : MonoBehaviour
 
         if (chargingFlick) {
 
-            DrawTrajectory(transform.position, movementInput, FLICK_FORCE[flickChargeLevel]);
+            DrawTrajectory(transform.position, movementInput, FLICK_FORCE[flickChargeLevel] * stats["FLICK_FORCE_MULTIPLIER"]);
 
         } else {
 
@@ -208,13 +211,13 @@ public class MarbleController : MonoBehaviour
             if (flickMovementLockoutTimer <= 0 && movementInput.x != 0)
             {
                 // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
-                if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED)
+                if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED * stats["MAX_SPEED_MULTIPLIER"])
                 {
-                    rb.AddForce(Vector2.right * ACCELERATION);
+                    rb.AddForce(Vector2.right * ACCELERATION * stats["ACCELERATION_MULTIPLIER"]);
                 }
-                else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED)
+                else if (movementInput.x < 0 && rb.linearVelocity.x > -MAX_SPEED * stats["MAX_SPEED_MULTIPLIER"])
                 {
-                    rb.AddForce(Vector2.left * ACCELERATION);
+                    rb.AddForce(Vector2.left * ACCELERATION * stats["ACCELERATION_MULTIPLIER"]);
                 }
 
                 // Moving resets momentum to zero
@@ -257,7 +260,7 @@ public class MarbleController : MonoBehaviour
 
         // Reset the vertical velocity to 0 to make the jump feel snappier
         rb.linearVelocityY = 0;
-        rb.AddForce(Vector2.up * JUMP_FORCE, ForceMode2D.Impulse);
+        rb.AddForce(Vector2.up * JUMP_FORCE * stats["JUMP_FORCE_MULTIPLIER"], ForceMode2D.Impulse);
         canJump = false;
     }
 
@@ -275,7 +278,7 @@ public class MarbleController : MonoBehaviour
 
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 1;
-        rb.AddForce(movementInput * FLICK_FORCE[flickChargeLevel], ForceMode2D.Impulse);
+        rb.AddForce(movementInput * FLICK_FORCE[flickChargeLevel] * stats["FLICK_FORCE_MULTIPLIER"], ForceMode2D.Impulse);
         chargingFlick = false;
 
         // Reset the flick direction buffer
@@ -285,7 +288,7 @@ public class MarbleController : MonoBehaviour
         flickMovementLockoutTimer = FLICK_MOVEMENT_LOCKOUT;
 
         // Set the marble's momentum (temporary value until we add flick charge levels)
-        momentum = FLICK_MOMENTUM[flickChargeLevel];
+        momentum = FLICK_MOMENTUM[flickChargeLevel] * stats["FLICK_MOMENTUM_MULTIPLIER"];
 
         // Reset the flick charge
         flickChargeTimer = 0;
