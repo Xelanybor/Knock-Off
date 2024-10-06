@@ -38,22 +38,22 @@ public class MarbleController : MonoBehaviour
     // Game Variables
     public int stockCount = 3; // Default stock count for the player.
 
-    // flick bar event stuff
-    public event EventHandler<OnFlickBarIncrementEventArgs> OnProgressIncrement;
-    public event EventHandler<OnFlickBarCharge> OnProgressCharge;
-    public event EventHandler<OnFlickBarCharge> OnRelease;
-    public event EventHandler<OnFlickBarDecrementEventArgs> OnProgressDecrement;
-    public class OnFlickBarIncrementEventArgs : EventArgs
+    // events for communicating and updating flick bar
+    public event EventHandler<OnIncrementEventArgs> OnIncrement;        // increment over time
+    public event EventHandler<OnFlickBarCharge> OnCharge;               // when flicking held
+    public event EventHandler<OnDecrementEventArgs> OnDecrement;        // when flick release update bar
+    public class OnIncrementEventArgs : EventArgs
     {
-        public float progressNormalized;
+        public float progress;              // one for continuous fill 
+        public float progressNormalized;    // one for incremental fill
     }
     public class OnFlickBarCharge: EventArgs
     {
         public int chargeLevel;
     }
-    public class OnFlickBarDecrementEventArgs : EventArgs
+    public class OnDecrementEventArgs : EventArgs
     {
-        public float progressNormalized;
+        public float chargeLevel;       // to decrement by
     }
 
 
@@ -201,7 +201,7 @@ public class MarbleController : MonoBehaviour
                 {
                     ++flickChargeLevel;
                     // invoke update for flick charge level UI
-                    OnProgressCharge?.Invoke(this, new OnFlickBarCharge
+                    OnCharge?.Invoke(this, new OnFlickBarCharge
                     {
                         chargeLevel = flickChargeLevel + 1
                     });
@@ -294,7 +294,7 @@ public class MarbleController : MonoBehaviour
         flickChargeLevel = 0;
 
         // invoke update for flick charge level UI
-        OnProgressCharge?.Invoke(this, new OnFlickBarCharge
+        OnCharge?.Invoke(this, new OnFlickBarCharge
         {
             chargeLevel = 1
         });
@@ -323,8 +323,8 @@ public class MarbleController : MonoBehaviour
         flickChargeLevel = -1;
         flickChargeIndicator.UpdateChargeValue(0);
         // invoke update for flick charge level UI
-        OnProgressCharge?.Invoke(this, new OnFlickBarCharge
-        {
+        OnCharge?.Invoke(this, new OnFlickBarCharge
+        {   
             chargeLevel = 0
         });
     }

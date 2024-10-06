@@ -18,7 +18,7 @@ public class flickBarUI : MonoBehaviour
         playerTransform = player.transform;
 
         incrementBar.fillAmount = 0.0f;
-        player.OnProgressCharge += Player_OnProgressCharge;
+        player.OnCharge += Player_OnCharge;
         chargeBar.sprite = chargeSprites[0];
         // Store the initial local position and rotation
         fixedRotation = Quaternion.identity;
@@ -30,7 +30,7 @@ public class flickBarUI : MonoBehaviour
         transform.position = playerTransform.position + worldOffset;
     }
 
-    private void Player_OnProgressCharge(object sender, MarbleController.OnFlickBarCharge e)
+    private void Player_OnCharge(object sender, MarbleController.OnFlickBarCharge e)
     {
         chargeBar.sprite = chargeSprites[e.chargeLevel];
     }
