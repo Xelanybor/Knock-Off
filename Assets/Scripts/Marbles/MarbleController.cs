@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System;
 using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.InputSystem;
 
@@ -37,6 +38,23 @@ public class MarbleController : MonoBehaviour
     // Game Variables
     public int stockCount = 3; // Default stock count for the player.
 
+    // flick bar event stuff
+    public event EventHandler<OnFlickBarIncrementEventArgs> OnProgressIncrement;
+    public event EventHandler<OnFlickBarCharge> OnProgressCharge;
+    public event EventHandler<OnFlickBarCharge> OnRelease;
+    public event EventHandler<OnFlickBarDecrementEventArgs> OnProgressDecrement;
+    public class OnFlickBarIncrementEventArgs : EventArgs
+    {
+        public float progressNormalized;
+    }
+    public class OnFlickBarCharge: EventArgs
+    {
+        public int chargeLevel;
+    }
+    public class OnFlickBarDecrementEventArgs : EventArgs
+    {
+        public float progressNormalized;
+    }
 
 
     // Interior Values
@@ -182,6 +200,11 @@ public class MarbleController : MonoBehaviour
                 if (flickChargeTimer >= FLICK_CHARGE_TIMES[flickChargeLevel + 1])
                 {
                     ++flickChargeLevel;
+                    // invoke update for flick charge level UI
+                    OnProgressCharge?.Invoke(this, new OnFlickBarCharge
+                    {
+                        chargeLevel = flickChargeLevel + 1
+                    });
                 }
             }
             else
@@ -269,6 +292,12 @@ public class MarbleController : MonoBehaviour
         rb.linearVelocity *= FLICK_SLOWDOWN;
         rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
         flickChargeLevel = 0;
+
+        // invoke update for flick charge level UI
+        OnProgressCharge?.Invoke(this, new OnFlickBarCharge
+        {
+            chargeLevel = 1
+        });
     }
 
     public void ReleaseFlick()
@@ -293,6 +322,11 @@ public class MarbleController : MonoBehaviour
         flickChargeTimer = 0;
         flickChargeLevel = -1;
         flickChargeIndicator.UpdateChargeValue(0);
+        // invoke update for flick charge level UI
+        OnProgressCharge?.Invoke(this, new OnFlickBarCharge
+        {
+            chargeLevel = 0
+        });
     }
 
     // Collision Methods
