@@ -28,6 +28,9 @@ public class MarbleController : MonoBehaviour
 
     private float EQUAL_MOMENTUM_SCALE_FACTOR = 5f; // How much the marbles bounce back when they have equal momentum
 
+    private float PERCENTAGE_SCALE = 2f; // The knockback multiplier at 100% damage
+    private float DAMAGE_TO_PERCENTAGE = 3f; // Percentage gained per damage taken (momentum difference)
+
     // State Variables
 
     private bool canJump = true; // Self-explanatory ngl if you don't know what this does you may be stupid
@@ -53,6 +56,8 @@ public class MarbleController : MonoBehaviour
     private float momentum = 0;
 
     private Vector3 movementDirection = Vector3.zero; // Buffer for rb.linearVelocity, used for calculations as it's only updated once a frame
+
+    private float percentage = 0f; // Percentage (knockback modifier)
 
     // MODIFIABLE STATS
 
@@ -321,7 +326,9 @@ public class MarbleController : MonoBehaviour
             float effectiveMomentum = GetEffectiveMomentum(otherTransform.position);
             float enemyMomentum = otherMarbleController.GetEffectiveMomentum(transform.position);
 
-            float force = 0f;
+            float force;
+
+            float oldPercentage = percentage; // Save the old value for later calculations since the percentage might change if damage is taken
 
             // Determine which marble is the attacker and which is the defender
             // The attacker is the marble with the higher effective momentum
@@ -344,10 +351,14 @@ public class MarbleController : MonoBehaviour
                 rb.linearVelocity = Vector2.zero;
 
                 force = (enemyMomentum - effectiveMomentum) * 1.5f;
+
+                // Apply damage to the marble
+                percentage += (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE; // FIX THIS
             }
 
             // Apply the force
-            force /= 1 + stats["KNOCKBACK_RESISTANCE"];
+            force *= Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f); // Apply percentage modifier
+            force /= 1 + stats["KNOCKBACK_RESISTANCE"]; // Apply knockback resistance
             rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 
             // Set a flag to reset momentum on the next update
