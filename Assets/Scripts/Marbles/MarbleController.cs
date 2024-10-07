@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System;
 using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.InputSystem;
 
@@ -27,6 +28,8 @@ public class MarbleController : MonoBehaviour
     private float FLICK_SLOWDOWN = 0.1f; // Slowdown applied to the flick force when the marble is charging it
     private float FLICK_BUFFER_TIME = 0.2f; // How long the flick direction is remembered after the joystick is released
     private float FLICK_MOVEMENT_LOCKOUT = 0.5f; // How long the marble is locked out of movement after a flick
+    private float[] FLICK_CHARGE_COSTS = { 0f, 1f, 2f, 3f};  // Energy cost per charge level
+    public int FLICK_COUNT_MAX = 3;
 
     private float EQUAL_MOMENTUM_SCALE_FACTOR = 5f; // How much the marbles bounce back when they have equal momentum
 
@@ -43,6 +46,22 @@ public class MarbleController : MonoBehaviour
     // Game Variables
     public int stockCount = 3; // Default stock count for the player.
 
+    // Flick Counter variables
+    private float flickCounter = 0f;            // Current flick energy
+    public float flickCounterMax = 5f;         // Maximum flick energy
+    public float flickCounterRegenRate = 1f;   // Energy regenerated per second
+
+    // Events for communicating and updating flick bar
+    public event EventHandler<OnUpdateEventArgs> OnEnergyUpdate;        // increment over time and decrement when release flick
+    public event EventHandler<OnFlickBarCharge> OnCharge;               // when flicking held
+    public class OnUpdateEventArgs : EventArgs
+    {
+        public float progressNormalized;
+    }
+    public class OnFlickBarCharge: EventArgs
+    {
+        public int chargeLevel;
+    }
 
 
     // Interior Values
@@ -174,13 +193,28 @@ public class MarbleController : MonoBehaviour
             {
                 flickBufferTimer -= Time.deltaTime;
             }
-            
+        }
+
+        // flick energy level updating
+        if (flickCounter < flickCounterMax)
+        {
+            flickCounter += flickCounterRegenRate * Time.deltaTime; // increment
+            if (flickCounter > flickCounterMax)
+            {
+                flickCounter = flickCounterMax;
+            }
+
+            // update UI
+            OnEnergyUpdate?.Invoke(this, new OnUpdateEventArgs
+            {
+                progressNormalized = flickCounter / flickCounterMax
+            });
         }
 
         // Charge the flick if the marble is charging it and the charge level is not maxed out
         if (flickChargeLevel != -1)
         {
-            if (flickChargeLevel < FLICK_FORCE.Length - 1)
+            if (flickChargeLevel < FLICK_COUNT_MAX - 1)
             {
                 // Update the charge indicator
                 flickChargeIndicator.UpdateChargeValue(Mathf.InverseLerp(FLICK_CHARGE_TIMES[flickChargeLevel], FLICK_CHARGE_TIMES[flickChargeLevel + 1], flickChargeTimer));
@@ -190,6 +224,11 @@ public class MarbleController : MonoBehaviour
                 if (flickChargeTimer >= FLICK_CHARGE_TIMES[flickChargeLevel + 1])
                 {
                     ++flickChargeLevel;
+                    // invoke update for flick charge level UI
+                    OnCharge?.Invoke(this, new OnFlickBarCharge
+                    {
+                        chargeLevel = flickChargeLevel + 1
+                    });
                 }
             }
             else
@@ -205,9 +244,7 @@ public class MarbleController : MonoBehaviour
         }
 
         if (chargingFlick) {
-
             DrawTrajectory(transform.position, movementInput, FLICK_FORCE[flickChargeLevel] * stats["FLICK_FORCE_MULTIPLIER"]);
-
         } else {
 
             // Clear the trajectory line when not charging a flick
@@ -273,15 +310,38 @@ public class MarbleController : MonoBehaviour
 
     public void StartChargingFlick()
     {
+        if (flickCounter < FLICK_CHARGE_COSTS[1])
+        {
+            // if flick energy less than 1 charge can't start charging flick
+            return;
+        }
         chargingFlick = true;
         rb.linearVelocity *= FLICK_SLOWDOWN;
         rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
         flickChargeLevel = 0;
+
+        // invoke update for flick charge level UI
+        OnCharge?.Invoke(this, new OnFlickBarCharge
+        {
+            chargeLevel = 1
+        });
     }
 
     public void ReleaseFlick()
     {
         if (!chargingFlick) return;
+
+        // decrement flickCounter by the cost of the charge
+        float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];
+        flickCounter -= cost;
+        if (flickCounter < 0)
+            flickCounter = 0;
+
+        // update flickbar UI
+        OnEnergyUpdate?.Invoke(this, new OnUpdateEventArgs
+        {
+            progressNormalized = flickCounter / flickCounterMax
+        });
 
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 1;
@@ -301,6 +361,11 @@ public class MarbleController : MonoBehaviour
         flickChargeTimer = 0;
         flickChargeLevel = -1;
         flickChargeIndicator.UpdateChargeValue(0);
+        // invoke update for flick charge level UI
+        OnCharge?.Invoke(this, new OnFlickBarCharge
+        {   
+            chargeLevel = 0
+        });
     }
 
     // Collision Methods
