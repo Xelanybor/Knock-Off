@@ -472,7 +472,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flickTrajectoryShader: {fileID: -6465566751694194690, guid: 1fb274543548e4d4a818ba4a954dcd29, type: 3}
+  FLICK_COUNT_MAX: 3
   stockCount: 3
+  flickCounterMax: 5
+  flickCounterRegenRate: 0.5
   hasPowerup: 0
 --- !u!114 &-2506996155117427033
 MonoBehaviour:

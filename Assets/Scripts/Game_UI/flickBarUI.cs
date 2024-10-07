@@ -5,7 +5,8 @@ public class flickBarUI : MonoBehaviour
 {
     private MarbleController player;
     [SerializeField] private Image chargeBar;       // actually the border for charge increments
-    [SerializeField] private Image incrementBar;    // for incrementing the charges over time
+    [SerializeField] private Image incrementBar;    // for incrementing the charges in intervals
+    //[SerializeField] private Image contBar;         // for increm the charges over time
     [SerializeField] private Sprite[] chargeSprites;    // list of sprites for charging
 
     [SerializeField] private Vector3 worldOffset = new Vector3(0, 0, 0);
@@ -18,10 +19,19 @@ public class flickBarUI : MonoBehaviour
         playerTransform = player.transform;
 
         incrementBar.fillAmount = 0.0f;
+        // bind events
         player.OnCharge += Player_OnCharge;
+        player.OnEnergyUpdate += Player_OnEnergyUpdate;
+
         chargeBar.sprite = chargeSprites[0];
+        
         // Store the initial local position and rotation
         fixedRotation = Quaternion.identity;
+    }
+
+    private void Player_OnEnergyUpdate(object sender, MarbleController.OnUpdateEventArgs e)
+    {
+        incrementBar.fillAmount = e.progressNormalized;
     }
 
     void LateUpdate()
