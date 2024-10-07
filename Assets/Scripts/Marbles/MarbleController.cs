@@ -15,8 +15,8 @@ public class MarbleController : MonoBehaviour
 
     // Constants
 
-    private float DASH_DISTANCE = 1f; // Distance the marble dashes
-    private float DASH_COOLDOWN = 1f; // Multiplier for the time it takes to recharge the dash
+    private float DASH_DISTANCE = 2f; // Distance the marble dashes
+    private float DASH_TIME = 0.1f; // Time the dash lasts
 
     private float MAX_SPEED = 5f; // Maximum speed the marble can reach
     private float ACCELERATION = 10f; // Force added to the marble to move it
@@ -74,6 +74,10 @@ public class MarbleController : MonoBehaviour
     private int flickChargeLevel = -1; // The current charge level of the flick. -1 means the marble is not flicking
     private float flickChargeTimer = 0; // Timer for how long the flick has been charging
 
+    private float dashTimer = 0; // Timer for how long the marble has been dashing
+    private bool canDash = true; // If the marble can dash
+    private Vector3 dashVelocity = Vector3.zero; // Velocity of the marble during the dash
+
     private float momentum = 0;
 
     private Vector3 movementDirection = Vector3.zero; // Buffer for rb.linearVelocity, used for calculations as it's only updated once a frame
@@ -84,8 +88,7 @@ public class MarbleController : MonoBehaviour
 
     private Dictionary<string, float> stats = new Dictionary<string, float> {
         // Dashing
-        {"DASH_DISTANCE", 1f},
-        {"DASH_COOLDOWN_MULTIPLIER", 1f},
+        {"DASH_TIME_MULTIPLIER", 1f},
 
         // Movement
         {"MAX_SPEED_MULTIPLIER", 1f},
@@ -237,11 +240,29 @@ public class MarbleController : MonoBehaviour
             }
         }
 
+        // DASHING
+
         // Timer before the marble can move again after a flick
         if (flickMovementLockoutTimer > 0)
         {
             flickMovementLockoutTimer -= Time.deltaTime;
         }
+
+        // Time that the marble is busy dashing for
+        if (dashTimer > 0)
+        {
+            dashTimer -= Time.deltaTime;
+            rb.linearVelocity = dashVelocity;
+
+            if (dashTimer <= 0)
+            {
+                rb.gravityScale = 1;
+                rb.linearVelocity /= 2 * stats["DASH_TIME_MULTIPLIER"];
+            }
+
+        }
+
+        // REGULAR MOVEMENT
 
         if (chargingFlick) {
             DrawTrajectory(transform.position, movementInput, FLICK_FORCE[flickChargeLevel] * stats["FLICK_FORCE_MULTIPLIER"]);
@@ -252,7 +273,7 @@ public class MarbleController : MonoBehaviour
 
             // REGULAR MOVEMENT
             // Only allow movement if the marble is not locked out from flicking
-            if (flickMovementLockoutTimer <= 0 && movementInput.x != 0)
+            if (flickMovementLockoutTimer <= 0 && movementInput.x != 0 && dashTimer <= 0)
             {
                 // Marble Movement works by adding force to the Rigidbody2D if the marble is not at max speed already
                 if (movementInput.x > 0 && rb.linearVelocity.x < MAX_SPEED * stats["MAX_SPEED_MULTIPLIER"])
@@ -368,6 +389,21 @@ public class MarbleController : MonoBehaviour
         });
     }
 
+    public void Dash()
+    {
+        if (!canDash) return;
+
+        dashTimer = DASH_TIME * stats["DASH_TIME_MULTIPLIER"];
+        canDash = false;
+
+        // Calculate the dash velocity (movementInput is already normalized)
+        dashVelocity = movementInput * DASH_DISTANCE / dashTimer;
+        rb.gravityScale = 0;
+        rb.linearVelocity = dashVelocity;
+        momentum = 0;
+
+    }
+
     // Collision Methods
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -376,6 +412,7 @@ public class MarbleController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             canJump = true;
+            canDash = true;
         }
 
         // On collision with a kill zone
@@ -512,6 +549,14 @@ public class MarbleController : MonoBehaviour
         else if (context.canceled)
         {
             this.ReleaseFlick();
+        }
+    }
+
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            this.Dash();
         }
     }
 
