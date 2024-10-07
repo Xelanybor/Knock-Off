@@ -12,6 +12,8 @@ public class flickBarUI : MonoBehaviour
     [SerializeField] private Vector3 worldOffset = new Vector3(0, 0, 0);
     private Transform playerTransform;
     private Quaternion fixedRotation;
+
+    public Color borderColour;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
