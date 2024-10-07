@@ -17,7 +17,7 @@ public class MarbleController : MonoBehaviour
 
     private float MAX_SPEED = 5f; // Maximum speed the marble can reach
     private float ACCELERATION = 10f; // Force added to the marble to move it
-    private float JUMP_FORCE = 5f; // Force added to the marble to make it jump
+    private float JUMP_FORCE = 7f; // Force added to the marble to make it jump
 
     private float [] FLICK_FORCE = {10f, 20f, 30f}; // Force added to the marble to make it flick, for different charge levels
     private float [] FLICK_CHARGE_TIMES = {0, 0.5f, 2.5f}; // Time needed to charge the flick for different charge levels
@@ -353,12 +353,12 @@ public class MarbleController : MonoBehaviour
                 force = (enemyMomentum - effectiveMomentum) * 1.5f;
 
                 // Apply damage to the marble
-                percentage += (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE; // FIX THIS
+                percentage += (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
             }
 
             // Apply the force
             force *= Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f); // Apply percentage modifier
-            force /= 1 + stats["KNOCKBACK_RESISTANCE"]; // Apply knockback resistance
+            force /= 1 + stats["KNOCKBACK_RESISTANCE"] - otherMarbleController.GetStat("EXTRA_KNOCKBACK_DEALT"); // Apply knockback resistance
             rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 
             // Set a flag to reset momentum on the next update
