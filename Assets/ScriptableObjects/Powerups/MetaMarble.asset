@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbef858e0acb2f148b5471e930d50d28, type: 3}
   m_Name: MetaMarble
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2109847022893814344, guid: 38c96990a7001b14aab954d87e377251, type: 3}
+  prefab: {fileID: 2109847022893814344, guid: 8ff22e713adea984f90dfe4b16a43ed0, type: 3}
   duration: 10
   damageBoost: 1

@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f28908c4623f85342a4776a6c225dd15, type: 3}
-  m_Name: SpeedBoost
+  m_Script: {fileID: 11500000, guid: 79a02aef9ed35cf49a36c5f56092a359, type: 3}
+  m_Name: BigMarble
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2109847022893814344, guid: cdf4ec09841abf14a850ddb05d965bd3, type: 3}
-  duration: 10
-  speedBoost: 1
+  prefab: {fileID: 2109847022893814344, guid: 38c96990a7001b14aab954d87e377251, type: 3}
+  duration: 0

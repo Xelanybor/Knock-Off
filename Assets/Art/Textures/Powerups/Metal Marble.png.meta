@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2f08d99650e10de47bb7a5717edb0f4b
+guid: 320025192813fc140bf62fea86a6ecfe
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9164359298635338950
-    second: triangle_0
+      213: 5762889656433651259
+    second: Metal Marble_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: triangle_0
+      name: Metal Marble_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 493
-        height: 143
+        width: 256
+        height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6c4153d2a385e2f70800000000000000
-      internalID: 9164359298635338950
+      spriteID: b3e20830c95e9ff40800000000000000
+      internalID: 5762889656433651259
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      triangle_0: 9164359298635338950
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
