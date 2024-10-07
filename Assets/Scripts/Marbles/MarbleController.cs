@@ -36,6 +36,10 @@ public class MarbleController : MonoBehaviour
 
     // Game Variables
     public int stockCount = 3; // Default stock count for the player.
+    public int spriteIndex = 0;
+    public bool ready = true;
+    public bool match_can_begin = false;
+    public bool start_match = false;
 
 
 
@@ -431,5 +435,42 @@ public class MarbleController : MonoBehaviour
             this.ReleaseFlick();
         }
     }
+
+    public void OnChangeSkin(InputAction.CallbackContext context)
+    {
+        // Happens on left right during UI
+        if (!ready)
+        {
+            spriteIndex = (spriteIndex + 1) % 2;
+        }
+    }
+
+    public void OnAmReady(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            ready = true;
+            if (match_can_begin)
+            {
+                start_match = true;
+            }
+        }
+    }
+
+    public void OnAmNotReady(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            ready = false;
+            start_match = false;
+            match_can_begin = false;
+        }
+    }
+
+
+
+
+
+
 
 }
