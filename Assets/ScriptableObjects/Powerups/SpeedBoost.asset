@@ -12,6 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f28908c4623f85342a4776a6c225dd15, type: 3}
   m_Name: SpeedBoost
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2109847022893814344, guid: 6b29cb193e948ee4a9deeea772541e36, type: 3}
+  prefab: {fileID: 2109847022893814344, guid: cdf4ec09841abf14a850ddb05d965bd3, type: 3}
   duration: 10
-  speedBoost: 1

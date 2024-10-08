@@ -1,19 +1,14 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(menuName = "Powerups/SpeedBoostEffect")]
 public class SpeedBoostEffect : PowerupEffect
 {
-    public float speedBoost;
-
-    public override void Apply(MarbleController target)
+    public void OnEnable()
     {
-        // Debug.Log("Speed boost applied!");
-        // target.moveSpeed += speedBoost;
-    }
-
-    public override void Remove(MarbleController target)
-    {
-        // Debug.Log("Speed boost removed!");
-        // target.moveSpeed -= speedBoost;
+        statModifier = new Dictionary<string, float>{
+            {"MAX_SPEED_MULTIPLIER", 2f},
+            {"JUMP_FORCE_MULTIPLIER", 2f }
+        };
     }
 }

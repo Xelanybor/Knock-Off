@@ -1,20 +1,13 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(menuName = "Powerups/MetalMarbleEffect")]
 public class MetalMarbleEffect : PowerupEffect
 {
-    public float damageBoost;
-
-    public override void Apply(MarbleController target)
+    public void OnEnable()
     {
-        // Debug.Log("Metal marble applied!");
-
-        // player.damage += damageBoost;
-    }
-
-    public override void Remove(MarbleController target)
-    {
-        // Debug.Log("Metal marble removed!");
-        // player.damage -= damageBoost;
+        statModifier = new Dictionary<string, float>{
+            {"EXTRA_PERCENTAGE_DAMAGE_DEALT", 1f}
+        };
     }
 }
