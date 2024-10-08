@@ -523,7 +523,7 @@ GameObject:
   - component: {fileID: 1576648908}
   - component: {fileID: 1576648910}
   m_Layer: 0
-  m_Name: Player Manager
+  m_Name: Game Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -640,6 +640,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b4065c43d4f7a8459249749951d579f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  botController: {fileID: 0}
 --- !u!1001 &4455258927691120840
 PrefabInstance:
   m_ObjectHideFlags: 0
