@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      flickBarProgress-0_0: -7829334930397608932
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
