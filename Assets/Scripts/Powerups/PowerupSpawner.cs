@@ -26,7 +26,9 @@ public class PowerUpSpawner : MonoBehaviour
 
     [SerializeField] private AnimationCurve fadeInCurve;
     [SerializeField] private AnimationCurve fadeOutCurve;
-
+    [SerializeField] private AudioClip[] FadeInSounds;
+    [SerializeField] private AudioClip FadeOutSound;
+    [SerializeField] private AudioClip PowerUpDie;
     void Start()
     {
         currentPowerUp = null;
@@ -86,6 +88,7 @@ public class PowerUpSpawner : MonoBehaviour
     {
         float elapsedTime = 0f;
         Color originalColour = powerupRenderer.color + new Color(0f, 0f, 0f, 1f);
+        SoundFXManager.Instance.PlayRandomSoundFXClip(FadeInSounds, gameObject.transform, 0.35f);
 
         // Debug.Log("Powerup spawning...");
 
@@ -112,9 +115,9 @@ public class PowerUpSpawner : MonoBehaviour
     {
         float elapsedTime = 0f;
         Color originalColour = powerupRenderer.color;
-
         // Debug.Log("Powerup blinking.");
         // start blinking for a few seconds
+        SoundFXManager.Instance.PlaySoundFXClip(FadeOutSound, gameObject.transform, 0.2f);
         while (elapsedTime < blinkDestroyDuration)
         {
             if (currentPowerUp != null)
@@ -151,6 +154,7 @@ public class PowerUpSpawner : MonoBehaviour
             powerupRenderer.color = originalColour;
             // Debug.Log("Powerup destroyed");
             Destroy(currentPowerUp);
+            SoundFXManager.Instance.PlaySoundFXClip(PowerUpDie, gameObject.transform, 1f);
         }
         blinking = false;
         idleTime = 0f;
