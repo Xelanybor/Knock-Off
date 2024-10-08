@@ -8,6 +8,7 @@ TagManager:
   - PowerupSpawnPoint
   - KillZone
   - Canvas
+  - PlayerUI
   layers:
   - Default
   - TransparentFX
