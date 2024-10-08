@@ -135,6 +135,7 @@ public class GameManager : MonoBehaviour
 
     private void PaintLobbyUI()
     {
+        return;
         //First, destroy any existing UI elements(this is optional but helps reset the UI)
         foreach (Transform child in GameObject.FindWithTag("Canvas").transform)
         {
