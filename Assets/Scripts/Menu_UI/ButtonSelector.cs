@@ -7,7 +7,7 @@ public class ButtonSelector : MonoBehaviour
 {
     public List<Button> buttonList = new List<Button>();
     private int selectedButtonIndex = 0;
-    private const int NUM_BUTTONS = 2; // Play, Settings, Exit
+    private const int NUM_BUTTONS = 3; // Play, Tutorial, Exit
     private Button activeButton;
     private float lastNavigationTime = 0f;
     private const float NAVIGATION_COOLDOWN = 0.2f; // 0.2f second cooldown
