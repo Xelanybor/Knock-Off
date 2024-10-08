@@ -85,6 +85,10 @@ public class MarbleController : MonoBehaviour
     private float percentage = 0f; // Percentage (knockback modifier)
 
     // Audio
+    [SerializeField] private AudioClip flickSound;
+    //[SerializeField] private AudioClip chargeSound;
+    //[SerializeField] private AudioClip jumpSound;
+    //[SerializeField] private AudioClip[] collisionSounds;
 
 
     // MODIFIABLE STATS
@@ -354,6 +358,7 @@ public class MarbleController : MonoBehaviour
     public void ReleaseFlick()
     {
         if (!chargingFlick) return;
+        SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.5f);
 
         // decrement flickCounter by the cost of the charge
         float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];

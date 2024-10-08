@@ -869,6 +869,10 @@ MonoBehaviour:
   flickCounterMax: 5
   flickCounterRegenRate: 0.5
   hasPowerup: 0
+  flickSound: {fileID: 8300000, guid: bf3aeb6891c71de49aebc116b4effe25, type: 3}
+  chargeSound: {fileID: 0}
+  jumpSound: {fileID: 0}
+  collisionSounds: []
 --- !u!114 &-2506996155117427033
 MonoBehaviour:
   m_ObjectHideFlags: 0
