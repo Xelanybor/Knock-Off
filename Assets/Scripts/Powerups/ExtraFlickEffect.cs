@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[CreateAssetMenu(menuName = "Powerups/MetalMarbleEffect")]
-public class MetalMarbleEffect : PowerupEffect
+[CreateAssetMenu(menuName = "Powerups/ExtraFlickEffect")]
+public class ExtraFlickEffect : PowerupEffect
 {
     public void OnEnable()
     {
