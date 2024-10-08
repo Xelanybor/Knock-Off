@@ -15,7 +15,6 @@ public class MusicManager : MonoBehaviour
     void Start()
     {
         menuIntro.Play();
-        Debug.Log("Started intro");
         menuLoop.PlayDelayed(menuIntro.clip.length);
     }
 }
