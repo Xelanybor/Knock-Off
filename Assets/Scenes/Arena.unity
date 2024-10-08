@@ -252,8 +252,8 @@ MonoBehaviour:
   powerUpSOList:
   - {fileID: 11400000, guid: 0900c4499e3615d44ba84b2c05be62e7, type: 2}
   - {fileID: 11400000, guid: 16739c18208e35f449508368487c45c8, type: 2}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 5f8678b838fe8c748ad3b8ee832f96ae, type: 2}
+  - {fileID: 11400000, guid: 9b5d4dd114ccc854a97f16700cbc67cf, type: 2}
   blinkDestroyDuration: 8
   blinkSpawnDuration: 0.5
   fadeInCurve:
@@ -286,6 +286,13 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  FadeInSounds:
+  - {fileID: 8300000, guid: 3a8a5ce0b067ed94198f8d9a5b1ad72c, type: 3}
+  - {fileID: 8300000, guid: c448fdd81fb8af74a901185684004621, type: 3}
+  - {fileID: 8300000, guid: 5dca89ea57ae88848bf1552c3d479509, type: 3}
+  - {fileID: 8300000, guid: 728405ed329baed45b136987c7003a49, type: 3}
+  FadeOutSound: {fileID: 8300000, guid: 7dcf79b902a7c2e4a84e224b49c7232c, type: 3}
+  PowerUpDie: {fileID: 8300000, guid: ff79c9de1a6c582459bf4d81283721dd, type: 3}
 --- !u!4 &395706459
 Transform:
   m_ObjectHideFlags: 0
