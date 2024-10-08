@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -53,6 +54,13 @@ public class GameManager : MonoBehaviour
         game_over = false;
     }
 
+    public static void SetInGame()
+    {
+        in_lobby = false;
+        in_game = true;
+        game_over = false;
+    }
+
 
     private void Awake()
     {
@@ -98,7 +106,7 @@ public class GameManager : MonoBehaviour
     {
         foreach (var player in players)
         {
-            
+
             // Get the MarbleController from the player's input
             MarbleController marbleController = player.playerInput.GetComponentInChildren<MarbleController>();
 
@@ -131,6 +139,13 @@ public class GameManager : MonoBehaviour
             CheckIfAllPlayersReady();
             StartMatch();
         }
+
+        if (in_game)
+        {
+
+        }
+
+
     }
 
     private void PaintLobbyUI()
@@ -179,6 +194,10 @@ public class GameManager : MonoBehaviour
                 PlayerInfo playerInfo = players[i];
                 playerInfo.playerInput.transform.position = new Vector3(playerLobbyUI.transform.position.x, playerLobbyUI.transform.position.y + 0.2f, playerLobbyUI.transform.position.z);
                 playerInfo.playerInput.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                // Find child components of the marble tagged PlayerUI and make them invisible
+                playerInfo.playerInput.GetComponentInChildren<MarbleController>().transform.Find("FlickBarUI").gameObject.SetActive(false);
+                playerInfo.playerInput.GetComponentInChildren<MarbleController>().transform.Find("PlayerMarker").gameObject.SetActive(false);
+
 
                 // Update UI text for ready status
                 UpdatePlayerLobbyUIText(playerLobbyUI, playerInfo, i);
@@ -203,14 +222,14 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-            // Check if all players are ready
-            foreach (var player in players)
+        // Check if all players are ready
+        foreach (var player in players)
         {
             if (!player.playerInput.GetComponent<MarbleController>().ready)
             {
                 HideBanner();
                 return;
-                
+
             }
         }
         ShowBanner();
@@ -266,7 +285,7 @@ public class GameManager : MonoBehaviour
         {
             playerInput = playerInput,
             playerIndex = playerInput.playerIndex,
-           
+
         };
         // Check if we are in the lobby
         if (in_lobby)
@@ -274,9 +293,6 @@ public class GameManager : MonoBehaviour
             newPlayer.playerInput.SwitchCurrentActionMap("UI");
         }
 
-        Debug.Log("Player Joined");
-        // Create a new PlayerInfo object for this player
-        
 
         // Store the new player
         players.Add(newPlayer);
@@ -303,19 +319,85 @@ public class GameManager : MonoBehaviour
     public void start_match()
     {
         // Set game state to 'in game' and destroy the start banner
-        in_lobby = false;
-        in_game = true;
-        game_over = false;
-
-        
-
+        SetInGame();
         // Switch to the game scene
+        // Now that we've switched scenes we must deal with the players, players are destroyed on scene change, so we keep them like:
+        for (int i = 0; i < players.Count; i++)
+        {
+            DontDestroyOnLoad(players[i].playerInput.GameObject());
+        }
         SceneManager.LoadSceneAsync(2);
+        SetControlSchemeToGame();
+        MoveAllPlayersOffScreen();
+        SpawnMarblesInitial();
+        // We are now in game.
     }
+
+    public void SetControlSchemeToGame()
+    {
+        for (int i = 0; i < players.Count; i++)
+        {
+            players[i].playerInput.SwitchCurrentActionMap("Marble");
+        }
+
+    }
+
+    public void MoveAllPlayersOffScreen()
+    {
+        if (players.Count == 0) return;
+        for (int i = 0; i < players.Count; i++)
+        {
+            players[i].playerInput.transform.position = new Vector3(1000, 0, 0);
+            // Freeze the player's position
+            players[i].playerInput.GetComponentInChildren<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePosition;
+            players[i].playerInput.GetComponentInChildren<MarbleController>().transform.Find("FlickBarUI").gameObject.SetActive(true);
+            players[i].playerInput.GetComponentInChildren<MarbleController>().transform.Find("PlayerMarker").gameObject.SetActive(true);
+        }
+    }
+
+    // Spawns marbles initially, should not be used for re-spawning marbles.
+    public void SpawnMarblesInitial()
+    {
+        // This method will change based on map and player count but for now we just spawn them evenly apart.
+        // For now just spawn them from x = -10 to x = 20 based on player count.
+        float x = -5;
+        float y = 0;
+        float z = 0;
+        if (players.Count == 0) return;
+        for (int i = 0; i < players.Count; i++)
+        {
+            players[i].playerInput.transform.localScale = new Vector3(1f, 1f, 1f); // Back to normal
+            players[i].playerInput.transform.position = new Vector3(x, y, z);
+            // Enable the player's rigidbody
+            players[i].playerInput.GetComponentInChildren<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+            x += 10;
+        }
+
+    }
+
+    // Checks if the marble has marked itself as dead.
+    // Removes a stock if possible. Does not check for game over.
+    public void CheckForMarbleDeath()
+    {
+
+    }
+
+    // Respawns a marble, we will receive the respawn locations based on the map.
+    public void RespawnMarble()
+    {
+
+    }
+
+    // Checks if the game is over, if so, ends the game.
+    public void CheckForGameOver()
+    {
+
+    }
+
 
 }
 
-// Class to store each player's information
+        // Class to store each player's information
 [System.Serializable]
 public class PlayerInfo
 {

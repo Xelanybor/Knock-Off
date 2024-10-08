@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4819329248561169842}
   m_Layer: 5
   m_Name: FlickBarUI
-  m_TagString: Untagged
+  m_TagString: PlayerUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -434,7 +434,7 @@ GameObject:
   - component: {fileID: 3099790887450936473}
   m_Layer: 5
   m_Name: PlayerMarker
-  m_TagString: Untagged
+  m_TagString: PlayerUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
