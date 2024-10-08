@@ -358,7 +358,7 @@ public class MarbleController : MonoBehaviour
     public void ReleaseFlick()
     {
         if (!chargingFlick) return;
-        SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.5f);
+        SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.2f);
 
         // decrement flickCounter by the cost of the charge
         float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];
