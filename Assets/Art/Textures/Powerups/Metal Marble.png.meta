@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Metal Marble_0: 5762889656433651259
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
