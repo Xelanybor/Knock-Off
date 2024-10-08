@@ -22,9 +22,6 @@ public class Map : MonoBehaviour
         {
             powerupSpawnPointLocations.Add(child.position);
         }
-
-        Debug.Log(playerSpawnPointLocations.Count);
-        Debug.Log(powerupSpawnPointLocations.Count);
     }
 
     public List<Vector3> getPlayerSpawnPoints() { return playerSpawnPointLocations; }
