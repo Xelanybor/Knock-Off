@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 226ff7aeb76dc3a40bcf17f40520a95b
+guid: 260f537c19fb21943b07e1894daabcdc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3023277090226666662
-    second: knock_off_image_0
+      213: -6505551215634273726
+    second: PaperStrip2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: knock_off_image_0
+      name: PaperStrip2_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 512
-        height: 353
+        width: 1220
+        height: 358
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6ac798cde76d4f920800000000000000
-      internalID: 3023277090226666662
+      spriteID: 24a220423a3a7b5a0800000000000000
+      internalID: -6505551215634273726
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      knock_off_image_0: 3023277090226666662
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
