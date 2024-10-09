@@ -207,7 +207,7 @@ public class GameManager : MonoBehaviour
                 GameObject noPlayerLobbyUI = Instantiate(NoPlayerLobbyUI, canvas.transform);
                 RectTransform noPlayerLobbyRect = noPlayerLobbyUI.GetComponent<RectTransform>();
                 noPlayerLobbyRect.anchoredPosition = anchoredPosition; // Set the UI's anchored position
-                noPlayerLobbyRect.localScale = new Vector3(300f, 300f, 1f); ; // Keep the UI's scale 300
+                noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f); ; // Keep the UI's scale 300
             }
         }
     }
