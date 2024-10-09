@@ -100,6 +100,7 @@ public class MarbleController : MonoBehaviour
     private Dictionary<string, float> stats = new Dictionary<string, float> {
         // Dashing
         {"DASH_TIME_MULTIPLIER", 1f},
+        {"DASH_DISTANCE_MULTIPLIER", 1f},
 
         // Movement
         {"MAX_SPEED_MULTIPLIER", 1f},
@@ -145,6 +146,99 @@ public class MarbleController : MonoBehaviour
             stats[key] -= statChanges[key];
         }
 
+    }
+
+    // take string for marble name, set stats accordingly
+    public void chooseMarble(string name)
+    {
+        name = name.ToUpper();
+        switch (name)
+        {
+            case "CAT":
+                SetStats(new Dictionary<string, float> {
+                    // Dashing
+                    {"DASH_TIME_MULTIPLIER", 0.5f},     // + quicker dash
+                    {"DASH_DISTANCE_MULTIPLIER", 1.2f}, // + further dash
+
+                    // Movement
+                    {"MAX_SPEED_MULTIPLIER", 1f},
+                    {"ACCELERATION_MULTIPLIER", 1f},
+                    {"JUMP_FORCE_MULTIPLIER", 1f},
+                    // Flicks
+                    {"FLICK_CHARGE_SPEED_MULTIPLIER", 1f},
+                    {"FLICK_FORCE_MULTIPLIER", 1f},
+                    {"FLICK_MOMENTUM_MULTIPLIER", 1f},
+                    // Basic Stats
+                    {"KNOCKBACK_RESISTANCE", -0.2f},    // - less knockback resistance
+                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0f},
+                    // Attacking
+                    {"EXTRA_KNOCKBACK_DEALT", 0f},
+                    {"EXTRA_PERCENTAGE_DAMAGE_DEALT", 0f}});
+                break;
+
+            case "SWIRLY":
+                SetStats(new Dictionary<string, float> {
+                    // Dashing
+                    {"DASH_TIME_MULTIPLIER", 1f},
+                    {"DASH_DISTANCE_MULTIPLIER", 1f},
+                    // Movement
+                    {"MAX_SPEED_MULTIPLIER", 1.4f},       // + higher max speed
+                    {"ACCELERATION_MULTIPLIER", 1.2f},        // + more acc
+                    {"JUMP_FORCE_MULTIPLIER", 1f},
+                    // Flicks
+                    {"FLICK_CHARGE_SPEED_MULTIPLIER", 0.75f}, // - less charging
+                    {"FLICK_FORCE_MULTIPLIER", 1f},
+                    {"FLICK_MOMENTUM_MULTIPLIER", 1f},
+                    // Basic Stats
+                    {"KNOCKBACK_RESISTANCE", 0f},
+                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0f},
+                    // Attacking
+                    {"EXTRA_KNOCKBACK_DEALT", 0f},
+                    {"EXTRA_PERCENTAGE_DAMAGE_DEALT", 0f}});
+                break;
+
+            case "STARRY":
+                SetStats(new Dictionary<string, float> {
+                    // Dashing
+                    {"DASH_TIME_MULTIPLIER", 1f},
+                    {"DASH_DISTANCE_MULTIPLIER", 1f},
+                    // Movement
+                    {"MAX_SPEED_MULTIPLIER", 1f},
+                    {"ACCELERATION_MULTIPLIER", 1.1f}, // acceleration
+                    {"JUMP_FORCE_MULTIPLIER", 1.3f},  // + jump
+                    // Flicks
+                    {"FLICK_CHARGE_SPEED_MULTIPLIER", 1.25f},  // + flick charge faster
+                    {"FLICK_FORCE_MULTIPLIER", 1f},
+                    {"FLICK_MOMENTUM_MULTIPLIER", 1f},
+                    // Basic Stats
+                    {"KNOCKBACK_RESISTANCE", 0f},
+                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0f},
+                    // Attacking
+                    {"EXTRA_KNOCKBACK_DEALT", -0.2f},       // - less knockback dealt
+                    {"EXTRA_PERCENTAGE_DAMAGE_DEALT", -0.2f}});   // less percentage dealt
+                break;
+
+            case "RUSTY":
+                SetStats(new Dictionary<string, float> {
+                    // Dashing
+                    {"DASH_TIME_MULTIPLIER", 1f},
+                    {"DASH_DISTANCE_MULTIPLIER", 1f},
+                    // Movement
+                    {"MAX_SPEED_MULTIPLIER", 1f},
+                    {"ACCELERATION_MULTIPLIER", 0.65f},        // -- acceleration
+                    {"JUMP_FORCE_MULTIPLIER", 1f},
+                    // Flicks
+                    {"FLICK_CHARGE_SPEED_MULTIPLIER", 1f},
+                    {"FLICK_FORCE_MULTIPLIER", 1f},
+                    {"FLICK_MOMENTUM_MULTIPLIER", 1f},
+                    // Basic Stats
+                    {"KNOCKBACK_RESISTANCE", 0f},
+                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0.5f},   // + damage resistance
+                    // Attacking
+                    {"EXTRA_KNOCKBACK_DEALT", 0f},      
+                    {"EXTRA_PERCENTAGE_DAMAGE_DEALT", 0f}}); 
+                break;
+        }
     }
 
     // Get specific stat
@@ -409,7 +503,7 @@ public class MarbleController : MonoBehaviour
         canDash = false;
 
         // Calculate the dash velocity (movementInput is already normalized)
-        dashVelocity = movementInput * DASH_DISTANCE / dashTimer;
+        dashVelocity = movementInput * DASH_DISTANCE * stats["DASH_DISTANCE_MULTIPLER"] / dashTimer;
         rb.gravityScale = 0;
         rb.linearVelocity = dashVelocity;
         momentum = 0;
