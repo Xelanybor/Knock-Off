@@ -97,6 +97,8 @@ public class MarbleController : MonoBehaviour
     //[SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip[] mildCollisionSounds;
     [SerializeField] private AudioClip hardCollisionSound;
+    [SerializeField] private AudioClip[] damageVoiceLines;
+    [SerializeField] private AudioClip[] killVoiceLines;
 
     // collision with ground objects
     [SerializeField] private AudioClip groundCollision;
@@ -544,6 +546,8 @@ public class MarbleController : MonoBehaviour
                     SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
                 }
             }
+
+            SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
 
             // Apply the force
             force *= Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f); // Apply percentage modifier

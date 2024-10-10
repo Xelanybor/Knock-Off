@@ -21,7 +21,6 @@ public class PowerupEffect : ScriptableObject
                 }
                 else { target.flickCounter++; }
             }
-            Debug.Log(target.flickCounter);
         } else
         {
             target.ModifyStats(statModifier);
