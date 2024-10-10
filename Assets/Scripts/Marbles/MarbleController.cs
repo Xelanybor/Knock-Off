@@ -90,9 +90,12 @@ public class MarbleController : MonoBehaviour
 
     // Audio
     [SerializeField] private AudioClip flickSound;
+    [SerializeField] private AudioClip dashSound;
     //[SerializeField] private AudioClip chargeSound;
+
     //[SerializeField] private AudioClip jumpSound;
-    //[SerializeField] private AudioClip[] collisionSounds;
+    [SerializeField] private AudioClip[] mildCollisionSounds;
+    [SerializeField] private AudioClip hardCollisionSound;
 
 
     // MODIFIABLE STATS
@@ -510,7 +513,17 @@ public class MarbleController : MonoBehaviour
                 force = (enemyMomentum - effectiveMomentum) * 1.5f;
 
                 // Apply damage to the marble
-                percentage += (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
+                float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
+                percentage += damage;
+                // choose collision sound effect to apply
+                if (damage > 0 && damage <= 35)
+                {
+                    SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.8f);
+                }
+                else
+                {
+                    SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
+                }
             }
 
             // Apply the force
@@ -610,6 +623,7 @@ public class MarbleController : MonoBehaviour
         if (context.performed)
         {
             this.Dash();
+            SoundFXManager.Instance.PlaySoundFXClip(dashSound, gameObject.transform, 0.3f);
         }
     }
     

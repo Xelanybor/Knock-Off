@@ -889,6 +889,11 @@ MonoBehaviour:
   flickCounterRegenRate: 0.5
   hasPowerup: 0
   flickSound: {fileID: 8300000, guid: bf3aeb6891c71de49aebc116b4effe25, type: 3}
+  dashSound: {fileID: 8300000, guid: 1a5e6d4e6a1b0044595d2237609522e5, type: 3}
+  mildCollisionSounds:
+  - {fileID: 8300000, guid: 09a9ea156871d9a40865cbaed13bacbe, type: 3}
+  - {fileID: 8300000, guid: 85cd874d999d45d4dad1876614b0f566, type: 3}
+  hardCollisionSound: {fileID: 8300000, guid: 2c48624aa409b3849b63fa961f0ca01f, type: 3}
 --- !u!114 &-2506996155117427033
 MonoBehaviour:
   m_ObjectHideFlags: 0
