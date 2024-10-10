@@ -187,7 +187,7 @@ public class GameManager : MonoBehaviour
                 GameObject playerLobbyUI = Instantiate(PlayerLobbyUI, canvas.transform);
                 RectTransform playerLobbyRect = playerLobbyUI.GetComponent<RectTransform>();
                 playerLobbyRect.anchoredPosition = anchoredPosition; // Set the UI's anchored position
-                playerLobbyRect.localScale = new Vector3(300f, 300f, 1f); // Keep the UI's scale 300
+                playerLobbyRect.localScale = new Vector3(120f, 120f, 1f); // Keep the UI's scale 300
 
                 // Set the player's marble to be centered inside the PlayerLobbyUI
                 PlayerInfo playerInfo = players[i];
