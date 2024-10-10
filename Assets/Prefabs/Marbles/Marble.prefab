@@ -880,11 +880,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flickTrajectoryShader: {fileID: -6465566751694194690, guid: 1fb274543548e4d4a818ba4a954dcd29, type: 3}
   FLICK_COUNT_MAX: 3
-  stockCount: 3
   spriteIndex: 0
+  stockCount: 3
   ready: 0
   match_can_begin: 0
   start_match: 0
+  dead: 0
   flickCounterMax: 5
   flickCounterRegenRate: 0.5
   hasPowerup: 0
