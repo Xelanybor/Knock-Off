@@ -91,11 +91,15 @@ public class MarbleController : MonoBehaviour
     // Audio
     [SerializeField] private AudioClip flickSound;
     [SerializeField] private AudioClip dashSound;
-    //[SerializeField] private AudioClip chargeSound;
+    [SerializeField] private AudioClip chargeSound;
+    private AudioSource chargeSource;
 
     //[SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip[] mildCollisionSounds;
     [SerializeField] private AudioClip hardCollisionSound;
+
+    // collision with ground objects
+    [SerializeField] private AudioClip groundCollision;
 
 
     // MODIFIABLE STATS
@@ -391,6 +395,11 @@ public class MarbleController : MonoBehaviour
             // if flick energy less than 1 charge can't start charging flick
             return;
         }
+        // start audio
+        if (chargeSource == null)
+        {
+            chargeSource = SoundFXManager.Instance.PlaySoundFXClip(chargeSound, gameObject.transform, 0.1f);
+        }
         chargingFlick = true;
         rb.linearVelocity *= FLICK_SLOWDOWN;
         rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
@@ -407,6 +416,11 @@ public class MarbleController : MonoBehaviour
     {
         if (!chargingFlick) return;
         SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.2f);
+        // stop audio
+        if (chargeSource != null)
+        {
+            SoundFXManager.Instance.StopSound(chargeSource);
+        }
 
         // decrement flickCounter by the cost of the charge
         float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];
@@ -469,6 +483,7 @@ public class MarbleController : MonoBehaviour
         {
             canJump = true;
             canDash = true;
+            SoundFXManager.Instance.PlaySoundFXClip(groundCollision, gameObject.transform, 0.2f);
         }
 
         // On collision with a kill zone
