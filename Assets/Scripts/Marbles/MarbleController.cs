@@ -51,7 +51,7 @@ public class MarbleController : MonoBehaviour
     public bool start_match = false;
 
     // Flick Counter variables
-    private float flickCounter = 0f;            // Current flick energy
+    public float flickCounter = 0f;            // Current flick energy
     public float flickCounterMax = 5f;         // Maximum flick energy
     public float flickCounterRegenRate = 1f;   // Energy regenerated per second
 
@@ -127,6 +127,9 @@ public class MarbleController : MonoBehaviour
         // Attacking
         {"EXTRA_KNOCKBACK_DEALT", 0f},
         {"EXTRA_PERCENTAGE_DAMAGE_DEALT", 0f},
+
+        // ignore
+        {"EXTRA_FLICK", 0f}
 
     };
 
@@ -531,12 +534,13 @@ public class MarbleController : MonoBehaviour
                 float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
                 percentage += damage;
                 // choose collision sound effect to apply
-                if (damage > 0 && damage <= 35)
+                if (damage > 0 && damage <= 50)
                 {
-                    SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.8f);
+                    SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.5f);
                 }
                 else
                 {
+                    SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.4f);
                     SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
                 }
             }
