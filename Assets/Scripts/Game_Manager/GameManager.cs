@@ -21,7 +21,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject BotLobbyUI;
     [SerializeField] private GameObject StartBannerUI;
 
-    [SerializeField] private Canvas bannerCanvas;
     [SerializeField] private List<Sprite> spriteList;
 
 
@@ -363,6 +362,7 @@ public class GameManager : MonoBehaviour
         if (!bannerShowing)
         {
             Canvas canvas = GameObject.FindWithTag("Canvas").GetComponent<Canvas>();
+            Canvas bannerCanvas = GameObject.FindWithTag("TextCanvas").GetComponent<Canvas>();
             spawnedBanner = Instantiate(StartBannerUI, bannerCanvas.transform);
             spawnedBanner.transform.position += new Vector3(0, -2f, 0);
             spawnedBanner.transform.localScale = new Vector3(120f, 120f, 1f);

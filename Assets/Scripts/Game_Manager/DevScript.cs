@@ -9,7 +9,7 @@ public class DevScript : MonoBehaviour
         if (GameManager.Instance == null)
         {
             // Load the GameManager prefab from the Resources folder
-            GameObject instance = Resources.Load<GameObject>("Game Controller");
+            GameObject instance = Resources.Load<GameObject>("Game_Controller_Resource");
 
             if (instance != null)
             {
