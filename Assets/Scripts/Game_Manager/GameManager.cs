@@ -191,8 +191,8 @@ public class GameManager : MonoBehaviour
 
                 // Set the player's marble to be centered inside the PlayerLobbyUI
                 PlayerInfo playerInfo = players[i];
-                playerInfo.playerInput.transform.position = new Vector3(playerLobbyUI.transform.position.x, playerLobbyUI.transform.position.y + 0.2f, playerLobbyUI.transform.position.z);
-                playerInfo.playerInput.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                playerInfo.playerInput.transform.position = new Vector3(playerLobbyUI.transform.position.x, playerLobbyUI.transform.position.y + 1.7f, playerLobbyUI.transform.position.z);
+                playerInfo.playerInput.transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
                 // Find child components of the marble tagged PlayerUI and make them invisible
                 playerInfo.playerInput.GetComponentInChildren<MarbleController>().transform.Find("FlickBarUI").gameObject.SetActive(false);
                 playerInfo.playerInput.GetComponentInChildren<MarbleController>().transform.Find("PlayerMarker").gameObject.SetActive(false);
