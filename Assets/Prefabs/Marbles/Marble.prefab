@@ -776,6 +776,7 @@ GameObject:
   - component: {fileID: 5287956116429113988}
   - component: {fileID: 6756715709604684513}
   - component: {fileID: -2506996155117427033}
+  - component: {fileID: 767918233692763225}
   m_Layer: 0
   m_Name: Marble
   m_TagString: Player
@@ -1080,6 +1081,20 @@ MonoBehaviour:
   m_DefaultActionMap: Marble
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &767918233692763225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7186582236043504616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4133c1a75271efd44a8bc6e07ff11c7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _flashColour: {r: 1, g: 1, b: 1, a: 1}
+  _flashTime: 0.25
 --- !u!1 &7417074738692093517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1236,7 +1251,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 0575320ae0f5c674d8dd39c8be322c69, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
