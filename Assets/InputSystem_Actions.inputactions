@@ -33,7 +33,16 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Use Power-up",
+                    "name": "Dash",
+                    "type": "Button",
+                    "id": "78fc592d-d922-4c4f-b4c3-178b5bc4315b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Use Powerup",
                     "type": "Button",
                     "id": "3ab103ce-bf1d-4d4b-a59d-146fc724aedb",
                     "expectedControlType": "",
@@ -182,7 +191,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Use Power-up",
+                    "action": "Use Powerup",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -194,6 +203,17 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Flick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6447fdae-9880-4b43-8841-a80db8719888",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

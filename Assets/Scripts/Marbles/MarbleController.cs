@@ -495,7 +495,7 @@ public class MarbleController : MonoBehaviour
         canDash = false;
 
         // Calculate the dash velocity (movementInput is already normalized)
-        dashVelocity = movementInput * DASH_DISTANCE * stats["DASH_DISTANCE_MULTIPLER"] / dashTimer;
+        dashVelocity = movementInput * DASH_DISTANCE * stats["DASH_DISTANCE_MULTIPLIER"] / dashTimer;
         rb.gravityScale = 0;
         rb.linearVelocity = dashVelocity;
         momentum = 0;
