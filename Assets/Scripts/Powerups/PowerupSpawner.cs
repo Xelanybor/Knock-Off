@@ -28,6 +28,7 @@ public class PowerUpSpawner : MonoBehaviour
     [SerializeField] private AnimationCurve fadeOutCurve;
     [SerializeField] private AudioClip[] FadeInSounds;
     [SerializeField] private AudioClip FadeOutSound;
+    private AudioSource fadeOutSource;  // for killing the fade out sound if collected
     [SerializeField] private AudioClip PowerUpDie;
     void Start()
     {
@@ -117,7 +118,7 @@ public class PowerUpSpawner : MonoBehaviour
         Color originalColour = powerupRenderer.color;
         // Debug.Log("Powerup blinking.");
         // start blinking for a few seconds
-        SoundFXManager.Instance.PlaySoundFXClip(FadeOutSound, gameObject.transform, 0.2f);
+        fadeOutSource = SoundFXManager.Instance.PlaySoundFXClip(FadeOutSound, gameObject.transform, 0.2f);
         while (elapsedTime < blinkDestroyDuration)
         {
             if (currentPowerUp != null)
@@ -145,6 +146,8 @@ public class PowerUpSpawner : MonoBehaviour
             {
                 blinking = false;
                 currentPowerUp = null;
+                SoundFXManager.Instance.StopSound(fadeOutSource);
+                fadeOutSource = null;
                 yield break; // exit coroutine when player collides with powerup during blinking
             }
         }

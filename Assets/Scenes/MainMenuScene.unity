@@ -1290,7 +1290,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 4cb9d0fe0354d4a448da01dfa02e9907, type: 3}
   m_Resource: {fileID: 8300000, guid: 4cb9d0fe0354d4a448da01dfa02e9907, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.093
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1416,7 +1416,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: a4c4ec73a0a1dad4b9d52f8a9ac4f222, type: 3}
   m_Resource: {fileID: 8300000, guid: a4c4ec73a0a1dad4b9d52f8a9ac4f222, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.074
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -1736,6 +1736,9 @@ MonoBehaviour:
   - {fileID: 459284480}
   - {fileID: 429709871}
   - {fileID: 1031745419}
+  moveUpSound: {fileID: 8300000, guid: cca282428f741304491af36fdb9a145e, type: 3}
+  moveDownSound: {fileID: 8300000, guid: 4aac9143e8e6921418f85818c3388327, type: 3}
+  selectSound: {fileID: 8300000, guid: 1f121a30328586745ba7f7c4cf5bf739, type: 3}
 --- !u!114 &1733915174
 MonoBehaviour:
   m_ObjectHideFlags: 0
