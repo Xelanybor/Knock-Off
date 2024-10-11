@@ -139,7 +139,7 @@ public class GameManager : MonoBehaviour
         GameObject playerLobbyUI = Instantiate(PlayerLobbyUI, GameObject.FindWithTag("Canvas").transform);
         RectTransform playerLobbyRect = playerLobbyUI.GetComponent<RectTransform>();
         playerLobbyRect.anchoredPosition = anchoredPosition;
-        playerLobbyRect.localScale = new Vector3(300f, 300f, 1f);
+        playerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
 
         PlayerInfo playerInfo = players[playerIndex];
         UpdatePlayerUIPosition(playerInfo, playerLobbyUI.transform.position);
@@ -151,13 +151,13 @@ public class GameManager : MonoBehaviour
         GameObject noPlayerLobbyUI = Instantiate(NoPlayerLobbyUI, GameObject.FindWithTag("Canvas").transform);
         RectTransform noPlayerLobbyRect = noPlayerLobbyUI.GetComponent<RectTransform>();
         noPlayerLobbyRect.anchoredPosition = anchoredPosition;
-        noPlayerLobbyRect.localScale = new Vector3(300f, 300f, 1f);
+        noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
     }
 
     private void UpdatePlayerUIPosition(PlayerInfo playerInfo, Vector3 uiPosition)
     {
-        playerInfo.playerInput.transform.position = new Vector3(uiPosition.x, uiPosition.y + 0.2f, uiPosition.z);
-        playerInfo.playerInput.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        playerInfo.playerInput.transform.position = new Vector3(uiPosition.x, uiPosition.y + 1.7f, uiPosition.z);
+        playerInfo.playerInput.transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
         HidePlayerUIComponents(playerInfo);
     }
 
