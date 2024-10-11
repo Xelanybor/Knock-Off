@@ -8,7 +8,23 @@ public class PowerupEffect : ScriptableObject
 
     public void Apply(MarbleController target)
     {
-        target.ModifyStats(statModifier);
+        float value;
+        if (statModifier.TryGetValue("EXTRA_FLICK", out value)) 
+        {
+            float diff = target.flickCounterMax - target.flickCounter;
+            Debug.Log(diff);
+            if (target.flickCounter < target.flickCounterMax) 
+            {
+                if (diff < 1)
+                {
+                    target.flickCounter = target.flickCounter + diff - 0.0001f;
+                }
+                else { target.flickCounter++; }
+            }
+        } else
+        {
+            target.ModifyStats(statModifier);
+        }
     }
     public void Remove(MarbleController target)
     {
