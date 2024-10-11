@@ -7,6 +7,8 @@ public class SoundFXManager : MonoBehaviour
 
     [SerializeField] private AudioSource SoundFXObject;
 
+    private List<AudioSource> activeAudioSources = new List<AudioSource>();     // list of active audio sources
+
     private void Awake()
     {
         if (Instance == null)
@@ -15,7 +17,7 @@ public class SoundFXManager : MonoBehaviour
         }
     }
 
-    public void PlaySoundFXClip(AudioClip audioClip, Transform spawnTransform, float volume)
+    public AudioSource PlaySoundFXClip(AudioClip audioClip, Transform spawnTransform, float volume)
     {
         // spawn in gameObject
         AudioSource audioSource = Instantiate(SoundFXObject, spawnTransform.position, Quaternion.identity);
@@ -29,25 +31,41 @@ public class SoundFXManager : MonoBehaviour
         // get length of the clip
         float clipLength = audioSource.clip.length;
 
-        Destroy(audioSource.gameObject, clipLength);
+        activeAudioSources.Add(audioSource);    // add to list
+
+        Destroy(audioSource.gameObject, clipLength);    // schedule destruction
+
+        return audioSource;
     }
 
-    public void PlayRandomSoundFXClip(AudioClip[] audioClip, Transform spawnTransform, float volume)
+    public AudioSource PlayRandomSoundFXClip(AudioClip[] audioClip, Transform spawnTransform, float volume)
     {
         int rand = Random.Range(0, audioClip.Length);
 
-        // spawn in gameObject
-        AudioSource audioSource = Instantiate(SoundFXObject, spawnTransform.position, Quaternion.identity);
+        AudioClip randClip = audioClip[rand];
 
-        audioSource.clip = audioClip[rand];
+        return PlaySoundFXClip(randClip, spawnTransform, volume);
+    }
 
-        audioSource.volume = volume;
+    // stop a specific sound early
+    public void StopSound(AudioSource audioSource)
+    {
+        if (audioSource != null && activeAudioSources.Contains(audioSource))
+        {
+            audioSource.Stop();
+            activeAudioSources.Remove(audioSource);
+            Destroy(audioSource.gameObject);
+        }
+    }
 
-        audioSource.Play();
-
-        // get length of the clip
-        float clipLength = audioSource.clip.length;
-
-        Destroy(audioSource.gameObject, clipLength);
+    public void StopAll()
+    {
+        foreach (AudioSource audioSource in activeAudioSources)
+        {
+            if (audioSource != null)
+            {
+                StopSound(audioSource);
+            }
+        }
     }
 }

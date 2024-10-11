@@ -12,6 +12,10 @@ public class ButtonSelector : MonoBehaviour
     private float lastNavigationTime = 0f;
     private const float NAVIGATION_COOLDOWN = 0.2f; // 0.2f second cooldown
 
+    [SerializeField] private AudioClip moveUpSound;
+    [SerializeField] private AudioClip moveDownSound;
+    [SerializeField] private AudioClip selectSound;
+
     private void Start()
     {
         if (buttonList.Count != NUM_BUTTONS)
@@ -26,6 +30,7 @@ public class ButtonSelector : MonoBehaviour
         if (context.performed)
         {
             activeButton.onClick.Invoke();
+            SoundFXManager.Instance.PlaySoundFXClip(selectSound, gameObject.transform, 0.3f);
         }
     } 
 
@@ -40,6 +45,9 @@ public class ButtonSelector : MonoBehaviour
             {
                 int change = direction.y > 0 ? -1 : 1; // Up decreases index, Down increases
                 selectedButtonIndex += change;
+                // play sound
+                if (change == 1) { SoundFXManager.Instance.PlaySoundFXClip(moveDownSound, gameObject.transform, 0.3f); }
+                else { SoundFXManager.Instance.PlaySoundFXClip(moveUpSound, gameObject.transform, 0.3f);}
 
                 // Correct wraparound logic
                 if (selectedButtonIndex < 0)

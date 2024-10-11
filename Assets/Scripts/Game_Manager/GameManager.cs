@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject NoPlayerLobbyUI;
     [SerializeField] private GameObject BotLobbyUI;
     [SerializeField] private GameObject StartBannerUI;
+
+    [SerializeField] private Canvas bannerCanvas;
     [SerializeField] private List<Sprite> spriteList;
 
     // Game State
@@ -144,7 +146,7 @@ public class GameManager : MonoBehaviour
         GameObject playerLobbyUI = Instantiate(PlayerLobbyUI, GameObject.FindWithTag("Canvas").transform);
         RectTransform playerLobbyRect = playerLobbyUI.GetComponent<RectTransform>();
         playerLobbyRect.anchoredPosition = anchoredPosition;
-        playerLobbyRect.localScale = new Vector3(300f, 300f, 1f);
+        playerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
 
         PlayerInfo playerInfo = players[playerIndex];
         if (playerInfo == null)
@@ -160,7 +162,7 @@ public class GameManager : MonoBehaviour
         GameObject noPlayerLobbyUI = Instantiate(NoPlayerLobbyUI, GameObject.FindWithTag("Canvas").transform);
         RectTransform noPlayerLobbyRect = noPlayerLobbyUI.GetComponent<RectTransform>();
         noPlayerLobbyRect.anchoredPosition = anchoredPosition;
-        noPlayerLobbyRect.localScale = new Vector3(300f, 300f, 1f);
+        noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
     }
 
     private void UpdatePlayerUIPosition(PlayerInfo playerInfo, Vector3 uiPosition)
@@ -169,8 +171,8 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        playerInfo.parent.transform.position = new Vector3(uiPosition.x, uiPosition.y + 0.2f, uiPosition.z);
-        playerInfo.parent.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        playerInfo.parent.transform.position = new Vector3(uiPosition.x, uiPosition.y + 1.7f, uiPosition.z);
+        playerInfo.parent.transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
         HidePlayerUIComponents(playerInfo);
     }
 
@@ -299,8 +301,9 @@ public class GameManager : MonoBehaviour
         if (!bannerShowing)
         {
             Canvas canvas = GameObject.FindWithTag("Canvas").GetComponent<Canvas>();
-            spawnedBanner = Instantiate(StartBannerUI, canvas.transform);
+            spawnedBanner = Instantiate(StartBannerUI, bannerCanvas.transform);
             spawnedBanner.transform.position += new Vector3(0, -2f, 0);
+            spawnedBanner.transform.localScale = new Vector3(120f, 120f, 1f);
             bannerShowing = true;
         }
     }
