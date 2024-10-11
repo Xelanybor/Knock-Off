@@ -545,9 +545,11 @@ public class MarbleController : MonoBehaviour
                     SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.4f);
                     SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
                 }
+                
+                SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
+                
             }
 
-            SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
 
             // Apply the force
             force *= Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f); // Apply percentage modifier
