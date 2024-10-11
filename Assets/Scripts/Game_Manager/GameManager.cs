@@ -22,10 +22,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject StartBannerUI;
     [SerializeField] private List<Sprite> spriteList;
 
-    // Game State
-    private static bool inLobby = true;
-    private static bool inGame = false;
-    private static bool gameOver = false;
+
     private bool bannerShowing = false;
     private GameObject spawnedBanner = null;
 
@@ -37,25 +34,42 @@ public class GameManager : MonoBehaviour
 
 
 
-
     #region Game State Management
-    public static void SetInLobby()
+
+    public enum GameState
     {
-        inLobby = true;
-        inGame = false;
-        gameOver = false;
+        MainMenu,
+        Lobby,
+        Game,
+        Tutorial
     }
 
-    public static void SetInGame()
+    public GameState currentState;
+
+    private void SetGameState(GameState state)
     {
-        inLobby = false;
-        inGame = true;
-        gameOver = false;
+        currentState = state;
     }
+
 
     private void Awake()
     {
         EnsureSingleton();
+        SceneManager.activeSceneChanged += CheckScene;
+#if UNITY_EDITOR
+    // Just grab the active scene.
+    CheckScene(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
+#endif
+    }
+
+
+    public static void EnsureExists()
+    {
+        if (Instance == null)
+        {
+            GameObject gameManagerObject = new GameObject("GameManager");
+            Instance = gameManagerObject.AddComponent<GameManager>();
+        }
     }
 
 
@@ -71,18 +85,50 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    #endregion
+#endregion
 
     #region Game Loop
     private void Update()
     {
-        if (inLobby)
+        switch (currentState)
         {
-            HandleLobbyState();
+            case GameState.MainMenu:
+                HandleMainMenu();
+                break;
+            case GameState.Lobby:
+                HandleLobbyState();
+                break;
+            case GameState.Game:
+                CheckForMarbleDeath();
+                break;
+            case GameState.Tutorial:
+                // Add tutorial handling logic here when necessary
+                break;
         }
-        else if (inGame)
+    }
+
+
+    private void CheckScene(Scene current, Scene next)
+    {
+        // Determine the game state based on the next scene's name
+        switch (next.name)
         {
-            CheckForMarbleDeath();
+            case "MainMenu":
+                SetGameState(GameState.MainMenu);
+                break;
+            case "Lobby":
+                GetComponent<PlayerInputManager>().enabled = true; // Enable player input
+                SetGameState(GameState.Lobby);
+                break;
+            case "Game":
+                SetGameState(GameState.Game);
+                break;
+            case "Tutorial":
+                SetGameState(GameState.Tutorial);
+                break;
+            default:
+                Debug.LogWarning("Unknown scene loaded: " + next.name);
+                break;
         }
     }
 
@@ -94,6 +140,22 @@ public class GameManager : MonoBehaviour
         StartMatch();
     }
     #endregion
+
+
+    #region Tutorial Management
+
+
+    #endregion
+
+    #region Main Menu Management
+    private void HandleMainMenu()
+    {
+        // In the main menu, disable joining.
+        // We get our parent object, disable the player input manager.
+        GetComponent<PlayerInputManager>().enabled = false;
+    }
+    #endregion
+
 
     // Event handler for new player joining
     #region Lobby Management
@@ -195,7 +257,7 @@ public class GameManager : MonoBehaviour
         };
 
 
-        if (inLobby)
+        if (currentState == GameState.Lobby)
         {
             newPlayer.playerInput.SwitchCurrentActionMap("UI");
             newPlayer.marbleController.AddBot += Player_RequestAddBot;
@@ -368,7 +430,7 @@ public class GameManager : MonoBehaviour
 
     public void BeginMatch()
     {
-        SetInGame();
+        SetGameState(GameState.Game);
         DontDestroyPlayerObjects();
         StartCoroutine(LoadSceneAndSetup(2));
     }
