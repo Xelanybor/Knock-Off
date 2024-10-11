@@ -178,7 +178,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -100
   m_Sprite: {fileID: -4406541822492385051, guid: c69a46a6ef203644a886ce9dc0a192ba, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -238,10 +238,8 @@ MonoBehaviour:
   PlayerLobbyUI: {fileID: 9126572185111864833, guid: 8468ba895babfe048bcb6475c8de0b2c, type: 3}
   NoPlayerLobbyUI: {fileID: 4997263528236107159, guid: f9fee9e4c4da2ee4ea7c52c98c8e5ad0, type: 3}
   BotLobbyUI: {fileID: 511878158542932032, guid: 0cb6e88a808ad89459a3da583c6a6184, type: 3}
-  StartBannnerUI: {fileID: 7270144442255831564, guid: 1512737dd56af35459e89d600b74cb41, type: 3}
-  sprite_list:
-  - {fileID: 4545539728082940926, guid: 62bf4c6b71b03114a9900fc6b9091593, type: 3}
-  - {fileID: -2413806693520163455, guid: 769b858773890a444b531dfdb25d98cf, type: 3}
+  StartBannerUI: {fileID: 0}
+  spriteList: []
   botController: {fileID: 0}
 --- !u!114 &957250978
 MonoBehaviour:
