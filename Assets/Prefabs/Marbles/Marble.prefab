@@ -885,8 +885,8 @@ MonoBehaviour:
   ready: 0
   match_can_begin: 0
   start_match: 0
-  flickCounter: 0
   dead: 0
+  flickCounter: 0
   flickCounterMax: 5
   flickCounterRegenRate: 0.5
   hasPowerup: 0
@@ -1255,7 +1255,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 4545539728082940926, guid: 62bf4c6b71b03114a9900fc6b9091593, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
