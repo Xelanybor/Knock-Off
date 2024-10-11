@@ -106,6 +106,10 @@ public class MarbleController : MonoBehaviour
     // collision with ground objects
     [SerializeField] private AudioClip groundCollision;
 
+    // particles
+    [SerializeField] private ParticleSystem damageParticles;
+    private ParticleSystem damageParticleInstance;
+
 
     // MODIFIABLE STATS
 
@@ -511,6 +515,8 @@ public class MarbleController : MonoBehaviour
             float effectiveMomentum = GetEffectiveMomentum(otherTransform.position);
             float enemyMomentum = otherMarbleController.GetEffectiveMomentum(transform.position);
 
+            Vector2 attackDirection = (transform.position - otherTransform.position).normalized;
+
             float force;
 
             float oldPercentage = percentage; // Save the old value for later calculations since the percentage might change if damage is taken
@@ -552,6 +558,8 @@ public class MarbleController : MonoBehaviour
                 }
                 
                 SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
+                // particles
+                SpawnDamageParticles(attackDirection);
                 
             }
 
@@ -688,6 +696,10 @@ public class MarbleController : MonoBehaviour
         }
     }
 
-
+    public void SpawnDamageParticles(Vector2 attackDirection)
+    {
+        Quaternion spawnRotation = Quaternion.FromToRotation(Vector2.right, attackDirection);
+        damageParticleInstance = Instantiate(damageParticles, gameObject.transform.position, spawnRotation);
+    }
 
 }

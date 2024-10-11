@@ -885,8 +885,8 @@ MonoBehaviour:
   ready: 0
   match_can_begin: 0
   start_match: 0
-  flickCounter: 0
   dead: 0
+  flickCounter: 0
   flickCounterMax: 5
   flickCounterRegenRate: 0.5
   hasPowerup: 0
@@ -909,6 +909,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b6ac3c340530bd44e869827c011230e5, type: 3}
   - {fileID: 8300000, guid: 73c6425e6629c28408f7afaaba4761a3, type: 3}
   groundCollision: {fileID: 8300000, guid: 10a10cceff0f0e949b5d720cc5e60db0, type: 3}
+  damageParticles: {fileID: 6841475876102896446, guid: 4e09bf8046ca1ee44916e8c9d49bd453, type: 3}
 --- !u!114 &-2506996155117427033
 MonoBehaviour:
   m_ObjectHideFlags: 0
