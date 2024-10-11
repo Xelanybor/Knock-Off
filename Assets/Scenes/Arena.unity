@@ -215,6 +215,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Attic
       objectReference: {fileID: 0}
+    - target: {fileID: 5827241809358586600, guid: 00b29357e677447428cca2c522a4b3b9, type: 3}
+      propertyPath: m_TagString
+      value: Map
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

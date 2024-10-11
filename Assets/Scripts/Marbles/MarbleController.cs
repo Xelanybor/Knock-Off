@@ -44,11 +44,13 @@ public class MarbleController : MonoBehaviour
     private bool resetMomentumNextUpdate = false; // Whether the marble's momentum should be reset on the next update
 
     // Game Variables
-    public int stockCount = 3; // Default stock count for the player.
     public int spriteIndex = 0;
+    public int stockCount = 3;
     public bool ready = true;
     public bool match_can_begin = false;
     public bool start_match = false;
+    public bool dead = false;
+
 
     // Flick Counter variables
     public float flickCounter = 0f;            // Current flick energy
@@ -58,6 +60,7 @@ public class MarbleController : MonoBehaviour
     // Events for communicating and updating flick bar
     public event EventHandler<OnUpdateEventArgs> OnEnergyUpdate;        // increment over time and decrement when release flick
     public event EventHandler<OnFlickBarCharge> OnCharge;               // when flicking held
+
     public class OnUpdateEventArgs : EventArgs
     {
         public float progressNormalized;
@@ -494,7 +497,9 @@ public class MarbleController : MonoBehaviour
         // On collision with a kill zone
         if (collision.gameObject.CompareTag("KillZone"))
         {
-            // TODO: Code for respawning goes here !!!
+            this.stockCount = this.stockCount - 1;
+            this.dead = true;
+            
         }
 
         // On collision with another marble
