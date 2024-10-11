@@ -9,6 +9,7 @@ TagManager:
   - KillZone
   - Canvas
   - PlayerUI
+  - Map
   layers:
   - Default
   - TransparentFX

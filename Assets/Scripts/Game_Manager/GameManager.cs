@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
@@ -11,61 +12,50 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    // Prefab for player marble lobby UI component.
-    [SerializeField]
-    private GameObject PlayerLobbyUI;
+    // UI Elements
+    [SerializeField] private GameObject PlayerLobbyUI;
+    [SerializeField] private GameObject NoPlayerLobbyUI;
+    [SerializeField] private GameObject BotLobbyUI;
+    [SerializeField] private GameObject StartBannerUI;
+    [SerializeField] private List<Sprite> spriteList;
 
-    [SerializeField]
-    private GameObject NoPlayerLobbyUI;
-
-    [SerializeField]
-    private GameObject BotLobbyUI;
-
-    [SerializeField]
-    private GameObject StartBannnerUI;
-
-
-    private static bool in_lobby = true;
-    private static bool in_game = false;
-    private static bool game_over = false;
-
+    // Game State
+    private static bool inLobby = true;
+    private static bool inGame = false;
+    private static bool gameOver = false;
     private bool bannerShowing = false;
+    private GameObject spawnedBanner = null;
 
-    private GameObject spawned_banner = null;
-
-    [SerializeField]
-    private List<Sprite> sprite_list;
-
-
-    [SerializeField]
-    private MarbleController botController;
-
-
-    // Store players
+    // Player and Bot Data
     private List<PlayerInfo> players = new List<PlayerInfo>();
-
-    // Store bots
     private List<BotInfo> bots = new List<BotInfo>();
 
+    [SerializeField] private MarbleController botController;
+
+
+
+    #region Game State Management
     public static void SetInLobby()
     {
-        in_lobby = true;
-        in_game = false;
-        game_over = false;
+        inLobby = true;
+        inGame = false;
+        gameOver = false;
     }
 
     public static void SetInGame()
     {
-        in_lobby = false;
-        in_game = true;
-        game_over = false;
+        inLobby = false;
+        inGame = true;
+        gameOver = false;
     }
-
 
     private void Awake()
     {
-        // We assume we will awake in the lobby
-        // Ensure singleton pattern
+        EnsureSingleton();
+    }
+
+    private void EnsureSingleton()
+    {
         if (Instance == null)
         {
             Instance = this;
@@ -76,18 +66,177 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    #endregion
+
+    #region Game Loop
+    private void Update()
+    {
+        if (inLobby)
+        {
+            HandleLobbyState();
+        }
+        else if (inGame)
+        {
+            CheckForMarbleDeath();
+        }
+    }
+
+    private void HandleLobbyState()
+    {
+        PaintLobbyUI();
+        CheckForChangeSkin();
+        CheckIfAllPlayersReady();
+        StartMatch();
+    }
+    #endregion
 
     // Event handler for new player joining
+    #region Lobby Management
+    private void PaintLobbyUI()
+    {
+        ClearExistingUI();
+        GenerateLobbySlots();
+    }
+
+    private void ClearExistingUI()
+    {
+        foreach (Transform child in GameObject.FindWithTag("Canvas").transform)
+        {
+            if (child.gameObject != spawnedBanner)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+    }
+
+    private void GenerateLobbySlots()
+    {
+        Canvas canvas = GameObject.FindWithTag("Canvas").GetComponent<Canvas>();
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+        float canvasWidth = canvasRect.rect.width;
+
+        int numberOfSlots = 4;
+        float slotWidth = canvasWidth / numberOfSlots;
+        float startingX = -(canvasWidth / 2) + (slotWidth / 2);
+
+        for (int i = 0; i < numberOfSlots; i++)
+        {
+            Vector2 anchoredPosition = new Vector2(startingX + i * slotWidth, 0f);
+
+            if (i < players.Count)
+            {
+                CreatePlayerLobbyUI(i, anchoredPosition);
+            }
+            else
+            {
+                CreateEmptyLobbySlot(anchoredPosition);
+            }
+        }
+    }
+
+    private void CreatePlayerLobbyUI(int playerIndex, Vector2 anchoredPosition)
+    {
+        GameObject playerLobbyUI = Instantiate(PlayerLobbyUI, GameObject.FindWithTag("Canvas").transform);
+        RectTransform playerLobbyRect = playerLobbyUI.GetComponent<RectTransform>();
+        playerLobbyRect.anchoredPosition = anchoredPosition;
+        playerLobbyRect.localScale = new Vector3(300f, 300f, 1f);
+
+        PlayerInfo playerInfo = players[playerIndex];
+        UpdatePlayerUIPosition(playerInfo, playerLobbyUI.transform.position);
+        UpdatePlayerLobbyUIText(playerLobbyUI, playerInfo, playerIndex);
+    }
+
+    private void CreateEmptyLobbySlot(Vector2 anchoredPosition)
+    {
+        GameObject noPlayerLobbyUI = Instantiate(NoPlayerLobbyUI, GameObject.FindWithTag("Canvas").transform);
+        RectTransform noPlayerLobbyRect = noPlayerLobbyUI.GetComponent<RectTransform>();
+        noPlayerLobbyRect.anchoredPosition = anchoredPosition;
+        noPlayerLobbyRect.localScale = new Vector3(300f, 300f, 1f);
+    }
+
+    private void UpdatePlayerUIPosition(PlayerInfo playerInfo, Vector3 uiPosition)
+    {
+        playerInfo.playerInput.transform.position = new Vector3(uiPosition.x, uiPosition.y + 0.2f, uiPosition.z);
+        playerInfo.playerInput.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        HidePlayerUIComponents(playerInfo);
+    }
+
+    private void HidePlayerUIComponents(PlayerInfo playerInfo)
+    {
+        MarbleController controller = playerInfo.playerInput.GetComponentInChildren<MarbleController>();
+        controller.transform.Find("FlickBarUI").gameObject.SetActive(false);
+        controller.transform.Find("PlayerMarker").gameObject.SetActive(false);
+    }
+    #endregion
+    
+    #region Player Management
+    public void OnPlayerJoined(PlayerInput playerInput)
+    {
+        PlayerInfo newPlayer = new PlayerInfo
+        {
+            playerInput = playerInput,
+            playerIndex = playerInput.playerIndex
+        };
+
+        if (inLobby)
+        {
+            newPlayer.playerInput.SwitchCurrentActionMap("UI");
+        }
+
+        players.Add(newPlayer);
+        Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
+    }
+
+    private void CheckIfAllPlayersReady()
+    {
+        if (players.Count < 2)
+        {
+            return;
+        }
+
+        foreach (var player in players)
+        {
+            if (!player.playerInput.GetComponent<MarbleController>().ready)
+            {
+                HideBanner();
+                return;
+            }
+        }
+
+        ShowBanner();
+    }
+
+    private void CheckForChangeSkin()
+    {
+        foreach (var player in players)
+        {
+            MarbleController controller = player.playerInput.GetComponentInChildren<MarbleController>();
+
+            if (controller != null && controller.spriteIndex < spriteList.Count)
+            {
+                UpdateMarbleSprite(controller);
+            }
+        }
+    }
+
+    private void UpdateMarbleSprite(MarbleController controller)
+    {
+        Transform spriteTransform = controller.transform.Find("Sprite");
+        if (spriteTransform != null)
+        {
+            SpriteRenderer spriteRenderer = spriteTransform.GetComponent<SpriteRenderer>();
+            spriteRenderer.sprite = spriteList[controller.spriteIndex];
+            spriteRenderer.sortingOrder = 1;
+        }
+    }
 
     private void ShowBanner()
     {
         if (!bannerShowing)
         {
             Canvas canvas = GameObject.FindWithTag("Canvas").GetComponent<Canvas>();
-            spawned_banner = Instantiate(StartBannnerUI, canvas.transform);
-            // Make sure the banner is in front of ALL UI elements
-            // Move the banner down a little
-            spawned_banner.transform.position = new Vector3(spawned_banner.transform.position.x, spawned_banner.transform.position.y - 2f, spawned_banner.transform.position.z);
+            spawnedBanner = Instantiate(StartBannerUI, canvas.transform);
+            spawnedBanner.transform.position += new Vector3(0, -2f, 0);
             bannerShowing = true;
         }
     }
@@ -96,163 +245,37 @@ public class GameManager : MonoBehaviour
     {
         if (bannerShowing)
         {
-            Destroy(spawned_banner);
-            spawned_banner = null;
+            Destroy(spawnedBanner);
+            spawnedBanner = null;
             bannerShowing = false;
         }
-
     }
-    private void CheckForChangeSkin()
+    #endregion
+
+    #region Game Start and Transition
+    public void StartMatch()
     {
-        foreach (var player in players)
-        {
-
-            // Get the MarbleController from the player's input
-            MarbleController marbleController = player.playerInput.GetComponentInChildren<MarbleController>();
-
-            // Check if MarbleController exists and has a valid sprite index
-            if (marbleController != null && marbleController.spriteIndex < sprite_list.Count)
-            {
-                // Access the Sprite child object and update its SpriteRenderer
-                Transform spriteTransform = marbleController.transform.Find("Sprite");
-                if (spriteTransform != null)
-                {
-                    SpriteRenderer spriteRenderer = spriteTransform.GetComponent<SpriteRenderer>();
-                    if (spriteRenderer != null)
-                    {
-                        spriteRenderer.sprite = sprite_list[marbleController.spriteIndex];
-                        spriteRenderer.sortingOrder = 1;
-                    }
-                }
-            }
-        }
-    }
-
-
-    private void Update()
-    {
-        if (in_lobby)
-        {
-            // Check if any player is changing their skin.
-            PaintLobbyUI();
-            CheckForChangeSkin();
-            CheckIfAllPlayersReady();
-            StartMatch();
-        }
-
-        if (in_game)
-        {
-
-        }
-
-
-    }
-
-    private void PaintLobbyUI()
-    {
-        //First, destroy any existing UI elements(this is optional but helps reset the UI)
-        foreach (Transform child in GameObject.FindWithTag("Canvas").transform)
-        {
-            // Don't destroy the Banner if it's showing
-            if (child.gameObject == spawned_banner)
-            {
-                // Make sure its the last sibling
-                child.SetAsLastSibling();
-                continue;
-            }
-            Destroy(child.gameObject);
-        }
-
-        // Get the Canvas and its RectTransform to calculate its size
-        Canvas canvas = GameObject.FindWithTag("Canvas").GetComponent<Canvas>();
-        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
-
-        // Get the width of the canvas
-        float canvasWidth = canvasRect.rect.width;
-
-        // Calculate the horizontal spacing based on the canvas width
-        int numberOfSlots = 4;
-        float slotWidth = canvasWidth / numberOfSlots;
-        float startingX = -(canvasWidth / 2) + (slotWidth / 2); // Start from the leftmost side of the canvas
-
-        // Create UI slots for players and empty spots
-        for (int i = 0; i < numberOfSlots; i++)
-        {
-            // Calculate the anchored position for each slot
-            Vector2 anchoredPosition = new Vector2(startingX + i * slotWidth, 0f);
-
-            if (i < players.Count)
-            {
-                // Instantiate the PlayerLobbyUI prefab for each joined player
-                GameObject playerLobbyUI = Instantiate(PlayerLobbyUI, canvas.transform);
-                RectTransform playerLobbyRect = playerLobbyUI.GetComponent<RectTransform>();
-                playerLobbyRect.anchoredPosition = anchoredPosition; // Set the UI's anchored position
-                playerLobbyRect.localScale = new Vector3(120f, 120f, 1f); // Keep the UI's scale 300
-
-                // Set the player's marble to be centered inside the PlayerLobbyUI
-                PlayerInfo playerInfo = players[i];
-                playerInfo.playerInput.transform.position = new Vector3(playerLobbyUI.transform.position.x, playerLobbyUI.transform.position.y + 1.7f, playerLobbyUI.transform.position.z);
-                playerInfo.playerInput.transform.localScale = new Vector3(1.7f, 1.7f, 1.7f);
-                // Find child components of the marble tagged PlayerUI and make them invisible
-                playerInfo.playerInput.GetComponentInChildren<MarbleController>().transform.Find("FlickBarUI").gameObject.SetActive(false);
-                playerInfo.playerInput.GetComponentInChildren<MarbleController>().transform.Find("PlayerMarker").gameObject.SetActive(false);
-
-
-                // Update UI text for ready status
-                UpdatePlayerLobbyUIText(playerLobbyUI, playerInfo, i);
-            }
-            else
-            {
-                // Instantiate NoPlayerLobbyUI prefab for empty slots
-                GameObject noPlayerLobbyUI = Instantiate(NoPlayerLobbyUI, canvas.transform);
-                RectTransform noPlayerLobbyRect = noPlayerLobbyUI.GetComponent<RectTransform>();
-                noPlayerLobbyRect.anchoredPosition = anchoredPosition; // Set the UI's anchored position
-                noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f); ; // Keep the UI's scale 300
-            }
-        }
-    }
-
-    private void CheckIfAllPlayersReady()
-    {
-        // Return early if there are no players
-        if (players.Count == 0) return;
-        if (players.Count == 1)
+        if (players.Count < 2)
         {
             return;
         }
-
-        // Check if all players are ready
-        foreach (var player in players)
-        {
-            if (!player.playerInput.GetComponent<MarbleController>().ready)
-            {
-                HideBanner();
-                return;
-
-            }
-        }
-        ShowBanner();
-    }
-
-    public void StartMatch()
-    {
-        if (!bannerShowing) return;
-
-        // Get player 1's MarbleController
         MarbleController player1 = players[0].playerInput.GetComponentInChildren<MarbleController>();
-        if (player1 == null) return;
-        // Banner is showing, check if the player pressed A again.
-        player1.match_can_begin = true;
+        if (!bannerShowing)
+        {
+            player1.match_can_begin = false;
+            return;
+        }
 
-        // Ensure player1 is valid and can start the match
+        
+        player1.match_can_begin = true;
         if (player1.start_match)
         {
-            Destroy(spawned_banner);
-            spawned_banner = null;
-            start_match();
-
+            Destroy(spawnedBanner);
+            spawnedBanner = null;
+            BeginMatch();
         }
     }
+
 
     private void UpdatePlayerLobbyUIText(GameObject playerLobbyUI, PlayerInfo playerInfo, int playerIndex)
     {
@@ -278,132 +301,174 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void OnPlayerJoined(PlayerInput playerInput)
+
+    public void BeginMatch()
     {
-        PlayerInfo newPlayer = new PlayerInfo
-        {
-            playerInput = playerInput,
-            playerIndex = playerInput.playerIndex,
-
-        };
-        // Check if we are in the lobby
-        if (in_lobby)
-        {
-            newPlayer.playerInput.SwitchCurrentActionMap("UI");
-        }
-
-
-        // Store the new player
-        players.Add(newPlayer);
-
-        // Optionally log or update UI
-        Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
-        // Attempt to get the player object
-        GameObject playerGameObject = playerInput.gameObject;
-        PlayerInput pc = playerGameObject.GetComponentInChildren<PlayerInput>();
-    }
-
-    // Access player info if needed
-    public PlayerInfo GetPlayerInfo(int playerIndex)
-    {
-        return players.Find(player => player.playerIndex == playerIndex);
-    }
-
-    public List<PlayerInfo> GetAllPlayers()
-    {
-        return players;
-    }
-
-    // Will call this when starting a match, given settings.
-    public void start_match()
-    {
-        // Set game state to 'in game' and destroy the start banner
         SetInGame();
-        // Switch to the game scene
-        // Now that we've switched scenes we must deal with the players, players are destroyed on scene change, so we keep them like:
-        for (int i = 0; i < players.Count; i++)
+        DontDestroyPlayerObjects();
+        StartCoroutine(LoadSceneAndSetup(2));
+    }
+
+    private void DontDestroyPlayerObjects()
+    {
+        foreach (var player in players)
         {
-            DontDestroyOnLoad(players[i].playerInput.GameObject());
+            DontDestroyOnLoad(player.playerInput.gameObject);
         }
-        SceneManager.LoadSceneAsync(2);
+    }
+
+    private IEnumerator LoadSceneAndSetup(int sceneIndex)
+    {
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneIndex);
+        asyncLoad.allowSceneActivation = false;
+
+        while (!asyncLoad.isDone)
+        {
+            if (asyncLoad.progress >= 0.9f)
+            {
+                asyncLoad.allowSceneActivation = true;
+            }
+            yield return null;
+        }
+
+        SetupMatch();
+    }
+
+    private void SetupMatch()
+    {
         SetControlSchemeToGame();
         MoveAllPlayersOffScreen();
         SpawnMarblesInitial();
-        // We are now in game.
     }
 
-    public void SetControlSchemeToGame()
+    private void SetControlSchemeToGame()
     {
-        for (int i = 0; i < players.Count; i++)
+        foreach (var player in players)
         {
-            players[i].playerInput.SwitchCurrentActionMap("Marble");
-        }
-
-    }
-
-    public void MoveAllPlayersOffScreen()
-    {
-        if (players.Count == 0) return;
-        for (int i = 0; i < players.Count; i++)
-        {
-            players[i].playerInput.transform.position = new Vector3(1000, 0, 0);
-            // Freeze the player's position
-            players[i].playerInput.GetComponentInChildren<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePosition;
-            players[i].playerInput.GetComponentInChildren<MarbleController>().transform.Find("FlickBarUI").gameObject.SetActive(true);
-            players[i].playerInput.GetComponentInChildren<MarbleController>().transform.Find("PlayerMarker").gameObject.SetActive(true);
+            player.playerInput.SwitchCurrentActionMap("Marble");
         }
     }
 
-    // Spawns marbles initially, should not be used for re-spawning marbles.
-    public void SpawnMarblesInitial()
+    private void MoveAllPlayersOffScreen()
     {
-        // This method will change based on map and player count but for now we just spawn them evenly apart.
-        // For now just spawn them from x = -10 to x = 20 based on player count.
-        float x = -5;
-        float y = 0;
-        float z = 0;
-        if (players.Count == 0) return;
-        for (int i = 0; i < players.Count; i++)
+        foreach (var player in players)
         {
-            players[i].playerInput.transform.localScale = new Vector3(1f, 1f, 1f); // Back to normal
-            players[i].playerInput.transform.position = new Vector3(x, y, z);
-            // Enable the player's rigidbody
-            players[i].playerInput.GetComponentInChildren<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
-            x += 10;
+            player.playerInput.transform.position = new Vector3(1000, 0, 0);
+            player.playerInput.transform.localScale = new Vector3(1f, 1f, 1f);
+            FreezePlayerPosition(player);
         }
-
     }
 
-    // Checks if the marble has marked itself as dead.
-    // Removes a stock if possible. Does not check for game over.
+    private void FreezePlayerPosition(PlayerInfo player)
+    {
+        var rb = player.playerInput.GetComponentInChildren<Rigidbody2D>();
+        rb.constraints = RigidbodyConstraints2D.FreezePosition;
+        EnablePlayerUIComponents(player);
+    }
+
+    private void EnablePlayerUIComponents(PlayerInfo player)
+    {
+        MarbleController controller = player.playerInput.GetComponentInChildren<MarbleController>();
+        controller.transform.Find("FlickBarUI").gameObject.SetActive(true);
+        controller.transform.Find("PlayerMarker").gameObject.SetActive(true);
+    }
+
+    private void SpawnMarblesInitial()
+    {
+        GameObject map = GameObject.FindGameObjectWithTag("Map");
+        Map mapComponent = map.GetComponent<Map>();
+        List<Vector3> respawnLocations = mapComponent.getPlayerSpawnPoints();
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            MarbleController controller = players[i].playerInput.GetComponentInChildren<MarbleController>();
+            controller.transform.position = respawnLocations[i];
+            ResetPlayerPosition(players[i]);
+        }
+    }
+
+    private void ResetPlayerPosition(PlayerInfo player)
+    {
+        var rb = player.playerInput.GetComponentInChildren<Rigidbody2D>();
+        rb.constraints = RigidbodyConstraints2D.None;
+    }
+    #endregion
+
+    #region Marble Respawn and Death
     public void CheckForMarbleDeath()
     {
-
+        foreach (var player in players)
+        {
+            MarbleController mc = player.playerInput.GetComponentInChildren<MarbleController>();
+            if (mc.dead)
+            {
+                mc.dead = false;
+                mc.stockCount--;
+                RespawnMarble(player);
+            }
+        }
     }
 
-    // Respawns a marble, we will receive the respawn locations based on the map.
-    public void RespawnMarble()
+    private void RespawnMarble(PlayerInfo player)
     {
+        GameObject map = GameObject.FindGameObjectWithTag("Map");
+        Map mapComponent = map.GetComponent<Map>();
+        List<Vector3> respawnLocations = mapComponent.getPlayerSpawnPoints();
 
+        Vector3 respawnLocation = GetSafeRespawnLocation(respawnLocations, player);
+        MarbleController marbleController = player.playerInput.GetComponentInChildren<MarbleController>();
+        marbleController.transform.position = respawnLocation;
+
+        StartCoroutine(InvincibleMarble(marbleController));
     }
 
-    // Checks if the game is over, if so, ends the game.
-    public void CheckForGameOver()
+    private Vector3 GetSafeRespawnLocation(List<Vector3> respawnLocations, PlayerInfo player)
     {
+        Vector3 location = respawnLocations[UnityEngine.Random.Range(0, respawnLocations.Count)];
 
+        foreach (var otherPlayer in players)
+        {
+            if (otherPlayer != player && Vector3.Distance(otherPlayer.playerInput.transform.position, location) < 15)
+            {
+                location = respawnLocations[UnityEngine.Random.Range(0, respawnLocations.Count)];
+                break;
+            }
+        }
+
+        return location;
     }
 
+    private IEnumerator InvincibleMarble(MarbleController marbleController)
+    {
+        Rigidbody2D rb = marbleController.GetComponent<Rigidbody2D>();
+        rb.linearVelocity = Vector2.zero;
+        rb.constraints = RigidbodyConstraints2D.FreezePosition;
 
+        SpriteRenderer spr = marbleController.transform.Find("Sprite").GetComponent<SpriteRenderer>();
+        SpriteRenderer fire = marbleController.transform.Find("MomentumFireball").GetComponent<SpriteRenderer>();
+        fire.enabled = false;
+
+        for (int i = 0; i < 5; i++)
+        {
+            spr.color = Color.clear;
+            yield return new WaitForSeconds(0.2f);
+            spr.color = Color.white;
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        rb.constraints = RigidbodyConstraints2D.None;
+        fire.enabled = true;
+    }
+    #endregion
 }
 
-        // Class to store each player's information
+// Class to store each player's information
 [System.Serializable]
 public class PlayerInfo
 {
     public PlayerInput playerInput; // Stores the PlayerInput reference
     public int playerIndex;         // Stores the index of the player
-    public Sprite playerSprite;
-    // Add other relevant player data as needed
+    public Sprite playerSprite;     // Player's sprite
 }
 
 [System.Serializable]

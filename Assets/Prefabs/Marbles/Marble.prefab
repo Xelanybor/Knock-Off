@@ -880,15 +880,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flickTrajectoryShader: {fileID: -6465566751694194690, guid: 1fb274543548e4d4a818ba4a954dcd29, type: 3}
   FLICK_COUNT_MAX: 3
-  stockCount: 3
   spriteIndex: 0
+  stockCount: 3
   ready: 0
   match_can_begin: 0
   start_match: 0
+  flickCounter: 0
+  dead: 0
   flickCounterMax: 5
   flickCounterRegenRate: 0.5
   hasPowerup: 0
   flickSound: {fileID: 8300000, guid: bf3aeb6891c71de49aebc116b4effe25, type: 3}
+  dashSound: {fileID: 8300000, guid: 1a5e6d4e6a1b0044595d2237609522e5, type: 3}
+  chargeSound: {fileID: 8300000, guid: 9359d0a3009f12b45b5efc14a36810bc, type: 3}
+  mildCollisionSounds:
+  - {fileID: 8300000, guid: 09a9ea156871d9a40865cbaed13bacbe, type: 3}
+  - {fileID: 8300000, guid: 85cd874d999d45d4dad1876614b0f566, type: 3}
+  hardCollisionSound: {fileID: 8300000, guid: 2c48624aa409b3849b63fa961f0ca01f, type: 3}
+  damageVoiceLines:
+  - {fileID: 8300000, guid: e6502f0c1c71a3848902101b64f911d3, type: 3}
+  - {fileID: 8300000, guid: c9b07fc2ab232974fa61e0623fb8586c, type: 3}
+  - {fileID: 8300000, guid: 44545a8b17226fc42ac5f7e352611d97, type: 3}
+  - {fileID: 8300000, guid: 83488cb61f5ba68418db6c4ad0a0b142, type: 3}
+  killVoiceLines:
+  - {fileID: 8300000, guid: 2a1ad526dab63e2459c00d33a3ac71b8, type: 3}
+  - {fileID: 8300000, guid: ec1574a46341ea2478a4412c918c0352, type: 3}
+  - {fileID: 8300000, guid: 83c9db5c89095424e852ef695d836192, type: 3}
+  - {fileID: 8300000, guid: b6ac3c340530bd44e869827c011230e5, type: 3}
+  - {fileID: 8300000, guid: 73c6425e6629c28408f7afaaba4761a3, type: 3}
+  groundCollision: {fileID: 8300000, guid: 10a10cceff0f0e949b5d720cc5e60db0, type: 3}
 --- !u!114 &-2506996155117427033
 MonoBehaviour:
   m_ObjectHideFlags: 0

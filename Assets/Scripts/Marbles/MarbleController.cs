@@ -44,20 +44,23 @@ public class MarbleController : MonoBehaviour
     private bool resetMomentumNextUpdate = false; // Whether the marble's momentum should be reset on the next update
 
     // Game Variables
-    public int stockCount = 3; // Default stock count for the player.
     public int spriteIndex = 0;
+    public int stockCount = 3;
     public bool ready = true;
     public bool match_can_begin = false;
     public bool start_match = false;
+    public bool dead = false;
+
 
     // Flick Counter variables
-    private float flickCounter = 0f;            // Current flick energy
+    public float flickCounter = 0f;            // Current flick energy
     public float flickCounterMax = 5f;         // Maximum flick energy
     public float flickCounterRegenRate = 1f;   // Energy regenerated per second
 
     // Events for communicating and updating flick bar
     public event EventHandler<OnUpdateEventArgs> OnEnergyUpdate;        // increment over time and decrement when release flick
     public event EventHandler<OnFlickBarCharge> OnCharge;               // when flicking held
+
     public class OnUpdateEventArgs : EventArgs
     {
         public float progressNormalized;
@@ -90,9 +93,18 @@ public class MarbleController : MonoBehaviour
 
     // Audio
     [SerializeField] private AudioClip flickSound;
-    //[SerializeField] private AudioClip chargeSound;
+    [SerializeField] private AudioClip dashSound;
+    [SerializeField] private AudioClip chargeSound;
+    private AudioSource chargeSource;
+
     //[SerializeField] private AudioClip jumpSound;
-    //[SerializeField] private AudioClip[] collisionSounds;
+    [SerializeField] private AudioClip[] mildCollisionSounds;
+    [SerializeField] private AudioClip hardCollisionSound;
+    [SerializeField] private AudioClip[] damageVoiceLines;
+    [SerializeField] private AudioClip[] killVoiceLines;
+
+    // collision with ground objects
+    [SerializeField] private AudioClip groundCollision;
 
 
     // MODIFIABLE STATS
@@ -100,6 +112,7 @@ public class MarbleController : MonoBehaviour
     private Dictionary<string, float> stats = new Dictionary<string, float> {
         // Dashing
         {"DASH_TIME_MULTIPLIER", 1f},
+        {"DASH_DISTANCE_MULTIPLIER", 1f},
 
         // Movement
         {"MAX_SPEED_MULTIPLIER", 1f},
@@ -108,6 +121,7 @@ public class MarbleController : MonoBehaviour
 
         // Flicks
         {"FLICK_CHARGE_SPEED_MULTIPLIER", 1f},
+        {"FLICK_REGEN_RATE_MULTIPLIER", 1f},
         {"FLICK_FORCE_MULTIPLIER", 1f},
         {"FLICK_MOMENTUM_MULTIPLIER", 1f},
 
@@ -118,6 +132,9 @@ public class MarbleController : MonoBehaviour
         // Attacking
         {"EXTRA_KNOCKBACK_DEALT", 0f},
         {"EXTRA_PERCENTAGE_DAMAGE_DEALT", 0f},
+
+        // ignore
+        {"EXTRA_FLICK", 0f}
 
     };
 
@@ -145,6 +162,45 @@ public class MarbleController : MonoBehaviour
             stats[key] -= statChanges[key];
         }
 
+    }
+
+    // take string for marble name, set stats accordingly
+    public void SetMarbleType(string name)
+    {
+        name = name.ToUpper();
+        switch (name)
+        {
+            case "CAT":
+                SetStats(new Dictionary<string, float> {
+                    {"DASH_TIME_MULTIPLIER", 0.5f},     // + quicker dash
+                    {"DASH_DISTANCE_MULTIPLIER", 1.2f}, // + further dash
+                    {"KNOCKBACK_RESISTANCE", -0.2f},     // - less knockback resistance
+                    });
+                break;
+
+            case "SWIRLY":
+                SetStats(new Dictionary<string, float> {
+                    {"MAX_SPEED_MULTIPLIER", 1.4f},            // + higher max speed
+                    {"ACCELERATION_MULTIPLIER", 1.2f},         // + more acc
+                    {"FLICK_REGEN_RATE_MULTIPLIER", 0.75f},  // - less charging
+                    });
+                break;
+
+            case "STARRY":
+                SetStats(new Dictionary<string, float> {
+                    {"FLICK_CHARGE_SPEED_MULTIPLIER", 1.25f},      // + flick charge faster
+                    {"FLICK_REGEN_RATE_MULTIPLIER", 1.25f},        // + flick regen faster
+                    {"EXTRA_KNOCKBACK_DEALT", -0.2f},               // - less knockback dealt
+                    {"EXTRA_PERCENTAGE_DAMAGE_DEALT", -0.2f}});     // less percentage dealt
+                break;
+
+            case "RUSTY":
+                SetStats(new Dictionary<string, float> {
+                    {"ACCELERATION_MULTIPLIER", 0.8f},        // - acceleration
+                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0.5f},   // + damage resistance
+                    }); 
+                break;
+        }
     }
 
     // Get specific stat
@@ -212,7 +268,7 @@ public class MarbleController : MonoBehaviour
         // flick energy level updating
         if (flickCounter < flickCounterMax)
         {
-            flickCounter += flickCounterRegenRate * Time.deltaTime; // increment
+            flickCounter += flickCounterRegenRate * stats["FLICK_REGEN_RATE_MULTIPLIER"] * Time.deltaTime; // increment
             if (flickCounter > flickCounterMax)
             {
                 flickCounter = flickCounterMax;
@@ -347,6 +403,11 @@ public class MarbleController : MonoBehaviour
             // if flick energy less than 1 charge can't start charging flick
             return;
         }
+        // start audio
+        if (chargeSource == null)
+        {
+            chargeSource = SoundFXManager.Instance.PlaySoundFXClip(chargeSound, gameObject.transform, 0.1f);
+        }
         chargingFlick = true;
         rb.linearVelocity *= FLICK_SLOWDOWN;
         rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
@@ -363,6 +424,11 @@ public class MarbleController : MonoBehaviour
     {
         if (!chargingFlick) return;
         SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.2f);
+        // stop audio
+        if (chargeSource != null)
+        {
+            SoundFXManager.Instance.StopSound(chargeSource);
+        }
 
         // decrement flickCounter by the cost of the charge
         float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];
@@ -409,7 +475,7 @@ public class MarbleController : MonoBehaviour
         canDash = false;
 
         // Calculate the dash velocity (movementInput is already normalized)
-        dashVelocity = movementInput * DASH_DISTANCE / dashTimer;
+        dashVelocity = movementInput * DASH_DISTANCE * stats["DASH_DISTANCE_MULTIPLER"] / dashTimer;
         rb.gravityScale = 0;
         rb.linearVelocity = dashVelocity;
         momentum = 0;
@@ -425,12 +491,15 @@ public class MarbleController : MonoBehaviour
         {
             canJump = true;
             canDash = true;
+            SoundFXManager.Instance.PlaySoundFXClip(groundCollision, gameObject.transform, 0.2f);
         }
 
         // On collision with a kill zone
         if (collision.gameObject.CompareTag("KillZone"))
         {
-            // TODO: Code for respawning goes here !!!
+            this.stockCount = this.stockCount - 1;
+            this.dead = true;
+            
         }
 
         // On collision with another marble
@@ -469,8 +538,23 @@ public class MarbleController : MonoBehaviour
                 force = (enemyMomentum - effectiveMomentum) * 1.5f;
 
                 // Apply damage to the marble
-                percentage += (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
+                float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
+                percentage += damage;
+                // choose collision sound effect to apply
+                if (damage > 0 && damage <= 50)
+                {
+                    SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.5f);
+                }
+                else
+                {
+                    SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.4f);
+                    SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
+                }
+                
+                SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
+                
             }
+
 
             // Apply the force
             force *= Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f); // Apply percentage modifier
@@ -569,6 +653,7 @@ public class MarbleController : MonoBehaviour
         if (context.performed)
         {
             this.Dash();
+            SoundFXManager.Instance.PlaySoundFXClip(dashSound, gameObject.transform, 0.3f);
         }
     }
     

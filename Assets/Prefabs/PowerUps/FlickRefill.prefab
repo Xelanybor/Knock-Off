@@ -148,3 +148,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerupEffect: {fileID: 11400000, guid: 5f8678b838fe8c748ad3b8ee832f96ae, type: 2}
+  powerupConsumed: {fileID: 8300000, guid: 142e1e415c68b8c4ca224ed12dd305d4, type: 3}
