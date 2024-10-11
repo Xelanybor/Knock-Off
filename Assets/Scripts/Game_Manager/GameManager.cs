@@ -1,12 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static MarbleController;
 
 public class GameManager : MonoBehaviour
 {
@@ -28,9 +31,10 @@ public class GameManager : MonoBehaviour
 
     // Player and Bot Data
     private List<PlayerInfo> players = new List<PlayerInfo>();
-    private List<BotInfo> bots = new List<BotInfo>();
 
-    [SerializeField] private MarbleController botController;
+    [SerializeField]
+    private GameObject BotPrefab;
+
 
 
 
@@ -53,6 +57,7 @@ public class GameManager : MonoBehaviour
     {
         EnsureSingleton();
     }
+
 
     private void EnsureSingleton()
     {
@@ -142,6 +147,10 @@ public class GameManager : MonoBehaviour
         playerLobbyRect.localScale = new Vector3(300f, 300f, 1f);
 
         PlayerInfo playerInfo = players[playerIndex];
+        if (playerInfo == null)
+        {
+            return;
+        }
         UpdatePlayerUIPosition(playerInfo, playerLobbyUI.transform.position);
         UpdatePlayerLobbyUIText(playerLobbyUI, playerInfo, playerIndex);
     }
@@ -156,14 +165,18 @@ public class GameManager : MonoBehaviour
 
     private void UpdatePlayerUIPosition(PlayerInfo playerInfo, Vector3 uiPosition)
     {
-        playerInfo.playerInput.transform.position = new Vector3(uiPosition.x, uiPosition.y + 0.2f, uiPosition.z);
-        playerInfo.playerInput.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        if (playerInfo.parent == null)
+        {
+            return;
+        }
+        playerInfo.parent.transform.position = new Vector3(uiPosition.x, uiPosition.y + 0.2f, uiPosition.z);
+        playerInfo.parent.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
         HidePlayerUIComponents(playerInfo);
     }
 
     private void HidePlayerUIComponents(PlayerInfo playerInfo)
     {
-        MarbleController controller = playerInfo.playerInput.GetComponentInChildren<MarbleController>();
+        MarbleController controller = playerInfo.marbleController;
         controller.transform.Find("FlickBarUI").gameObject.SetActive(false);
         controller.transform.Find("PlayerMarker").gameObject.SetActive(false);
     }
@@ -175,17 +188,68 @@ public class GameManager : MonoBehaviour
         PlayerInfo newPlayer = new PlayerInfo
         {
             playerInput = playerInput,
-            playerIndex = playerInput.playerIndex
+            parent = playerInput.gameObject,
+            marbleController = playerInput.GetComponentInChildren<MarbleController>(),
+            playerIndex = playerInput.playerIndex,
+            AmBot = false
         };
+
 
         if (inLobby)
         {
             newPlayer.playerInput.SwitchCurrentActionMap("UI");
+            newPlayer.marbleController.AddBot += Player_RequestAddBot;
+            newPlayer.marbleController.RemoveBot += Player_RequestRemoveBot;
         }
 
         players.Add(newPlayer);
         Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
     }
+
+    // Bot Management.
+    private void Player_RequestAddBot(object sender, MarbleController.OnAddBot e)
+    {
+        // Check if possible to add bot
+        if (players.Count < 4)
+        {
+            PlayerInfo newPlayer = new PlayerInfo
+            {
+                playerInput = null,
+                playerIndex = players.Count,
+                playerSprite = null,
+                AmBot = true
+            };
+            Debug.Log($"Bot {newPlayer.playerIndex} joined the game!");
+            // Instantiate bot prefab
+            GameObject bot = Instantiate(BotPrefab, new Vector3(0,0,0), Quaternion.identity);
+            newPlayer.marbleController = bot.GetComponent<MarbleController>();
+            newPlayer.parent = bot;
+            newPlayer.marbleController.ready = true;
+            players.Add(newPlayer);
+
+
+        }
+    }
+
+    private void Player_RequestRemoveBot(object sender, MarbleController.OnRemoveBot e)
+    {
+        // Check if possible to remove bot
+        if (players.Count < 2)
+        {
+            return;
+        }
+        foreach (var player in players)
+        {
+            if (player.AmBot)
+            {
+                players.Remove(player);
+                Destroy(player.parent);
+                break;
+            }
+        }
+    }
+
+
 
     private void CheckIfAllPlayersReady()
     {
@@ -196,7 +260,7 @@ public class GameManager : MonoBehaviour
 
         foreach (var player in players)
         {
-            if (!player.playerInput.GetComponent<MarbleController>().ready)
+            if (!player.marbleController.ready)
             {
                 HideBanner();
                 return;
@@ -210,7 +274,7 @@ public class GameManager : MonoBehaviour
     {
         foreach (var player in players)
         {
-            MarbleController controller = player.playerInput.GetComponentInChildren<MarbleController>();
+            MarbleController controller = player.marbleController;
 
             if (controller != null && controller.spriteIndex < spriteList.Count)
             {
@@ -259,7 +323,7 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        MarbleController player1 = players[0].playerInput.GetComponentInChildren<MarbleController>();
+        MarbleController player1 = players[0].marbleController;
         if (!bannerShowing)
         {
             player1.match_can_begin = false;
@@ -279,7 +343,7 @@ public class GameManager : MonoBehaviour
 
     private void UpdatePlayerLobbyUIText(GameObject playerLobbyUI, PlayerInfo playerInfo, int playerIndex)
     {
-        MarbleController mc = playerInfo.playerInput.GetComponent<MarbleController>();
+        MarbleController mc = playerInfo.marbleController;
         TMP_Text[] labels = playerLobbyUI.GetComponentsInChildren<TMP_Text>();
 
         foreach (var label in labels)
@@ -313,7 +377,7 @@ public class GameManager : MonoBehaviour
     {
         foreach (var player in players)
         {
-            DontDestroyOnLoad(player.playerInput.gameObject);
+            DontDestroyOnLoad(player.parent);
         }
     }
 
@@ -345,6 +409,13 @@ public class GameManager : MonoBehaviour
     {
         foreach (var player in players)
         {
+            if (player.AmBot)
+            {
+                // Get the bot controller and set it up
+                BotController botController = player.marbleController.GetComponent<BotController>();
+                botController.SetMarble(player.marbleController);
+                continue;
+            }
             player.playerInput.SwitchCurrentActionMap("Marble");
         }
     }
@@ -353,22 +424,22 @@ public class GameManager : MonoBehaviour
     {
         foreach (var player in players)
         {
-            player.playerInput.transform.position = new Vector3(1000, 0, 0);
-            player.playerInput.transform.localScale = new Vector3(1f, 1f, 1f);
+            player.marbleController.transform.position = new Vector3(1000, 0, 0);
+            player.marbleController.transform.localScale = new Vector3(1f, 1f, 1f);
             FreezePlayerPosition(player);
         }
     }
 
     private void FreezePlayerPosition(PlayerInfo player)
     {
-        var rb = player.playerInput.GetComponentInChildren<Rigidbody2D>();
+        var rb = player.marbleController.GetComponentInChildren<Rigidbody2D>();
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         EnablePlayerUIComponents(player);
     }
 
     private void EnablePlayerUIComponents(PlayerInfo player)
     {
-        MarbleController controller = player.playerInput.GetComponentInChildren<MarbleController>();
+        MarbleController controller = player.marbleController;
         controller.transform.Find("FlickBarUI").gameObject.SetActive(true);
         controller.transform.Find("PlayerMarker").gameObject.SetActive(true);
     }
@@ -381,7 +452,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < players.Count; i++)
         {
-            MarbleController controller = players[i].playerInput.GetComponentInChildren<MarbleController>();
+            MarbleController controller = players[i].marbleController;
             controller.transform.position = respawnLocations[i];
             ResetPlayerPosition(players[i]);
         }
@@ -389,7 +460,7 @@ public class GameManager : MonoBehaviour
 
     private void ResetPlayerPosition(PlayerInfo player)
     {
-        var rb = player.playerInput.GetComponentInChildren<Rigidbody2D>();
+        var rb = player.marbleController.GetComponentInChildren<Rigidbody2D>();
         rb.constraints = RigidbodyConstraints2D.None;
     }
     #endregion
@@ -399,7 +470,7 @@ public class GameManager : MonoBehaviour
     {
         foreach (var player in players)
         {
-            MarbleController mc = player.playerInput.GetComponentInChildren<MarbleController>();
+            MarbleController mc = player.marbleController;
             if (mc.dead)
             {
                 mc.dead = false;
@@ -416,7 +487,7 @@ public class GameManager : MonoBehaviour
         List<Vector3> respawnLocations = mapComponent.getPlayerSpawnPoints();
 
         Vector3 respawnLocation = GetSafeRespawnLocation(respawnLocations, player);
-        MarbleController marbleController = player.playerInput.GetComponentInChildren<MarbleController>();
+        MarbleController marbleController = player.marbleController;
         marbleController.transform.position = respawnLocation;
 
         StartCoroutine(InvincibleMarble(marbleController));
@@ -424,21 +495,40 @@ public class GameManager : MonoBehaviour
 
     private Vector3 GetSafeRespawnLocation(List<Vector3> respawnLocations, PlayerInfo player)
     {
-        Vector3 location = respawnLocations[UnityEngine.Random.Range(0, respawnLocations.Count)];
+        Vector3 bestLocation = Vector3.zero;
+        float maxMinDistance = -1f; // Track the largest minimum distance
 
-        foreach (var otherPlayer in players)
+        // Loop through each spawn location
+        foreach (var location in respawnLocations)
         {
-            if (otherPlayer != player && Vector3.Distance(otherPlayer.playerInput.transform.position, location) < 15)
+            float minDistanceToAnyPlayer = float.MaxValue;
+
+            // Check the distance to all other players
+            foreach (var otherPlayer in players)
             {
-                location = respawnLocations[UnityEngine.Random.Range(0, respawnLocations.Count)];
-                break;
+                if (otherPlayer != player)
+                {
+                    float distance = Vector3.Distance(otherPlayer.marbleController.transform.position, location);
+                    if (distance < minDistanceToAnyPlayer)
+                    {
+                        minDistanceToAnyPlayer = distance;
+                    }
+                }
+            }
+
+            // Track the spawn point with the largest minimum distance from any player
+            if (minDistanceToAnyPlayer > maxMinDistance)
+            {
+                maxMinDistance = minDistanceToAnyPlayer;
+                bestLocation = location;
             }
         }
 
-        return location;
+        // Return the best location found
+        return bestLocation;
     }
 
-    private IEnumerator InvincibleMarble(MarbleController marbleController)
+private IEnumerator InvincibleMarble(MarbleController marbleController)
     {
         Rigidbody2D rb = marbleController.GetComponent<Rigidbody2D>();
         rb.linearVelocity = Vector2.zero;
@@ -467,12 +557,10 @@ public class GameManager : MonoBehaviour
 public class PlayerInfo
 {
     public PlayerInput playerInput; // Stores the PlayerInput reference
+    public GameObject parent = null;
+    public MarbleController marbleController; // Stores the MarbleController reference
     public int playerIndex;         // Stores the index of the player
     public Sprite playerSprite;     // Player's sprite
+    public bool AmBot;              // Is the player a bot?
 }
 
-[System.Serializable]
-public class BotInfo
-{
-    public Sprite botSprite;
-}

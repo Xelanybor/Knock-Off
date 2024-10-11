@@ -151,11 +151,11 @@ MonoBehaviour:
   PlayerLobbyUI: {fileID: 9126572185111864833, guid: 8468ba895babfe048bcb6475c8de0b2c, type: 3}
   NoPlayerLobbyUI: {fileID: 4997263528236107159, guid: f9fee9e4c4da2ee4ea7c52c98c8e5ad0, type: 3}
   BotLobbyUI: {fileID: 511878158542932032, guid: 0cb6e88a808ad89459a3da583c6a6184, type: 3}
-  StartBannnerUI: {fileID: 7270144442255831564, guid: 1512737dd56af35459e89d600b74cb41, type: 3}
-  sprite_list:
+  StartBannerUI: {fileID: 7270144442255831564, guid: 1512737dd56af35459e89d600b74cb41, type: 3}
+  spriteList:
   - {fileID: 4545539728082940926, guid: 62bf4c6b71b03114a9900fc6b9091593, type: 3}
   - {fileID: -2413806693520163455, guid: 769b858773890a444b531dfdb25d98cf, type: 3}
-  botController: {fileID: 0}
+  BotPrefab: {fileID: 6649672937086834804, guid: 5a42565d9c449a84e946d81f73658357, type: 3}
 --- !u!114 &957250978
 MonoBehaviour:
   m_ObjectHideFlags: 0

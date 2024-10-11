@@ -61,6 +61,19 @@ public class MarbleController : MonoBehaviour
     public event EventHandler<OnUpdateEventArgs> OnEnergyUpdate;        // increment over time and decrement when release flick
     public event EventHandler<OnFlickBarCharge> OnCharge;               // when flicking held
 
+    public event EventHandler<OnAddBot> AddBot;
+    public event EventHandler<OnRemoveBot> RemoveBot;
+
+    public class OnAddBot : EventArgs
+    {
+        public bool addBot;
+    }
+
+    public class OnRemoveBot : EventArgs
+    {
+        public bool removeBot;
+    }
+
     public class OnUpdateEventArgs : EventArgs
     {
         public float progressNormalized;
@@ -624,6 +637,28 @@ public class MarbleController : MonoBehaviour
         if (!ready)
         {
             spriteIndex = (spriteIndex + 1) % 2;
+        }
+    }
+
+    public void OnRequestAddBot(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            AddBot?.Invoke(this, new OnAddBot
+            {
+                addBot = true
+            });
+        }
+    }
+
+    public void OnRequestRemoveBot(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            RemoveBot?.Invoke(this, new OnRemoveBot
+            {
+                removeBot = true
+            });
         }
     }
 

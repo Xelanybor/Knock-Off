@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class BotController : MonoBehaviour
 {
 
-    [SerializeField] private MarbleController marblePrefab;
+    // Get Marble Controller from the bot when we are instantiated
     private MarbleController marble;
     private Transform marbleTransform;
 
@@ -19,16 +19,22 @@ public class BotController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        marble = Instantiate(marblePrefab, new Vector3(4, -1, 0), Quaternion.identity);
-        if (!marble.TryGetComponent<Transform>(out marbleTransform))
-        {
-            Debug.LogError("Marble prefab does not have a Transform component!");
-        }
+
+    }
+    // Instantiation Function
+    public void SetMarble(MarbleController marble)
+    {
+        this.marble = marble;
+        marbleTransform = marble.transform;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (marble == null)
+        {
+            return;
+        }
 
         if (flickCooldownTimer > 0)
         {
