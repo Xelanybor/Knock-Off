@@ -29,6 +29,15 @@ public class GameManager : MonoBehaviour
 
     // Player and Bot Data
     private List<PlayerInfo> players = new List<PlayerInfo>();
+    private int botPosition = 0; // Since bots are added to the end of the list, all bots will have an index greater than this value
+
+    private List<Color> playerColors = new List<Color>
+    {
+        Color.red,
+        Color.blue,
+        Color.green,
+        Color.yellow
+    };
 
     [SerializeField]
     private GameObject BotPrefab;
@@ -121,7 +130,7 @@ public class GameManager : MonoBehaviour
                 GetComponent<PlayerInputManager>().enabled = true; // Enable player input
                 SetGameState(GameState.Lobby);
                 break;
-            case "Game":
+            case "Arena":
                 SetGameState(GameState.Game);
                 break;
             case "Tutorial":
@@ -187,13 +196,39 @@ public class GameManager : MonoBehaviour
         float slotWidth = canvasWidth / numberOfSlots;
         float startingX = -(canvasWidth / 2) + (slotWidth / 2);
 
+        // Sort the players so that bots are at the end
+        for (int i = 0; i < players.Count - 1; i++)
+        {
+            if (players[i].AmBot && !players[i+1].AmBot)
+            {
+                PlayerInfo temp = players[i];
+                players[i] = players[i + 1];
+                players[i + 1] = temp;
+            }
+        }
+
         for (int i = 0; i < numberOfSlots; i++)
         {
+
+            // Update marble names
+            if (i < players.Count)
+            {
+                if (players[i].AmBot) players[i].name = "CPU " + (i - botPosition + 1);
+                else players[i].name = "Player " + (i + 1);
+            }
+
+            // Update player colors
+            if (i < players.Count)
+            {
+                players[i].color = playerColors[i];
+            }
+
             Vector2 anchoredPosition = new Vector2(startingX + i * slotWidth, 0f);
 
             if (i < players.Count)
             {
-                CreatePlayerLobbyUI(i, anchoredPosition);
+                if (players[i].AmBot) CreateBotLobbyUI(i, anchoredPosition);
+                else CreatePlayerLobbyUI(i, anchoredPosition);
             }
             else
             {
@@ -204,7 +239,17 @@ public class GameManager : MonoBehaviour
 
     private void CreatePlayerLobbyUI(int playerIndex, Vector2 anchoredPosition)
     {
-        GameObject playerLobbyUI = Instantiate(PlayerLobbyUI, GameObject.FindWithTag("Canvas").transform);
+        CreateMarbleLobbyUI(playerIndex, anchoredPosition, PlayerLobbyUI);
+    }
+
+    private void CreateBotLobbyUI(int playerIndex, Vector2 anchoredPosition)
+    {
+        CreateMarbleLobbyUI(playerIndex, anchoredPosition, BotLobbyUI);
+    }
+
+    private void CreateMarbleLobbyUI(int playerIndex, Vector2 anchoredPosition, GameObject marbleLobbyUI)
+    {
+        GameObject playerLobbyUI = Instantiate(marbleLobbyUI, GameObject.FindWithTag("Canvas").transform);
         RectTransform playerLobbyRect = playerLobbyUI.GetComponent<RectTransform>();
         playerLobbyRect.anchoredPosition = anchoredPosition;
         playerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
@@ -216,6 +261,7 @@ public class GameManager : MonoBehaviour
         }
         UpdatePlayerUIPosition(playerInfo, playerLobbyUI.transform.position);
         UpdatePlayerLobbyUIText(playerLobbyUI, playerInfo, playerIndex);
+        UpdatePlayerLobbyUIColour(playerLobbyUI, playerInfo);
     }
 
     private void CreateEmptyLobbySlot(Vector2 anchoredPosition)
@@ -224,6 +270,37 @@ public class GameManager : MonoBehaviour
         RectTransform noPlayerLobbyRect = noPlayerLobbyUI.GetComponent<RectTransform>();
         noPlayerLobbyRect.anchoredPosition = anchoredPosition;
         noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
+    }
+
+    private void UpdatePlayerLobbyUIColour(GameObject playerLobbyUI, PlayerInfo playerInfo)
+    {
+        MarbleController mc = playerInfo.marbleController;
+        SpriteRenderer[] spriteRenderers = playerLobbyUI.GetComponentsInChildren<SpriteRenderer>();
+
+        // Which components to change the colour of
+        string[] colourComponents = {
+            "IndicatorChevron",
+            "PlayerBorder",
+        };
+
+        foreach (var sprite in spriteRenderers)
+        {
+            if (colourComponents.Contains(sprite.name))
+            sprite.color = playerInfo.color;
+        }
+
+        string[] colourTexts = {
+            "PlayerIndicator",
+            "MarbleName",
+        };
+
+        TMP_Text[] labels = playerLobbyUI.GetComponentsInChildren<TMP_Text>();
+
+        foreach (var label in labels)
+        {
+            if (colourTexts.Contains(label.name))
+            label.color = playerInfo.color;
+        }
     }
 
     private void UpdatePlayerUIPosition(PlayerInfo playerInfo, Vector3 uiPosition)
@@ -248,6 +325,9 @@ public class GameManager : MonoBehaviour
     #region Player Management
     public void OnPlayerJoined(PlayerInput playerInput)
     {
+
+        ++botPosition; // Keep track of where the bots start in the player list
+
         PlayerInfo newPlayer = new PlayerInfo
         {
             playerInput = playerInput,
@@ -421,11 +501,11 @@ public class GameManager : MonoBehaviour
             else if (label.name == "ReadyStatus")
             {
                 // Update the ready/unready prompt
-                label.text = mc.ready ? "Press A/Space to unready." : "Press A/Space to ready up!";
+                label.text = mc.ready ? "Press B/Esc to unready." : "Press A/Space to ready up!";
             }
             if (label.name == "PlayerIndicator")
             {
-                label.text = "Player " + (1 + playerIndex);
+                label.text = playerInfo.name;
             }
         }
     }
@@ -465,23 +545,28 @@ public class GameManager : MonoBehaviour
 
     private void SetupMatch()
     {
-        SetControlSchemeToGame();
+        MakeMarblesReadyForGame();
         MoveAllPlayersOffScreen();
         SpawnMarblesInitial();
     }
 
-    private void SetControlSchemeToGame()
+    private void MakeMarblesReadyForGame()
     {
         foreach (var player in players)
         {
+            // Set control scheme to Marble
             if (player.AmBot)
             {
                 // Get the bot controller and set it up
                 BotController botController = player.marbleController.GetComponent<BotController>();
                 botController.SetMarble(player.marbleController);
-                continue;
             }
-            player.playerInput.SwitchCurrentActionMap("Marble");
+            else player.playerInput.SwitchCurrentActionMap("Marble");
+
+            // Update marble UI
+            SetMarbleUIColour(player);
+            SetMarbleUIName(player);
+
         }
     }
 
@@ -507,6 +592,50 @@ public class GameManager : MonoBehaviour
         MarbleController controller = player.marbleController;
         controller.transform.Find("FlickBarUI").gameObject.SetActive(true);
         controller.transform.Find("PlayerMarker").gameObject.SetActive(true);
+    }
+
+    private void SetMarbleUIColour(PlayerInfo player)
+    {
+        MarbleController mc = player.marbleController;
+        Image[] images = mc.gameObject.GetComponentsInChildren<Image>(includeInactive: true);
+        string[] colourComponents = {
+            "barBorder",
+            "Arrow",
+        };
+
+        foreach (var image in images)
+        {
+            if (colourComponents.Contains(image.name))
+            image.color = player.color;
+        }
+
+        TMP_Text[] labels = mc.GetComponentsInChildren<TMP_Text>(includeInactive: true);
+        string[] colourTexts = {
+            "PlayerNumber"
+        };
+
+        foreach (var label in labels)
+        {
+            if (colourTexts.Contains(label.name))
+            label.color = player.color;
+        }
+        
+    }
+
+    private void SetMarbleUIName(PlayerInfo player)
+    {
+        MarbleController mc = player.marbleController;
+        TMP_Text[] labels = mc.gameObject.GetComponentsInChildren<TMP_Text>(includeInactive: true);
+
+        Debug.Log("Setting player name to " + player.name);
+        Debug.Log("Searching " + mc.gameObject.name + " for labels");
+        Debug.Log(labels.Length);
+
+        foreach (var label in labels)
+        {
+            if (label.name == "PlayerNumber")
+            label.text = player.name;
+        }
     }
 
     private void SpawnMarblesInitial()
@@ -627,5 +756,7 @@ public class PlayerInfo
     public int playerIndex;         // Stores the index of the player
     public Sprite playerSprite;     // Player's sprite
     public bool AmBot;              // Is the player a bot?
+    public string name;             // Player's name
+    public Color color;             // Player's color
 }
 
