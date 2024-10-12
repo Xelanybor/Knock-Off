@@ -21,7 +21,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject BotLobbyUI;
     [SerializeField] private GameObject StartBannerUI;
 
-    [SerializeField] private List<Sprite> spriteList;
+    [SerializeField] private List<Sprite> characterSprites;
+    [SerializeField] private List<string> characterNames;
 
 
     private bool bannerShowing = false;
@@ -145,7 +146,6 @@ public class GameManager : MonoBehaviour
     private void HandleLobbyState()
     {
         PaintLobbyUI();
-        CheckForChangeSkin();
         CheckIfAllPlayersReady();
         StartMatch();
     }
@@ -413,17 +413,13 @@ public class GameManager : MonoBehaviour
         ShowBanner();
     }
 
-    private void CheckForChangeSkin()
+    public void ChangeMarbleCharacter(MarbleController controller, Vector3 navigationDirection)
     {
-        foreach (var player in players)
-        {
-            MarbleController controller = player.marbleController;
-
-            if (controller != null && controller.spriteIndex < spriteList.Count)
-            {
-                UpdateMarbleSprite(controller);
-            }
-        }
+        int indexChange = navigationDirection.x > 0 ? 1 : -1;
+        controller.characterIndex = (controller.characterIndex + indexChange) % characterNames.Count;
+        if (controller.characterIndex < 0) controller.characterIndex = characterNames.Count - 1;
+        Debug.Log(controller.characterIndex);
+        UpdateMarbleSprite(controller);
     }
 
     private void UpdateMarbleSprite(MarbleController controller)
@@ -432,7 +428,7 @@ public class GameManager : MonoBehaviour
         if (spriteTransform != null)
         {
             SpriteRenderer spriteRenderer = spriteTransform.GetComponent<SpriteRenderer>();
-            spriteRenderer.sprite = spriteList[controller.spriteIndex];
+            spriteRenderer.sprite = characterSprites[controller.characterIndex];
             spriteRenderer.sortingOrder = 1;
         }
     }
