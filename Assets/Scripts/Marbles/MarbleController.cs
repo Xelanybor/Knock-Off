@@ -648,6 +648,11 @@ public class MarbleController : MonoBehaviour
         return momentum;
     }
 
+    public float GetPercentage()
+    {
+        return percentage;
+    }
+
     public void OnMove(InputAction.CallbackContext context)
     {
         this.MovementInput(context.ReadValue<Vector2>());
