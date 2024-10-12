@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
 
     // Player and Bot Data
     private List<PlayerInfo> players = new List<PlayerInfo>();
+    private int botPosition = 0; // Since bots are added to the end of the list, all bots will have an index greater than this value
 
     [SerializeField]
     private GameObject BotPrefab;
@@ -187,13 +188,33 @@ public class GameManager : MonoBehaviour
         float slotWidth = canvasWidth / numberOfSlots;
         float startingX = -(canvasWidth / 2) + (slotWidth / 2);
 
+        // Sort the players so that bots are at the end
+        for (int i = 0; i < players.Count - 1; i++)
+        {
+            if (players[i].AmBot && !players[i+1].AmBot)
+            {
+                PlayerInfo temp = players[i];
+                players[i] = players[i + 1];
+                players[i + 1] = temp;
+            }
+        }
+
         for (int i = 0; i < numberOfSlots; i++)
         {
+
+            // Update marble names
+            if (i < players.Count)
+            {
+                if (players[i].AmBot) players[i].name = "CPU " + (i - botPosition + 1);
+                else players[i].name = "Player " + (i + 1);
+            }
+
             Vector2 anchoredPosition = new Vector2(startingX + i * slotWidth, 0f);
 
             if (i < players.Count)
             {
-                CreatePlayerLobbyUI(i, anchoredPosition);
+                if (players[i].AmBot) CreateBotLobbyUI(i, anchoredPosition);
+                else CreatePlayerLobbyUI(i, anchoredPosition);
             }
             else
             {
@@ -204,7 +225,17 @@ public class GameManager : MonoBehaviour
 
     private void CreatePlayerLobbyUI(int playerIndex, Vector2 anchoredPosition)
     {
-        GameObject playerLobbyUI = Instantiate(PlayerLobbyUI, GameObject.FindWithTag("Canvas").transform);
+        CreateMarbleLobbyUI(playerIndex, anchoredPosition, PlayerLobbyUI);
+    }
+
+    private void CreateBotLobbyUI(int playerIndex, Vector2 anchoredPosition)
+    {
+        CreateMarbleLobbyUI(playerIndex, anchoredPosition, BotLobbyUI);
+    }
+
+    private void CreateMarbleLobbyUI(int playerIndex, Vector2 anchoredPosition, GameObject marbleLobbyUI)
+    {
+        GameObject playerLobbyUI = Instantiate(marbleLobbyUI, GameObject.FindWithTag("Canvas").transform);
         RectTransform playerLobbyRect = playerLobbyUI.GetComponent<RectTransform>();
         playerLobbyRect.anchoredPosition = anchoredPosition;
         playerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
@@ -248,6 +279,9 @@ public class GameManager : MonoBehaviour
     #region Player Management
     public void OnPlayerJoined(PlayerInput playerInput)
     {
+
+        ++botPosition; // Keep track of where the bots start in the player list
+
         PlayerInfo newPlayer = new PlayerInfo
         {
             playerInput = playerInput,
@@ -421,11 +455,11 @@ public class GameManager : MonoBehaviour
             else if (label.name == "ReadyStatus")
             {
                 // Update the ready/unready prompt
-                label.text = mc.ready ? "Press A/Space to unready." : "Press A/Space to ready up!";
+                label.text = mc.ready ? "Press B/Esc to unready." : "Press A/Space to ready up!";
             }
             if (label.name == "PlayerIndicator")
             {
-                label.text = "Player " + (1 + playerIndex);
+                label.text = playerInfo.name;
             }
         }
     }
@@ -627,5 +661,6 @@ public class PlayerInfo
     public int playerIndex;         // Stores the index of the player
     public Sprite playerSprite;     // Player's sprite
     public bool AmBot;              // Is the player a bot?
+    public string name;             // Player's name
 }
 
