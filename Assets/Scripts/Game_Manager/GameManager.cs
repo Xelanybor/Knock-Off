@@ -31,6 +31,14 @@ public class GameManager : MonoBehaviour
     private List<PlayerInfo> players = new List<PlayerInfo>();
     private int botPosition = 0; // Since bots are added to the end of the list, all bots will have an index greater than this value
 
+    private List<Color> playerColors = new List<Color>
+    {
+        Color.red,
+        Color.blue,
+        Color.green,
+        Color.yellow
+    };
+
     [SerializeField]
     private GameObject BotPrefab;
 
@@ -209,6 +217,12 @@ public class GameManager : MonoBehaviour
                 else players[i].name = "Player " + (i + 1);
             }
 
+            // Update player colors
+            if (i < players.Count)
+            {
+                players[i].color = playerColors[i];
+            }
+
             Vector2 anchoredPosition = new Vector2(startingX + i * slotWidth, 0f);
 
             if (i < players.Count)
@@ -247,6 +261,7 @@ public class GameManager : MonoBehaviour
         }
         UpdatePlayerUIPosition(playerInfo, playerLobbyUI.transform.position);
         UpdatePlayerLobbyUIText(playerLobbyUI, playerInfo, playerIndex);
+        UpdatePlayerLobbyUIColor(playerLobbyUI, playerInfo);
     }
 
     private void CreateEmptyLobbySlot(Vector2 anchoredPosition)
@@ -255,6 +270,37 @@ public class GameManager : MonoBehaviour
         RectTransform noPlayerLobbyRect = noPlayerLobbyUI.GetComponent<RectTransform>();
         noPlayerLobbyRect.anchoredPosition = anchoredPosition;
         noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
+    }
+
+    private void UpdatePlayerLobbyUIColor(GameObject playerLobbyUI, PlayerInfo playerInfo)
+    {
+        MarbleController mc = playerInfo.marbleController;
+        SpriteRenderer[] spriteRenderers = playerLobbyUI.GetComponentsInChildren<SpriteRenderer>();
+
+        // Which components to change the colour of
+        string[] colourComponents = {
+            "IndicatorChevron",
+            "PlayerBorder",
+        };
+
+        foreach (var sprite in spriteRenderers)
+        {
+            if (colourComponents.Contains(sprite.name))
+            sprite.color = playerInfo.color;
+        }
+
+        string[] colourTexts = {
+            "PlayerIndicator",
+            "MarbleName",
+        };
+
+        TMP_Text[] labels = playerLobbyUI.GetComponentsInChildren<TMP_Text>();
+
+        foreach (var label in labels)
+        {
+            if (colourTexts.Contains(label.name))
+            label.color = playerInfo.color;
+        }
     }
 
     private void UpdatePlayerUIPosition(PlayerInfo playerInfo, Vector3 uiPosition)
@@ -662,5 +708,6 @@ public class PlayerInfo
     public Sprite playerSprite;     // Player's sprite
     public bool AmBot;              // Is the player a bot?
     public string name;             // Player's name
+    public Color color;             // Player's color
 }
 
