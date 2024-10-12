@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour
                 GetComponent<PlayerInputManager>().enabled = true; // Enable player input
                 SetGameState(GameState.Lobby);
                 break;
-            case "Game":
+            case "Arena":
                 SetGameState(GameState.Game);
                 break;
             case "Tutorial":
@@ -261,7 +261,7 @@ public class GameManager : MonoBehaviour
         }
         UpdatePlayerUIPosition(playerInfo, playerLobbyUI.transform.position);
         UpdatePlayerLobbyUIText(playerLobbyUI, playerInfo, playerIndex);
-        UpdatePlayerLobbyUIColor(playerLobbyUI, playerInfo);
+        UpdatePlayerLobbyUIColour(playerLobbyUI, playerInfo);
     }
 
     private void CreateEmptyLobbySlot(Vector2 anchoredPosition)
@@ -272,7 +272,7 @@ public class GameManager : MonoBehaviour
         noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
     }
 
-    private void UpdatePlayerLobbyUIColor(GameObject playerLobbyUI, PlayerInfo playerInfo)
+    private void UpdatePlayerLobbyUIColour(GameObject playerLobbyUI, PlayerInfo playerInfo)
     {
         MarbleController mc = playerInfo.marbleController;
         SpriteRenderer[] spriteRenderers = playerLobbyUI.GetComponentsInChildren<SpriteRenderer>();
@@ -545,23 +545,28 @@ public class GameManager : MonoBehaviour
 
     private void SetupMatch()
     {
-        SetControlSchemeToGame();
+        MakeMarblesReadyForGame();
         MoveAllPlayersOffScreen();
         SpawnMarblesInitial();
     }
 
-    private void SetControlSchemeToGame()
+    private void MakeMarblesReadyForGame()
     {
         foreach (var player in players)
         {
+            // Set control scheme to Marble
             if (player.AmBot)
             {
                 // Get the bot controller and set it up
                 BotController botController = player.marbleController.GetComponent<BotController>();
                 botController.SetMarble(player.marbleController);
-                continue;
             }
-            player.playerInput.SwitchCurrentActionMap("Marble");
+            else player.playerInput.SwitchCurrentActionMap("Marble");
+
+            // Update marble UI
+            SetMarbleUIColour(player);
+            SetMarbleUIName(player);
+
         }
     }
 
@@ -587,6 +592,50 @@ public class GameManager : MonoBehaviour
         MarbleController controller = player.marbleController;
         controller.transform.Find("FlickBarUI").gameObject.SetActive(true);
         controller.transform.Find("PlayerMarker").gameObject.SetActive(true);
+    }
+
+    private void SetMarbleUIColour(PlayerInfo player)
+    {
+        MarbleController mc = player.marbleController;
+        Image[] images = mc.gameObject.GetComponentsInChildren<Image>(includeInactive: true);
+        string[] colourComponents = {
+            "barBorder",
+            "Arrow",
+        };
+
+        foreach (var image in images)
+        {
+            if (colourComponents.Contains(image.name))
+            image.color = player.color;
+        }
+
+        TMP_Text[] labels = mc.GetComponentsInChildren<TMP_Text>(includeInactive: true);
+        string[] colourTexts = {
+            "PlayerNumber"
+        };
+
+        foreach (var label in labels)
+        {
+            if (colourTexts.Contains(label.name))
+            label.color = player.color;
+        }
+        
+    }
+
+    private void SetMarbleUIName(PlayerInfo player)
+    {
+        MarbleController mc = player.marbleController;
+        TMP_Text[] labels = mc.gameObject.GetComponentsInChildren<TMP_Text>(includeInactive: true);
+
+        Debug.Log("Setting player name to " + player.name);
+        Debug.Log("Searching " + mc.gameObject.name + " for labels");
+        Debug.Log(labels.Length);
+
+        foreach (var label in labels)
+        {
+            if (label.name == "PlayerNumber")
+            label.text = player.name;
+        }
     }
 
     private void SpawnMarblesInitial()
