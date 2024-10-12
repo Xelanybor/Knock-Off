@@ -3,8 +3,8 @@ guid: 2df3ba1d40a098a4ba9fbdfa66534d56
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -857935055565250993
-    second: rusty_0
+      213: -7275637273663985571
+    second: Rusty_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: rusty_0
+      name: Rusty_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 920
-        height: 908
+        width: 500
+        height: 500
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f4e9daccc900814f0800000000000000
-      internalID: -857935055565250993
+      spriteID: d58aaa4927eb70b90800000000000000
+      internalID: -7275637273663985571
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      rusty_0: -857935055565250993
+      Rusty_0: -7275637273663985571
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

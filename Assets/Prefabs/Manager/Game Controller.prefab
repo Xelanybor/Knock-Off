@@ -134,10 +134,10 @@ MonoBehaviour:
   BotLobbyUI: {fileID: 9126572185111864833, guid: 30bcfbee32879d0438be9f6a826357d7, type: 3}
   StartBannerUI: {fileID: 7270144442255831564, guid: 1512737dd56af35459e89d600b74cb41, type: 3}
   characterSprites:
-  - {fileID: 1813392775528312308, guid: d8ffa8ffffb121a4aab356cdbda5954e, type: 3}
-  - {fileID: -7818180113093415277, guid: 4bba72dcf8bc1224792113e28a7f8feb, type: 3}
-  - {fileID: 2195345784072405698, guid: af71001b9191e1f49a65d9d881a305ca, type: 3}
-  - {fileID: -857935055565250993, guid: 2df3ba1d40a098a4ba9fbdfa66534d56, type: 3}
+  - {fileID: 21300000, guid: d8ffa8ffffb121a4aab356cdbda5954e, type: 3}
+  - {fileID: 21300000, guid: 4bba72dcf8bc1224792113e28a7f8feb, type: 3}
+  - {fileID: 21300000, guid: af71001b9191e1f49a65d9d881a305ca, type: 3}
+  - {fileID: 21300000, guid: 2df3ba1d40a098a4ba9fbdfa66534d56, type: 3}
   characterNames:
   - CAT
   - SWIRLY
