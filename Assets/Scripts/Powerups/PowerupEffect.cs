@@ -12,7 +12,6 @@ public class PowerupEffect : ScriptableObject
         if (statModifier.TryGetValue("EXTRA_FLICK", out value)) 
         {
             float diff = target.flickCounterMax - target.flickCounter;
-            Debug.Log(diff);
             if (target.flickCounter < target.flickCounterMax) 
             {
                 if (diff < 1)

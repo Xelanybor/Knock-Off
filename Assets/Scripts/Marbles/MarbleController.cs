@@ -186,7 +186,6 @@ public class MarbleController : MonoBehaviour
     public void SetMarbleType(string charName)
     {
         charName = charName.ToUpper();
-        Debug.Log("Setting marble " + name + " to type " + charName);
         switch (charName)
         {
             case "CAT":
