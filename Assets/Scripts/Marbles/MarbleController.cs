@@ -183,10 +183,11 @@ public class MarbleController : MonoBehaviour
     }
 
     // take string for marble name, set stats accordingly
-    public void SetMarbleType(string name)
+    public void SetMarbleType(string charName)
     {
-        name = name.ToUpper();
-        switch (name)
+        charName = charName.ToUpper();
+        Debug.Log("Setting marble " + name + " to type " + charName);
+        switch (charName)
         {
             case "CAT":
                 SetStats(new Dictionary<string, float> {

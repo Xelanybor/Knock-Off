@@ -346,7 +346,7 @@ public class GameManager : MonoBehaviour
         }
 
         players.Add(newPlayer);
-        Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
+        // Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
     }
 
     // Bot Management.
@@ -362,7 +362,7 @@ public class GameManager : MonoBehaviour
                 playerSprite = null,
                 AmBot = true
             };
-            Debug.Log($"Bot {newPlayer.playerIndex} joined the game!");
+            // Debug.Log($"Bot {newPlayer.playerIndex} joined the game!");
             // Instantiate bot prefab
             GameObject bot = Instantiate(BotPrefab, new Vector3(0,0,0), Quaternion.identity);
             newPlayer.marbleController = bot.GetComponent<MarbleController>();
@@ -418,7 +418,6 @@ public class GameManager : MonoBehaviour
         int indexChange = navigationDirection.x > 0 ? 1 : -1;
         controller.characterIndex = (controller.characterIndex + indexChange) % characterNames.Count;
         if (controller.characterIndex < 0) controller.characterIndex = characterNames.Count - 1;
-        Debug.Log(controller.characterIndex);
         UpdateMarbleSprite(controller);
     }
 
@@ -563,6 +562,8 @@ public class GameManager : MonoBehaviour
             SetMarbleUIColour(player);
             SetMarbleUIName(player);
 
+            player.marbleController.SetMarbleType(characterNames[player.marbleController.characterIndex]);
+
         }
     }
 
@@ -622,10 +623,6 @@ public class GameManager : MonoBehaviour
     {
         MarbleController mc = player.marbleController;
         TMP_Text[] labels = mc.gameObject.GetComponentsInChildren<TMP_Text>(includeInactive: true);
-
-        Debug.Log("Setting player name to " + player.name);
-        Debug.Log("Searching " + mc.gameObject.name + " for labels");
-        Debug.Log(labels.Length);
 
         foreach (var label in labels)
         {
