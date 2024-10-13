@@ -767,6 +767,8 @@ MonoBehaviour:
   percentageText: {fileID: 4438950179480194052}
   stockCount: 0
   percentage: 0
+  stunnedFace: {fileID: 21300000, guid: 6b8bcdbc0882a884790333eb399a10d4, type: 3}
+  defaultFace: {fileID: 21300000, guid: 4a2fca8667b8bfb4a919c897291bd3c9, type: 3}
 --- !u!114 &1311256890044944050
 MonoBehaviour:
   m_ObjectHideFlags: 0

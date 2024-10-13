@@ -17,6 +17,13 @@ public class StockContainer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI percentageText;
     [SerializeField] public int stockCount;
     [SerializeField] public float percentage;
+    // dimensions of face image, initialized to start values
+    private float faceImagePosX = -5.8124f;
+    private float faceImagePosY = 0.51781f;
+    private float faceScaleX = 3.5f;
+    private float faceScaleY = 6.5f;
+    [SerializeField] private Sprite stunnedFace;
+    [SerializeField] private Sprite defaultFace;
     // We also get a percentage counter from the marble.
 
     private string name;
@@ -27,6 +34,35 @@ public class StockContainer : MonoBehaviour
         this.name = name;
         playerNameText.text = name;
 
+    }
+
+    public void updateFace()
+    {
+        StartCoroutine(setFaceStunned(1));
+    }
+
+    public IEnumerator setFaceStunned(int duration)
+    {
+        Transform faceSprite = transform.Find("Face");
+        SpriteRenderer spriteRenderer = faceSprite.GetComponent<SpriteRenderer>();
+        // update sprite
+        spriteRenderer.sprite = stunnedFace;
+        // update dimensions
+        updateFaceDimensions(transform, -6.8974f, 2.61f, faceScaleX, faceScaleY);
+        // wait
+        yield return new WaitForSeconds(duration);
+
+        // change back to the original face
+        spriteRenderer.sprite = defaultFace;
+        // update dimensions
+        updateFaceDimensions(transform, faceImagePosX, faceImagePosX, faceScaleX, faceScaleY);
+    }
+
+    public void updateFaceDimensions(Transform transform, float posX, float posY, float scaleX, float scaleY)
+    {
+        transform.localPosition = new Vector3(posX, posY, 0f);
+
+        transform.localScale = new Vector3(scaleX, scaleY, 1f);
     }
 
     // Also sets Mini Stock Icon
