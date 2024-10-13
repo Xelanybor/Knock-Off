@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using TMPro;
@@ -24,11 +25,23 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<Sprite> spriteList;
 
 
+    // Events
+    public event EventHandler<PlayerListArg> PlayerInformationChange;
+    public class PlayerListArg : EventArgs
+    {
+        public List<PlayerInfo> PlayerList;
+    }
+
+
     private bool bannerShowing = false;
     private GameObject spawnedBanner = null;
 
     // Player and Bot Data
-    private List<PlayerInfo> players = new List<PlayerInfo>();
+    private List<PlayerInfo> _players; // Backing field for the players list
+
+    public ObservableCollection<PlayerInfo> players = new ObservableCollection<PlayerInfo>();
+
+
     private int botPosition = 0; // Since bots are added to the end of the list, all bots will have an index greater than this value
 
     private List<Color> playerColors = new List<Color>
@@ -61,10 +74,19 @@ public class GameManager : MonoBehaviour
         currentState = state;
     }
 
+    public List<PlayerInfo> GetPlayerList()
+    {
+        return players.ToList();
+    }
+
 
     private void Awake()
     {
         EnsureSingleton();
+        players.CollectionChanged += (sender, args) =>
+        {
+            PlayerInformationChange?.Invoke(this, new PlayerListArg { PlayerList = players.ToList() });
+        };
         SceneManager.activeSceneChanged += CheckScene;
 #if UNITY_EDITOR
     // Just grab the active scene.
@@ -110,6 +132,7 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.Game:
                 CheckForMarbleDeath();
+                ZoomerMethod();
                 break;
             case GameState.Tutorial:
                 // Add tutorial handling logic here when necessary
@@ -627,10 +650,6 @@ public class GameManager : MonoBehaviour
         MarbleController mc = player.marbleController;
         TMP_Text[] labels = mc.gameObject.GetComponentsInChildren<TMP_Text>(includeInactive: true);
 
-        Debug.Log("Setting player name to " + player.name);
-        Debug.Log("Searching " + mc.gameObject.name + " for labels");
-        Debug.Log(labels.Length);
-
         foreach (var label in labels)
         {
             if (label.name == "PlayerNumber")
@@ -668,10 +687,25 @@ public class GameManager : MonoBehaviour
             if (mc.dead)
             {
                 mc.dead = false;
-                mc.stockCount--;
+                mc.ResetPercentage();
                 RespawnMarble(player);
             }
         }
+    }
+
+    public void ZoomerMethod()
+    {
+        // Get the marble transforms
+        Transform[] marbleTransforms = new Transform[players.Count];
+        for (int i = 0; i < players.Count; i++)
+        {
+            marbleTransforms[i] = players[i].marbleController.transform;
+        }
+        // Grab the main camera from the scene, it has a tag of MainCamera
+        Camera mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        // Get the camera zoom controller from the scene
+        CameraZoomController zoomController = mainCamera.GetComponent<CameraZoomController>();
+        if (zoomController != null) zoomController.setMarbleTransforms(marbleTransforms);
     }
 
     private void RespawnMarble(PlayerInfo player)
