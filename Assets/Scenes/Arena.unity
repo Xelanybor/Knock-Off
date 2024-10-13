@@ -473,6 +473,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &934512533
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 934512534}
+  - component: {fileID: 934512535}
+  m_Layer: 0
+  m_Name: LevelManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &934512534
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 934512533}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.47952455, y: 1.3035777, z: 0.023494065}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &934512535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 934512533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41fc68554186fe54ba202cea84d7c394, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabList:
+  - key: ATTIC
+    value: {fileID: 5827241809358586600, guid: 00b29357e677447428cca2c522a4b3b9, type: 3}
+  - key: PLAYGROUND
+    value: {fileID: 5827241809358586600, guid: 44eada89161f2e64997afe5337e69bca, type: 3}
+  - key: CLASSROOM
+    value: {fileID: 5827241809358586600, guid: 2eed3e118de133647845a4bb2c0ddb48, type: 3}
 --- !u!1 &1434760050
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,8 +773,8 @@ MonoBehaviour:
   BotLobbyUI: {fileID: 0}
   StartBannerUI: {fileID: 0}
   spriteList: []
-  botController: {fileID: 0}
   BotPrefab: {fileID: 0}
+  currentState: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -734,3 +785,4 @@ SceneRoots:
   - {fileID: 1434760055}
   - {fileID: 203855576}
   - {fileID: 247410555}
+  - {fileID: 934512534}
