@@ -179,6 +179,8 @@ public class MarbleController : MonoBehaviour
     private DamageFlash damageFlash;
 
 
+    public event EventHandler OnDamageFaceUpdate;
+
     // MODIFIABLE STATS
 
     private Dictionary<string, float> stats = new Dictionary<string, float> {
@@ -653,7 +655,7 @@ public class MarbleController : MonoBehaviour
                     SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.4f);
                     SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
                 }
-                
+                OnDamageFaceUpdate?.Invoke(this, EventArgs.Empty);
                 SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
                 // particles
                 SpawnDamageParticles(attackDirection);

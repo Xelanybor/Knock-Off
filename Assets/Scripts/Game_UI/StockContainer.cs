@@ -3,7 +3,7 @@ using TMPro;
 using Unity.VisualScripting;
 using System.Linq;
 using System.Collections;
-
+using System;
 public class StockContainer : MonoBehaviour
 {
     // StockContainer is assigned to each player.
@@ -36,33 +36,33 @@ public class StockContainer : MonoBehaviour
 
     }
 
-    public void updateFace()
-    {
-        StartCoroutine(setFaceStunned(1));
-    }
-
     public IEnumerator setFaceStunned(int duration)
     {
-        Transform faceSprite = transform.Find("Face");
-        SpriteRenderer spriteRenderer = faceSprite.GetComponent<SpriteRenderer>();
+        Transform faceTransform = transform.Find("Face");
+        SpriteRenderer spriteRenderer = faceTransform.GetComponent<SpriteRenderer>();
+        // disable animation
+        Animator animator = faceTransform.GetComponent<Animator>();
+        animator.enabled = false;
         // update sprite
         spriteRenderer.sprite = stunnedFace;
         // update dimensions
-        updateFaceDimensions(transform, -6.8974f, 2.61f, faceScaleX, faceScaleY);
+        updateFaceDimensions(faceTransform, -6.8974f, 2.61f, faceScaleX, faceScaleY);
         // wait
         yield return new WaitForSeconds(duration);
 
         // change back to the original face
         spriteRenderer.sprite = defaultFace;
         // update dimensions
-        updateFaceDimensions(transform, faceImagePosX, faceImagePosX, faceScaleX, faceScaleY);
+        updateFaceDimensions(faceTransform, faceImagePosX, faceImagePosY, faceScaleX, faceScaleY);
+        animator.enabled = true;
     }
 
     public void updateFaceDimensions(Transform transform, float posX, float posY, float scaleX, float scaleY)
     {
+        Debug.Log(transform.localPosition);
         transform.localPosition = new Vector3(posX, posY, 0f);
 
-        transform.localScale = new Vector3(scaleX, scaleY, 1f);
+        //transform.Scale = new Vector3(scaleX, scaleY, 1f);
     }
 
     // Also sets Mini Stock Icon
@@ -93,6 +93,11 @@ public class StockContainer : MonoBehaviour
         playerNameText.color = Color.white;
         // Make the border color the same as the player's color
         playerNameText.outlineColor = color;
+    }
+
+    public void OnDamageFaceUpdate(object sender, EventArgs e)
+    {
+        StartCoroutine(setFaceStunned(1));
     }
 
 
