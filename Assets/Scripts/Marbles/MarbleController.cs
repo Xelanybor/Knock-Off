@@ -610,7 +610,7 @@ public class MarbleController : MonoBehaviour
                 // The other marble is the attacker
                 rb.linearVelocity = Vector2.zero;
 
-                force = (enemyMomentum - effectiveMomentum) * 1.5f;
+                force = (enemyMomentum - effectiveMomentum) * 1.5f * Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f);
 
                 // Apply damage to the marble
                 float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
@@ -635,7 +635,6 @@ public class MarbleController : MonoBehaviour
 
 
             // Apply the force
-            force *= Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f); // Apply percentage modifier
             force /= 1 + stats["KNOCKBACK_RESISTANCE"] - otherMarbleController.GetStat("EXTRA_KNOCKBACK_DEALT"); // Apply knockback resistance
             rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 

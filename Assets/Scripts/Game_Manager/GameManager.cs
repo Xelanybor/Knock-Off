@@ -1129,6 +1129,9 @@ public class GameManager : MonoBehaviour
         MarbleController marbleController = player.marbleController;
         marbleController.transform.position = respawnLocation;
 
+        // Reset momentum
+        // marbleController.GetComponent<Rigidbody2D>().angularVelocity = 0;
+
         StartCoroutine(InvincibleMarble(marbleController));
     }
 
@@ -1186,6 +1189,7 @@ private IEnumerator InvincibleMarble(MarbleController marbleController)
         }
 
         rb.constraints = RigidbodyConstraints2D.None;
+        rb.angularVelocity = 0;
         fire.enabled = true;
     }
     #endregion
