@@ -882,7 +882,7 @@ MonoBehaviour:
   flickTrajectoryShader: {fileID: -6465566751694194690, guid: 1fb274543548e4d4a818ba4a954dcd29, type: 3}
   FLICK_COUNT_MAX: 3
   characterIndex: 0
-  stockCount: 3
+  spriteIndex: 0
   ready: 0
   match_can_begin: 0
   start_match: 0
@@ -910,6 +910,21 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b6ac3c340530bd44e869827c011230e5, type: 3}
   - {fileID: 8300000, guid: 73c6425e6629c28408f7afaaba4761a3, type: 3}
   groundCollision: {fileID: 8300000, guid: 10a10cceff0f0e949b5d720cc5e60db0, type: 3}
+  deathSounds:
+  - {fileID: 8300000, guid: b8cdb11680322b84398e170773e65107, type: 3}
+  - {fileID: 8300000, guid: 448232f5b39f0c14b8c5539ea6ba3b16, type: 3}
+  - {fileID: 8300000, guid: ac08e814158a8ee4cb412f0ee0a359a8, type: 3}
+  - {fileID: 8300000, guid: e0f9a71299d3d4a478a3d3ba7a7d0e8b, type: 3}
+  - {fileID: 8300000, guid: 961dd3eb64e9bcf4f9a331dc8f07c571, type: 3}
+  tauntSounds:
+  - {fileID: 8300000, guid: 2a1ad526dab63e2459c00d33a3ac71b8, type: 3}
+  - {fileID: 8300000, guid: ec1574a46341ea2478a4412c918c0352, type: 3}
+  - {fileID: 8300000, guid: 83c9db5c89095424e852ef695d836192, type: 3}
+  - {fileID: 8300000, guid: b6ac3c340530bd44e869827c011230e5, type: 3}
+  - {fileID: 8300000, guid: 73c6425e6629c28408f7afaaba4761a3, type: 3}
+  - {fileID: 8300000, guid: cefccc6406b664a489530925ad88722c, type: 3}
+  - {fileID: 8300000, guid: 4cc1fe4042569c04bbc867eca95ffa04, type: 3}
+  gameOverSound: {fileID: 0}
   damageParticles: {fileID: 6841475876102896446, guid: 4e09bf8046ca1ee44916e8c9d49bd453, type: 3}
 --- !u!114 &-2506996155117427033
 MonoBehaviour:

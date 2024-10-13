@@ -167,6 +167,9 @@ public class MarbleController : MonoBehaviour
     // collision with ground objects
     [SerializeField] private AudioClip groundCollision;
 
+    [SerializeField] private AudioClip[] deathSounds;
+    [SerializeField] private AudioClip[] tauntSounds;
+    [SerializeField] private AudioClip gameOverSound;
     // particles and flash effects
     [SerializeField] private ParticleSystem damageParticles;
     private ParticleSystem damageParticleInstance;
@@ -552,6 +555,11 @@ public class MarbleController : MonoBehaviour
 
     }
 
+    private void PlayTauntSound()
+    {
+        SoundFXManager.Instance.PlayRandomSoundFXClip(tauntSounds, gameObject.transform, 0.2f);
+    }
+
     // Collision Methods
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -569,6 +577,14 @@ public class MarbleController : MonoBehaviour
         {
             this.stockCount = this.stockCount - 1;
             this.dead = true;
+
+            // play marble death sound
+            SoundFXManager.Instance.PlayRandomSoundFXClip(deathSounds, gameObject.transform, 0.2f);
+
+            // play opponent marble mock sound
+            Invoke("PlayTauntSound", 0.2f);
+            // reset powerup if had one
+
             
         }
 

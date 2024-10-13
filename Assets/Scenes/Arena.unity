@@ -389,6 +389,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1803feaa41695e4ea8908a4e32d0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 519420031}
+  minZoom: 7
+  maxZoom: 9
+  zoomSpeed: 2
+  zoomBuffer: 1.5
 --- !u!1 &934512533
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,17 +457,6 @@ MonoBehaviour:
     value: {fileID: 5827241809358586600, guid: 44eada89161f2e64997afe5337e69bca, type: 3}
   - key: CLASSROOM
     value: {fileID: 5827241809358586600, guid: 2eed3e118de133647845a4bb2c0ddb48, type: 3}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1803feaa41695e4ea8908a4e32d0bcf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainCamera: {fileID: 519420031}
-  minZoom: 6.5
-  maxZoom: 8.5
-  zoomSpeed: 1
-  zoomBuffer: 1.5
 --- !u!1 &1434760050
 GameObject:
   m_ObjectHideFlags: 0
@@ -699,7 +705,8 @@ MonoBehaviour:
   NoPlayerLobbyUI: {fileID: 0}
   BotLobbyUI: {fileID: 0}
   StartBannerUI: {fileID: 0}
-  spriteList: []
+  characterSprites: []
+  characterNames: []
   BotPrefab: {fileID: 0}
   currentState: 0
 --- !u!1660057539 &9223372036854775807
