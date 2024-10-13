@@ -397,6 +397,8 @@ public class GameManager : MonoBehaviour
             // Instantiate bot prefab
             GameObject bot = Instantiate(BotPrefab, new Vector3(0,0,0), Quaternion.identity);
             newPlayer.marbleController = bot.GetComponent<MarbleController>();
+            newPlayer.marbleController.characterIndex = UnityEngine.Random.Range(0, characterNames.Count);
+            UpdateMarbleSprite(newPlayer.marbleController);
             newPlayer.parent = bot;
             newPlayer.marbleController.ready = true;
             players.Add(newPlayer);
