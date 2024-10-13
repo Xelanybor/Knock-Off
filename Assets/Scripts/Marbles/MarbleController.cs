@@ -12,6 +12,7 @@ public class MarbleController : MonoBehaviour
     private LineRenderer lineRenderer;
     [SerializeField] private Shader flickTrajectoryShader;
     private ChargeIndicator flickChargeIndicator;
+    [SerializeField] private MetalMarbleSprite metalMarbleSprite;
 
     // Constants
 
@@ -64,6 +65,9 @@ public class MarbleController : MonoBehaviour
     public bool match_can_begin = false;
     public bool start_match = false;
     public bool dead = false;
+
+    public string selectedMap = "Random";
+    public bool voted = false;
 
 
     // Flick Counter variables
@@ -640,7 +644,7 @@ public class MarbleController : MonoBehaviour
                 // The other marble is the attacker
                 rb.linearVelocity = Vector2.zero;
 
-                force = (enemyMomentum - effectiveMomentum) * 1.5f;
+                force = (enemyMomentum - effectiveMomentum) * 1.5f * Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f);
 
                 // Apply damage to the marble
                 float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
@@ -665,7 +669,6 @@ public class MarbleController : MonoBehaviour
 
 
             // Apply the force
-            force *= Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f); // Apply percentage modifier
             force /= 1 + stats["KNOCKBACK_RESISTANCE"] - otherMarbleController.GetStat("EXTRA_KNOCKBACK_DEALT"); // Apply knockback resistance
             rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 
@@ -684,6 +687,12 @@ public class MarbleController : MonoBehaviour
         // set variables
         hasPowerup = true;
         currentPowerup = powerup;
+
+        // Yes the metal marble name has a spelling mistake, but I'm too afraid to rename it now
+        if (powerup.name == "MetaMarble")
+        {
+            metalMarbleSprite.Enable();
+        }
 
         PickUpPowerUp?.Invoke(this, new OnApplyPowerUp
         {
@@ -707,6 +716,7 @@ public class MarbleController : MonoBehaviour
         // wait for effect to finish
         yield return new WaitForSeconds(powerup.duration);
         hasPowerup = false;
+        metalMarbleSprite.Disable();
         powerup.Remove(this);
         currentPowerup = null;
         activePowerupCoroutine = null;
@@ -801,6 +811,24 @@ public class MarbleController : MonoBehaviour
         }
     }
 
+    public void OnChangeMapVote(InputAction.CallbackContext context)
+    {
+        if (this.voted) return;
+        Vector2 input = context.ReadValue<Vector2>();
+        if (context.started && input.x != 0)
+        {
+            GameManager.Instance.MoveMarbleOverMap(this, input);
+        }
+    }
+
+    public void OnSubmitVote(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            GameManager.Instance.ConfirmVote(this);
+        }
+    }
+
     public void OnRequestAddBot(InputAction.CallbackContext context)
     {
         if (context.started)
@@ -842,6 +870,14 @@ public class MarbleController : MonoBehaviour
             ready = false;
             start_match = false;
             match_can_begin = false;
+        }
+    }
+
+    public void ReturnToLobby(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            GameManager.Instance.GoBackToLobby(this);
         }
     }
 
