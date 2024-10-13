@@ -31,9 +31,13 @@ public class CameraZoomController : MonoBehaviour
         // Calculate the required orthographic size based on the size of the bounds
         float requiredZoom = Mathf.Max(marbleBounds.size.x, marbleBounds.size.y) / 2f * zoomBuffer;
         requiredZoom = Mathf.Clamp(requiredZoom, minZoom, maxZoom);
+        Vector3 requiredPosition = new Vector3(marbleBounds.center.x, marbleBounds.center.y, -10);
+        requiredPosition.x = Mathf.Clamp(requiredPosition.x, -5f, 5f);
+        requiredPosition.y = Mathf.Clamp(requiredPosition.y, -2.5f, 2.5f);
 
         // Smoothly interpolate the camera's orthographic size to the required zoom
         mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, requiredZoom, Time.deltaTime * zoomSpeed);
+        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, requiredPosition, Time.deltaTime * zoomSpeed);
     }
 
     private Bounds GetMarbleBounds()

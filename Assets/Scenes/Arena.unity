@@ -559,7 +559,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 519420031}
-  minZoom: 7
+  minZoom: 6.5
   maxZoom: 8.5
   zoomSpeed: 1
   zoomBuffer: 1.5

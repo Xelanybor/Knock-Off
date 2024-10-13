@@ -705,7 +705,7 @@ public class GameManager : MonoBehaviour
         Camera mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         // Get the camera zoom controller from the scene
         CameraZoomController zoomController = mainCamera.GetComponent<CameraZoomController>();
-        zoomController.setMarbleTransforms(marbleTransforms);
+        if (zoomController != null) zoomController.setMarbleTransforms(marbleTransforms);
     }
 
     private void RespawnMarble(PlayerInfo player)
