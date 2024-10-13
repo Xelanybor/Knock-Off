@@ -133,6 +133,7 @@ MonoBehaviour:
   NoPlayerLobbyUI: {fileID: 4997263528236107159, guid: f9fee9e4c4da2ee4ea7c52c98c8e5ad0, type: 3}
   BotLobbyUI: {fileID: 9126572185111864833, guid: 30bcfbee32879d0438be9f6a826357d7, type: 3}
   StartBannerUI: {fileID: 7270144442255831564, guid: 1512737dd56af35459e89d600b74cb41, type: 3}
+  EndScreenUI: {fileID: 630721456753340285, guid: 41207230bcd25544fafdabf6ba74cb16, type: 3}
   characterSprites:
   - {fileID: 21300000, guid: d8ffa8ffffb121a4aab356cdbda5954e, type: 3}
   - {fileID: 21300000, guid: 4bba72dcf8bc1224792113e28a7f8feb, type: 3}
