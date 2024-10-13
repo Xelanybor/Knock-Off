@@ -1852,10 +1852,6 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9920a9e4-b45a-4041-a994-d572894bbd67
     m_ActionName: 'UI/RemoveBot[/XInputControllerWindows/buttonNorth]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 78fc592d-d922-4c4f-b4c3-178b5bc4315b
-    m_ActionName: 'Marble/Dash[/XInputControllerWindows/rightShoulder]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: UI
