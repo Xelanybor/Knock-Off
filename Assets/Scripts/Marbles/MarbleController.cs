@@ -65,6 +65,9 @@ public class MarbleController : MonoBehaviour
     public bool start_match = false;
     public bool dead = false;
 
+    public string selectedMap = "Random";
+    public bool voted = false;
+
 
     // Flick Counter variables
     public float flickCounter = 0f;            // Current flick energy
@@ -755,6 +758,24 @@ public class MarbleController : MonoBehaviour
         }
     }
 
+    public void OnChangeMapVote(InputAction.CallbackContext context)
+    {
+        if (this.voted) return;
+        Vector2 input = context.ReadValue<Vector2>();
+        if (context.started && input.x != 0)
+        {
+            GameManager.Instance.MoveMarbleOverMap(this, input);
+        }
+    }
+
+    public void OnSubmitVote(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            GameManager.Instance.ConfirmVote(this);
+        }
+    }
+
     public void OnRequestAddBot(InputAction.CallbackContext context)
     {
         if (context.started)
@@ -796,6 +817,14 @@ public class MarbleController : MonoBehaviour
             ready = false;
             start_match = false;
             match_can_begin = false;
+        }
+    }
+
+    public void ReturnToLobby(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            GameManager.Instance.GoBackToLobby(this);
         }
     }
 
