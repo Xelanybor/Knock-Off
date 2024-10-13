@@ -3,8 +3,8 @@ guid: af71001b9191e1f49a65d9d881a305ca
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2195345784072405698
-    second: starry_0
+      213: -7846061599244808727
+    second: Starry_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: starry_0
+      name: Starry_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 760
-        height: 764
+        width: 500
+        height: 500
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2c289c2fb5f677e10800000000000000
-      internalID: 2195345784072405698
+      spriteID: 9ed0e23bb803d1390800000000000000
+      internalID: -7846061599244808727
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      starry_0: 2195345784072405698
+      Starry_0: -7846061599244808727
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

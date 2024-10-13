@@ -44,6 +44,7 @@ public class MarbleController : MonoBehaviour
     private bool resetMomentumNextUpdate = false; // Whether the marble's momentum should be reset on the next update
 
     // Game Variables
+    public int characterIndex = 0;
     public int spriteIndex = 0;
     public int stockCount
     {
@@ -230,10 +231,10 @@ public class MarbleController : MonoBehaviour
     }
 
     // take string for marble name, set stats accordingly
-    public void SetMarbleType(string name)
+    public void SetMarbleType(string charName)
     {
-        name = name.ToUpper();
-        switch (name)
+        charName = charName.ToUpper();
+        switch (charName)
         {
             case "CAT":
                 SetStats(new Dictionary<string, float> {
@@ -747,10 +748,10 @@ public class MarbleController : MonoBehaviour
     
     public void OnChangeSkin(InputAction.CallbackContext context)
     {
-        // Happens on left right during UI
-        if (!ready)
+        Vector2 input = context.ReadValue<Vector2>();
+        if (!ready && context.started && input.x != 0)
         {
-            spriteIndex = (spriteIndex + 1) % 2;
+            GameManager.Instance.ChangeMarbleCharacter(this, input);
         }
     }
 

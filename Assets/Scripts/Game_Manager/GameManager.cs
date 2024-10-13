@@ -12,6 +12,13 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static MarbleController;
 
+struct CharacterInfo
+{
+    public string name;
+    public List<string> buffs;
+    public List<string> debuffs;
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -22,7 +29,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject BotLobbyUI;
     [SerializeField] private GameObject StartBannerUI;
 
-    [SerializeField] private List<Sprite> spriteList;
+    [SerializeField] private List<Sprite> characterSprites;
+    [SerializeField] private List<string> characterNames;
 
 
     // Events
@@ -43,6 +51,30 @@ public class GameManager : MonoBehaviour
 
 
     private int botPosition = 0; // Since bots are added to the end of the list, all bots will have an index greater than this value
+
+    private List<CharacterInfo> characterInfo = new List<CharacterInfo>
+    {
+        new CharacterInfo {
+            name = "Cat's Eye",
+            buffs = new List<string> { "Dashes further and faster" },
+            debuffs = new List<string> { "Takes more knockback" }
+        },
+        new CharacterInfo {
+            name = "Swirly",
+            buffs = new List<string> { "Faster movement", "Better control" },
+            debuffs = new List<string> { "Slower flick regen" }
+        },
+        new CharacterInfo {
+            name = "Starry",
+            buffs = new List<string> { "Charges flicks faster", "Faster flick regen" },
+            debuffs = new List<string> { "Deals less damage" }
+        },
+        new CharacterInfo {
+            name = "Rusty",
+            buffs = new List<string> { "Takes less knockback" },
+            debuffs = new List<string> { "Slower movement" }
+        }
+    }; 
 
     private List<Color> playerColors = new List<Color>
     {
@@ -168,7 +200,6 @@ public class GameManager : MonoBehaviour
     private void HandleLobbyState()
     {
         PaintLobbyUI();
-        CheckForChangeSkin();
         CheckIfAllPlayersReady();
         StartMatch();
     }
@@ -369,7 +400,7 @@ public class GameManager : MonoBehaviour
         }
 
         players.Add(newPlayer);
-        Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
+        // Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
     }
 
     // Bot Management.
@@ -385,10 +416,12 @@ public class GameManager : MonoBehaviour
                 playerSprite = null,
                 AmBot = true
             };
-            Debug.Log($"Bot {newPlayer.playerIndex} joined the game!");
+            // Debug.Log($"Bot {newPlayer.playerIndex} joined the game!");
             // Instantiate bot prefab
             GameObject bot = Instantiate(BotPrefab, new Vector3(0,0,0), Quaternion.identity);
             newPlayer.marbleController = bot.GetComponent<MarbleController>();
+            newPlayer.marbleController.characterIndex = UnityEngine.Random.Range(0, characterNames.Count);
+            UpdateMarbleSprite(newPlayer.marbleController);
             newPlayer.parent = bot;
             newPlayer.marbleController.ready = true;
             players.Add(newPlayer);
@@ -436,17 +469,12 @@ public class GameManager : MonoBehaviour
         ShowBanner();
     }
 
-    private void CheckForChangeSkin()
+    public void ChangeMarbleCharacter(MarbleController controller, Vector3 navigationDirection)
     {
-        foreach (var player in players)
-        {
-            MarbleController controller = player.marbleController;
-
-            if (controller != null && controller.spriteIndex < spriteList.Count)
-            {
-                UpdateMarbleSprite(controller);
-            }
-        }
+        int indexChange = navigationDirection.x > 0 ? 1 : -1;
+        controller.characterIndex = (controller.characterIndex + indexChange) % characterNames.Count;
+        if (controller.characterIndex < 0) controller.characterIndex = characterNames.Count - 1;
+        UpdateMarbleSprite(controller);
     }
 
     private void UpdateMarbleSprite(MarbleController controller)
@@ -455,7 +483,7 @@ public class GameManager : MonoBehaviour
         if (spriteTransform != null)
         {
             SpriteRenderer spriteRenderer = spriteTransform.GetComponent<SpriteRenderer>();
-            spriteRenderer.sprite = spriteList[controller.spriteIndex];
+            spriteRenderer.sprite = characterSprites[controller.characterIndex];
             spriteRenderer.sortingOrder = 1;
         }
     }
@@ -526,9 +554,21 @@ public class GameManager : MonoBehaviour
                 // Update the ready/unready prompt
                 label.text = mc.ready ? "Press B/Esc to unready." : "Press A/Space to ready up!";
             }
-            if (label.name == "PlayerIndicator")
+            else if (label.name == "PlayerIndicator")
             {
                 label.text = playerInfo.name;
+            }
+            else if (label.name == "MarbleName")
+            {
+                label.text = characterInfo[mc.characterIndex].name;
+            }
+            else if (label.name == "MarbleBuffs")
+            {
+                label.text = "▲ " + string.Join("\n▲ ", characterInfo[mc.characterIndex].buffs);
+            }
+            else if (label.name == "MarbleNerfs")
+            {
+                label.text = "▼ " + string.Join("\n▼ ", characterInfo[mc.characterIndex].debuffs);
             }
         }
     }
@@ -589,6 +629,8 @@ public class GameManager : MonoBehaviour
             // Update marble UI
             SetMarbleUIColour(player);
             SetMarbleUIName(player);
+
+            player.marbleController.SetMarbleType(characterNames[player.marbleController.characterIndex]);
 
         }
     }

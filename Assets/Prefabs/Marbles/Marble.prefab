@@ -881,7 +881,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flickTrajectoryShader: {fileID: -6465566751694194690, guid: 1fb274543548e4d4a818ba4a954dcd29, type: 3}
   FLICK_COUNT_MAX: 3
-  spriteIndex: 0
+  characterIndex: 0
+  stockCount: 3
   ready: 0
   match_can_begin: 0
   start_match: 0
@@ -1307,7 +1308,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 4545539728082940926, guid: 62bf4c6b71b03114a9900fc6b9091593, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d8ffa8ffffb121a4aab356cdbda5954e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
