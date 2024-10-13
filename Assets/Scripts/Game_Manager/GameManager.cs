@@ -33,6 +33,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<string> characterNames;
 
 
+
+    public static Dictionary<string, int> mapVotes = new Dictionary<string, int>
+{
+        {"Random", 0 },
+    { "Attic", 0 },
+    { "Classroom", 0 },
+    { "Playground", 0 }
+};
+
+
+
     // Events
     public event EventHandler<PlayerListArg> PlayerInformationChange;
     public class PlayerListArg : EventArgs
@@ -74,7 +85,11 @@ public class GameManager : MonoBehaviour
             buffs = new List<string> { "Takes less knockback" },
             debuffs = new List<string> { "Slower movement" }
         }
-    }; 
+    };
+
+
+    private Dictionary<PlayerInfo, Vector2> originalMarkerPositions = new Dictionary<PlayerInfo, Vector2>();
+    private Dictionary<PlayerInfo, Vector2> originalPlayerNumberPositions = new Dictionary<PlayerInfo, Vector2>();
 
     private List<Color> playerColors = new List<Color>
     {
@@ -96,6 +111,7 @@ public class GameManager : MonoBehaviour
         MainMenu,
         Lobby,
         Game,
+        MapSelection,
         Tutorial
     }
 
@@ -162,6 +178,10 @@ public class GameManager : MonoBehaviour
             case GameState.Lobby:
                 HandleLobbyState();
                 break;
+            case GameState.MapSelection:
+                // Add map selection handling logic here when necessary
+                HandleMapSelection();
+                break;
             case GameState.Game:
                 CheckForMarbleDeath();
                 ZoomerMethod();
@@ -184,6 +204,9 @@ public class GameManager : MonoBehaviour
             case "Lobby":
                 GetComponent<PlayerInputManager>().enabled = true; // Enable player input
                 SetGameState(GameState.Lobby);
+                break;
+            case "MapSelection":
+                SetGameState(GameState.MapSelection);
                 break;
             case "Arena":
                 SetGameState(GameState.Game);
@@ -231,6 +254,11 @@ public class GameManager : MonoBehaviour
 
     private void ClearExistingUI()
     {
+        GameObject canvas = GameObject.FindWithTag("Canvas");
+        if (canvas == null)
+        {
+            return;
+        }
         foreach (Transform child in GameObject.FindWithTag("Canvas").transform)
         {
             if (child.gameObject != spawnedBanner)
@@ -243,6 +271,10 @@ public class GameManager : MonoBehaviour
     private void GenerateLobbySlots()
     {
         Canvas canvas = GameObject.FindWithTag("Canvas").GetComponent<Canvas>();
+        if (canvas == null)
+        {
+            return;
+        }
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
         float canvasWidth = canvasRect.rect.width;
 
@@ -374,8 +406,217 @@ public class GameManager : MonoBehaviour
         controller.transform.Find("FlickBarUI").gameObject.SetActive(false);
         controller.transform.Find("PlayerMarker").gameObject.SetActive(false);
     }
+
+    private void HidePlayerUIComponentsKeepMarker(PlayerInfo playerInfo)
+    {
+        MarbleController controller = playerInfo.marbleController;
+        Transform markerTransform = controller.transform.Find("PlayerMarker");
+
+        if (markerTransform != null)
+        {
+            markerTransform.gameObject.SetActive(true); // Ensure the marker is active
+
+            // Get the RectTransform component
+            RectTransform rectTransform = markerTransform.GetComponent<RectTransform>();
+            RectTransform playerNumber = markerTransform.Find("PlayerNumber").GetComponent<RectTransform>();
+            markerTransform.Find("Arrow").gameObject.SetActive(false);
+            markerTransform.Find("ArrowBorder").gameObject.SetActive(false);
+
+            if (rectTransform != null && playerNumber != null)
+            {
+                // Store the original anchored positions before modifying them
+                if (!originalMarkerPositions.ContainsKey(playerInfo))
+                {
+                    originalMarkerPositions[playerInfo] = rectTransform.anchoredPosition;
+                    originalPlayerNumberPositions[playerInfo] = playerNumber.anchoredPosition;
+                }
+
+                // Move the PlayerMarker DOWN by adjusting the anchoredPosition
+                rectTransform.anchoredPosition += new Vector2(0, -2f); // Adjust the Y axis downwards by 2 units
+                playerNumber.anchoredPosition += new Vector2(0, -2f); // Adjust the Y axis downwards by 2 units
+            }
+            else
+            {
+                Debug.LogWarning("PlayerMarker or PlayerNumber does not have a RectTransform component.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("PlayerMarker not found.");
+        }
+    }
+
+    private void RestorePlayerUIComponents(PlayerInfo playerInfo)
+    {
+        MarbleController controller = playerInfo.marbleController;
+        // Set sprite back to white
+        controller.transform.Find("Sprite").GetComponent<SpriteRenderer>().color = Color.white;
+        Transform markerTransform = controller.transform.Find("PlayerMarker");
+
+        if (markerTransform != null)
+        {
+            // Get the RectTransform components
+            RectTransform rectTransform = markerTransform.GetComponent<RectTransform>();
+            RectTransform playerNumber = markerTransform.Find("PlayerNumber").GetComponent<RectTransform>();
+
+            if (rectTransform != null && playerNumber != null)
+            {
+                // Restore the original anchored positions if stored
+                if (originalMarkerPositions.ContainsKey(playerInfo) && originalPlayerNumberPositions.ContainsKey(playerInfo))
+                {
+                    rectTransform.anchoredPosition = originalMarkerPositions[playerInfo];
+                    playerNumber.anchoredPosition = originalPlayerNumberPositions[playerInfo];
+
+                    // Optionally show the arrows again if needed
+                    markerTransform.Find("Arrow").gameObject.SetActive(true);
+                    markerTransform.Find("ArrowBorder").gameObject.SetActive(true);
+
+                    // You can now remove the original positions from the dictionaries if you don't need them anymore
+                    originalMarkerPositions.Remove(playerInfo);
+                    originalPlayerNumberPositions.Remove(playerInfo);
+                }
+                else
+                {
+                    Debug.LogWarning("Original positions for PlayerMarker and PlayerNumber are not stored.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("PlayerMarker or PlayerNumber does not have a RectTransform component.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("PlayerMarker not found.");
+        }
+    }
+
+
     #endregion
-    
+
+    #region Map Selector Management
+
+    private void HandleMapSelection()
+    {
+        
+    }
+
+    public void MoveMarbleOverMap(MarbleController controller, Vector3 navigationDirection)
+    {
+        // Ensure the game is in the map selection state
+        if (currentState != GameState.MapSelection)
+        {
+            return;
+        }
+        if (controller.voted)
+        {
+            return;
+        }
+
+        // Get the list of map names from the mapVotes dictionary
+        List<string> mapList = new List<string>(mapVotes.Keys);
+
+        // Find the current map index of the controller's selected map
+        int currentIndex = mapList.IndexOf(controller.selectedMap);
+
+        // Determine the next or previous map based on the navigation direction
+        if (navigationDirection.x > 0) // Move right to the next map
+        {
+            currentIndex = (currentIndex + 1) % mapList.Count; // Wrap around at the end of the list
+        }
+        else if (navigationDirection.x < 0) // Move left to the previous map
+        {
+            currentIndex = (currentIndex - 1 + mapList.Count) % mapList.Count; // Wrap around at the beginning of the list
+        }
+
+        // Decrement the vote for the previous map
+        mapVotes[controller.selectedMap]--;
+
+        // Update the selected map for the controller
+        controller.selectedMap = mapList[currentIndex];
+
+        // Increment the vote count for the newly selected map
+        mapVotes[controller.selectedMap]++;
+
+        // Re-adjust the positions of all marbles on the newly selected map
+        UpdateAllMarblePositionsOnMap(controller.selectedMap);
+    }
+
+    // Helper method to update all player positions for a given map
+    private void UpdateAllMarblePositionsOnMap(string mapName)
+    {
+        // Find the map container for the specified map
+        GameObject currentOption = GameObject.Find(mapName);
+
+        // Get the RectTransform of the current map option (assumed to be a UI element)
+        RectTransform mapRectTransform = currentOption.GetComponent<RectTransform>();
+
+        // Calculate the top-left corner of the selected map's UI element in world space
+        Vector3 topLeftCorner = currentOption.transform.TransformPoint(new Vector3(-mapRectTransform.rect.width / 2, mapRectTransform.rect.height / 2, 0));
+
+        // Define spacing between marbles for players voting for the same map
+        float spacing = 0.55f; // Adjust this to control how far apart the marbles are
+        float marbleScale = 0.4f; // Scale of the marbles
+
+        // Get all players voting for this map
+        var playersOnMap = players.Where(p => p.marbleController.selectedMap == mapName).ToList();
+        // Remove players that are bots
+        playersOnMap.RemoveAll(p => p.AmBot);
+
+        // Iterate through the players and re-position them evenly
+        for (int i = 0; i < playersOnMap.Count; i++)
+        {
+            var playerController = playersOnMap[i].marbleController;
+
+            // Calculate the new position for each player based on their index
+            Vector3 offset = new Vector3(0.3f, -0.5f, 0); // Adjust these values as needed
+            Vector3 newPosition = topLeftCorner + new Vector3(i * spacing, 0, 0) + offset;
+
+            // Set the marble's position and scale
+            playerController.transform.position = newPosition;
+            playerController.transform.localScale = Vector3.one * marbleScale;
+        }
+    }
+
+    public void ConfirmVote(MarbleController controller)
+    {
+        if (currentState != GameState.MapSelection)
+        {
+            return;
+        }
+        
+        // Lock the player, prevent them from voting again.
+        controller.voted = true;
+       // How do we indicate that the marble has voted?
+       controller.transform.Find("Sprite").GetComponent<SpriteRenderer>().color = Color.grey;
+        if (players.All(p => p.marbleController.voted))
+        {
+            HandleVotingEnd();
+        }
+
+    }
+
+    public void GoBackToLobby(MarbleController controller)
+    {
+        if (currentState != GameState.MapSelection)
+        {
+            return;
+        }
+        // Setup the lobby again
+        SetGameState(GameState.Lobby);
+        // Ensure all players are set to not ready
+        foreach (var player in players)
+        {
+            if (player.AmBot) continue;
+            player.marbleController.ready = false;
+        }
+        SceneManager.LoadScene(1);
+    }
+
+
+    #endregion
+
+
     #region Player Management
     public void OnPlayerJoined(PlayerInput playerInput)
     {
@@ -471,6 +712,10 @@ public class GameManager : MonoBehaviour
 
     public void ChangeMarbleCharacter(MarbleController controller, Vector3 navigationDirection)
     {
+        if (currentState != GameState.Lobby)
+        {
+            return;
+        }
         int indexChange = navigationDirection.x > 0 ? 1 : -1;
         controller.characterIndex = (controller.characterIndex + indexChange) % characterNames.Count;
         if (controller.characterIndex < 0) controller.characterIndex = characterNames.Count - 1;
@@ -532,7 +777,7 @@ public class GameManager : MonoBehaviour
         {
             Destroy(spawnedBanner);
             spawnedBanner = null;
-            BeginMatch();
+            BeginMapVote();
         }
     }
 
@@ -573,12 +818,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // NOTE: This used to start the actual game, but now we make it load the map selection.
+    public void BeginMapVote()
+    {
+        SetGameState(GameState.MapSelection);
+        DontDestroyPlayerObjects();
+        StartCoroutine(LoadSceneAndSetup(2));
+    }
 
     public void BeginMatch()
     {
+        foreach (var player in players)
+        {
+            RestorePlayerUIComponents(player);
+        }
         SetGameState(GameState.Game);
-        DontDestroyPlayerObjects();
-        StartCoroutine(LoadSceneAndSetup(2));
+        StartCoroutine(LoadSceneAndSetup(3));
     }
 
     private void DontDestroyPlayerObjects()
@@ -603,8 +858,122 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        SetupMatch();
+        if (sceneIndex == 2)
+        {
+            SetupMapSelection();
+        }
+
+        if (sceneIndex == 3)
+        {
+            SetupMatch();
+        }
     }
+
+
+    private IEnumerator VotingCountDownTimer()
+    {
+        // Get the map selection UI called CountDownTimer
+        GameObject countDownTimer = GameObject.Find("CountDownTimer");
+        if (countDownTimer == null)
+        {
+            Debug.LogWarning("CountDownTimer not found.");
+            yield break;
+        }
+
+        float timeLeft = 30f;
+        while (timeLeft > 0)
+        {
+            if (players.All(p => p.marbleController.voted))
+            {
+                yield break;
+            }
+            countDownTimer.GetComponent<TMP_Text>().text = timeLeft.ToString("F0") + "s";
+            yield return new WaitForSeconds(1f);
+            timeLeft--;
+        }
+        HandleVotingEnd();
+
+    }
+
+    private void HandleVotingEnd()
+    {
+        if (currentState != GameState.MapSelection)
+        {
+            return;
+        }
+        Debug.Log("Voting End");
+        // Get the map with the most votes, if there is a tie, select randomly, if Random is selected, select randomly.
+        string selectedMap = "Random";
+        int maxVotes = 0;
+        List<string> tiedMaps = new List<string>();
+
+        // Find the map with the most votes
+        foreach (var map in mapVotes)
+        {
+            if (map.Value > maxVotes)
+            {
+                selectedMap = map.Key;
+                maxVotes = map.Value;
+                tiedMaps.Clear(); // Clear the tie list and add the current map as the only candidate
+                tiedMaps.Add(map.Key);
+            }
+            else if (map.Value == maxVotes)
+            {
+                tiedMaps.Add(map.Key); // Add this map to the tie list if it has the same number of votes
+            }
+        }
+
+        // Check if the selected map is "Random", if so, select a random map from the available maps
+        if (selectedMap == "Random" || mapVotes["Random"] > 0)
+        {
+            // Select a random map
+            List<string> allMaps = new List<string>(mapVotes.Keys);
+            allMaps.Remove("Random"); // Remove the "Random" option from the selection
+            selectedMap = allMaps[UnityEngine.Random.Range(0, allMaps.Count)];
+        }
+        // Check if there's a tie, if so, select randomly from the tied maps
+        else if (tiedMaps.Count > 1)
+        {
+            selectedMap = tiedMaps[UnityEngine.Random.Range(0, tiedMaps.Count)];
+        }
+
+        // Load the selected map using PlayerPrefs
+        PlayerPrefs.SetString("Map", selectedMap);
+
+        // Proceed to load the map or perform the next step
+        BeginMatch();
+    }
+
+
+    private void SetupMapSelection()
+    {
+        // Start a 30s timer for map selection
+        StartCoroutine(VotingCountDownTimer());
+
+        foreach (var player in players)
+        {
+            // Freeze the rigidbody
+            if (player.AmBot)
+            {
+                // We move them off the screen and continue.
+                player.marbleController.transform.position = new Vector3(1000, 0, 0);
+                player.marbleController.voted = true;
+                // Freeze their RB 
+                FreezePlayerPosition(player);
+                continue;
+            }
+
+            // Hack to select random at start.
+            MoveMarbleOverMap(player.marbleController, new Vector3(0, 0, 0));
+            FreezePlayerPosition(player);
+            HidePlayerUIComponentsKeepMarker(player);
+            SetMarbleUIColour(player);
+            SetMarbleUIName(player);
+        }
+    }
+
+
+
 
     private void SetupMatch()
     {
@@ -642,6 +1011,7 @@ public class GameManager : MonoBehaviour
             player.marbleController.transform.position = new Vector3(1000, 0, 0);
             player.marbleController.transform.localScale = new Vector3(1f, 1f, 1f);
             FreezePlayerPosition(player);
+            EnablePlayerUIComponents(player);
         }
     }
 
@@ -649,7 +1019,6 @@ public class GameManager : MonoBehaviour
     {
         var rb = player.marbleController.GetComponentInChildren<Rigidbody2D>();
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
-        EnablePlayerUIComponents(player);
     }
 
     private void EnablePlayerUIComponents(PlayerInfo player)

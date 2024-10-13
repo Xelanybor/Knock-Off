@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      dice-removebg-preview_0: 671571073142516132
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

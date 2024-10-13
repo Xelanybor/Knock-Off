@@ -159,7 +159,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      KnockOff_Paper_Prototype__18_-removebg-preview_0: 5906895364303456041
+      KnockOff_Paper_Prototype__18_-removebg-preview_1: 981064765684770339
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
