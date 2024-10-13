@@ -44,8 +44,22 @@ public class MarbleController : MonoBehaviour
     private bool resetMomentumNextUpdate = false; // Whether the marble's momentum should be reset on the next update
 
     // Game Variables
+    public int characterIndex = 0;
     public int spriteIndex = 0;
-    public int stockCount = 3;
+    public int stockCount
+    {
+        get { return _stockCount; }
+        set
+        {
+            _stockCount = value;
+            OnStockChange?.Invoke(this, new OnStockChangeArg
+            {
+                stockCount = _stockCount
+            });
+        }
+    }
+
+    private int _stockCount = 3; // Backing field for stock count
     public bool ready = true;
     public bool match_can_begin = false;
     public bool start_match = false;
@@ -60,6 +74,8 @@ public class MarbleController : MonoBehaviour
     // Events for communicating and updating flick bar
     public event EventHandler<OnUpdateEventArgs> OnEnergyUpdate;        // increment over time and decrement when release flick
     public event EventHandler<OnFlickBarCharge> OnCharge;               // when flicking held
+
+    public event EventHandler<OnApplyPowerUp> PickUpPowerUp;
 
     public event EventHandler<OnAddBot> AddBot;
     public event EventHandler<OnRemoveBot> RemoveBot;
@@ -83,6 +99,11 @@ public class MarbleController : MonoBehaviour
         public int chargeLevel;
     }
 
+    public class OnApplyPowerUp : EventArgs
+    {
+        public PowerupEffect powerup;
+    }
+
 
     // Interior Values
 
@@ -102,7 +123,34 @@ public class MarbleController : MonoBehaviour
 
     private Vector3 movementDirection = Vector3.zero; // Buffer for rb.linearVelocity, used for calculations as it's only updated once a frame
 
-    private float percentage = 0f; // Percentage (knockback modifier)
+
+    private float _percentage = 0f; // Backing Field for percentage
+
+    private float percentage
+    {
+        get { return _percentage; }
+        set
+        {
+            _percentage = value;
+            OnPercentageChange?.Invoke(this, new OnPercentageChangeArg
+            {
+                percentage = _percentage
+            });
+        }
+    }
+    // Percentage Event
+    public event EventHandler<OnPercentageChangeArg> OnPercentageChange;
+    public class OnPercentageChangeArg : EventArgs
+    {
+        public float percentage;
+    }
+
+    // Stock Event
+    public event EventHandler<OnStockChangeArg> OnStockChange;
+    public class OnStockChangeArg : EventArgs
+    {
+        public int stockCount;
+    }
 
     // Audio
     [SerializeField] private AudioClip flickSound;
@@ -183,10 +231,10 @@ public class MarbleController : MonoBehaviour
     }
 
     // take string for marble name, set stats accordingly
-    public void SetMarbleType(string name)
+    public void SetMarbleType(string charName)
     {
-        name = name.ToUpper();
-        switch (name)
+        charName = charName.ToUpper();
+        switch (charName)
         {
             case "CAT":
                 SetStats(new Dictionary<string, float> {
@@ -229,6 +277,8 @@ public class MarbleController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Register the events
+
         rb = GetComponent<Rigidbody2D>();
         flickChargeIndicator = GetComponentInChildren<ChargeIndicator>();
         flickChargeIndicator.UpdateChargeValue(0); // Initialize the charge indicator to 0
@@ -599,6 +649,10 @@ public class MarbleController : MonoBehaviour
     public void ApplyPowerup(PowerupEffect powerup)
     {
         hasPowerup = true;
+        PickUpPowerUp?.Invoke(this, new OnApplyPowerUp
+        {
+            powerup = powerup
+        });
         StartCoroutine(PowerupCoroutine(powerup));
     }
 
@@ -648,6 +702,16 @@ public class MarbleController : MonoBehaviour
         return momentum;
     }
 
+    public float GetPercentage()
+    {
+        return percentage;
+    }
+
+    public void ResetPercentage()
+    {
+        percentage = 0;
+    }
+
     public void OnMove(InputAction.CallbackContext context)
     {
         this.MovementInput(context.ReadValue<Vector2>());
@@ -684,10 +748,10 @@ public class MarbleController : MonoBehaviour
     
     public void OnChangeSkin(InputAction.CallbackContext context)
     {
-        // Happens on left right during UI
-        if (!ready)
+        Vector2 input = context.ReadValue<Vector2>();
+        if (!ready && context.started && input.x != 0)
         {
-            spriteIndex = (spriteIndex + 1) % 2;
+            GameManager.Instance.ChangeMarbleCharacter(this, input);
         }
     }
 

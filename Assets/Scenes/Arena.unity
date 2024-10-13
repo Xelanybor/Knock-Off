@@ -263,6 +263,7 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -439,6 +440,17 @@ MonoBehaviour:
     value: {fileID: 5827241809358586600, guid: 44eada89161f2e64997afe5337e69bca, type: 3}
   - key: CLASSROOM
     value: {fileID: 5827241809358586600, guid: 2eed3e118de133647845a4bb2c0ddb48, type: 3}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1803feaa41695e4ea8908a4e32d0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 519420031}
+  minZoom: 6.5
+  maxZoom: 8.5
+  zoomSpeed: 1
+  zoomBuffer: 1.5
 --- !u!1 &1434760050
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,7 +466,7 @@ GameObject:
   - component: {fileID: 1434760051}
   m_Layer: 0
   m_Name: UI_Overlay
-  m_TagString: Untagged
+  m_TagString: Canvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -471,7 +483,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d98bd498cc527f4080adde4be1b7303, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stockContainerPrefab: {fileID: 4430026576063829928, guid: ccf93aecfe69d234984c34fd6a3ab2ec, type: 3}
+  StockContainerPrefab: {fileID: 4430026576063829928, guid: ccf93aecfe69d234984c34fd6a3ab2ec, type: 3}
 --- !u!114 &1434760052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -533,7 +545,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!224 &1434760055
 RectTransform:
@@ -606,7 +618,7 @@ MonoBehaviour:
   m_PlayerLeftEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1434760051}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PlayerJoin, Assembly-CSharp
         m_MethodName: playerLeave
         m_Mode: 0

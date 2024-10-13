@@ -8,48 +8,107 @@ using UnityEngine.InputSystem;
 public class UI_Spawner : MonoBehaviour
 {
 
-    [SerializeField] private StockContainer stockContainerPrefab = null;
-    private Dictionary<int,StockContainer> player_containers = new Dictionary<int, StockContainer>();
+    [SerializeField] private StockContainer StockContainerPrefab = null;
+    private Dictionary<int,StockContainer> PlayerContainers = new Dictionary<int, StockContainer>();
+    List<PlayerInfo> players = new List<PlayerInfo>();
 
-    //public void spawn_ui(PlayerInfo player)
-    //{
-    //    foreach (StockContainer existingStockContainer in player_containers.Values)
-    //    {
-    //        Destroy(existingStockContainer.gameObject);
-    //    }
-    //    player_containers.Clear();
-    //    // Now we can create the StockContainers for the players
-    //    for (int i = 0; i <= playerInput.playerIndex; i++)
-    //    {
-    //        // Make sure the parent of the StockContainer is the parent of the PlayerJoin script
-    //        StockContainer stockContainer = Instantiate(stockContainerPrefab, UI_Locations[playerInput.playerIndex+1][i], Quaternion.identity);
-    //        stockContainer.setPlayerName("Player " + (i + 1));
-    //        stockContainer.setPercentage(0);
-    //        // Set parent to be the parent of the PlayerJoin script
-    //        stockContainer.transform.SetParent(this.transform);
 
-    //        player_containers.Add(i, stockContainer);
-    //    }
+    private void Start()
+    {
+        // Subscribe to the GameManager's PlayerListChanged event
+        GameManager.Instance.PlayerInformationChange += SpawnPlayerGameUI;
+        // Draw the UI for the current players
+        DrawGameUI(GameManager.Instance.GetPlayerList());
+    }
 
-    //}
+    public void OnDestroy()
+    {
+        // Unsubscribe from the GameManager's PlayerListChanged event
+        GameManager.Instance.PlayerInformationChange -= SpawnPlayerGameUI;
+    }
 
-    //private Dictionary<int, List<Vector3>> UI_Locations = new Dictionary<int, List<Vector3>>
-    //{
-    //   {1, new List<Vector3> {new Vector3(0.48f,-4.36f,0f) } },
-    //   {2, new List<Vector3> {new Vector3(-5.34f, -4.42f, 0f), new Vector3(6.75f,-4.41f,0f) }},
-    //   {3, new List<Vector3> {new Vector3(0.4f,-4f,0f), new Vector3(-0.4f,-4f,0f), new Vector3(0,-4f,0f) }},
-    //   {4, new List<Vector3> {new Vector3(0.4f,-4f,0f), new Vector3(-0.4f,-4f,0f), new Vector3(0.4f,-4f,0f), new Vector3(-0.4f,-4f,0f) }}
-    //};
 
-    //public void playerLeave(PlayerInput playerInput)
-    //{
-    //    // Destroy the StockContainer of the player that left
-    //    // Remove the StockContainer from the player_containers dictionary
-    //    MarbleController player = playerInput.GetComponent<MarbleController>();
-    //    StockContainer stockContainer = player_containers[playerInput.playerIndex];
-    //    player_containers.Remove(playerInput.playerIndex);
-    //    Destroy(stockContainer.gameObject);
+    public void DrawGameUI(List<PlayerInfo> players)
+    {
+        // Clear previous UI elements
+        foreach (StockContainer existingStockContainer in PlayerContainers.Values)
+        {
+            Destroy(existingStockContainer.gameObject);
+        }
+        PlayerContainers.Clear();
 
-    //}
+        // Get the Canvas and its RectTransform to calculate its size
+        Canvas canvas = GameObject.FindWithTag("Canvas").GetComponent<Canvas>();
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+
+        // Get the width of the canvas
+        float canvasWidth = canvasRect.rect.width;
+
+        // Calculate the number of players
+        int playerCount = players.Count;
+        if (playerCount == 0) return;
+
+        // Calculate the horizontal spacing based on the number of players
+        float slotWidth = canvasWidth / playerCount;
+        float startingX = -(canvasWidth / 2) + (slotWidth / 2); // Start from the leftmost side of the canvas
+        // Add some padding so it's a little more right
+        startingX += 50f;
+
+        // Position UI elements based on player count
+        for (int i = 0; i < playerCount; i++)
+        {
+            // Create a new StockContainer for each player
+            StockContainer stockContainer = Instantiate(StockContainerPrefab, canvas.transform);
+            // Make the stock container subscribe to the player's events for percentage and power up held.
+            players[i].marbleController.OnPercentageChange += stockContainer.PercentageUpdater;
+            players[i].marbleController.PickUpPowerUp += stockContainer.ShowPowerUp;
+            players[i].marbleController.OnStockChange += stockContainer.UpdateMiniStock;
+            stockContainer.setPlayerName(players[i].name);
+            stockContainer.setPercentage(players[i].marbleController.GetPercentage());
+            stockContainer.setPlayerIcon(players[i].marbleController.transform.Find("Sprite").GetComponent<SpriteRenderer>().sprite);
+            stockContainer.setPlayerColor(players[i].color);
+
+            // Calculate anchored position for this player UI
+            Vector2 anchoredPosition = new Vector2(startingX + i * slotWidth, canvasRect.rect.height / 2 - 100f); // Adjust height if needed
+            RectTransform stockContainerRect = stockContainer.GetComponent<RectTransform>();
+            stockContainerRect.anchoredPosition = anchoredPosition;
+            stockContainerRect.localScale = new Vector3(22f,9.7f,73f);
+
+            // Add to dictionary
+            PlayerContainers.Add(i, stockContainer);
+        }
+    }
+
+   
+
+    public void SpawnPlayerGameUI(object sender, GameManager.PlayerListArg playerList)
+    {
+        Debug.Log("Firing Spawn Event");
+      if (players.Count == 0)
+        {
+            players = playerList.PlayerList;
+            DrawGameUI(players);
+        }
+        // Change in player count
+      if (players.Count != playerList.PlayerList.Count)
+        {
+            players = playerList.PlayerList;
+            DrawGameUI(players);
+        }
+    }
+
+    public void HandlePlayerLeaveGameUI(PlayerInfo player)
+    {
+        // Destroy the StockContainer of the player that left and remove from the dictionary
+        if (PlayerContainers.ContainsKey(player.playerIndex))
+        {
+            StockContainer stockContainer = PlayerContainers[player.playerIndex];
+            PlayerContainers.Remove(player.playerIndex);
+            Destroy(stockContainer.gameObject);
+
+            // Redraw the UI for remaining players
+        }
+    }
+
 
 }
