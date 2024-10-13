@@ -12,6 +12,7 @@ public class MarbleController : MonoBehaviour
     private LineRenderer lineRenderer;
     [SerializeField] private Shader flickTrajectoryShader;
     private ChargeIndicator flickChargeIndicator;
+    [SerializeField] private MetalMarbleSprite metalMarbleSprite;
 
     // Constants
 
@@ -651,6 +652,13 @@ public class MarbleController : MonoBehaviour
     public void ApplyPowerup(PowerupEffect powerup)
     {
         hasPowerup = true;
+
+        // Yes the metal marble name has a spelling mistake, but I'm too afraid to rename it now
+        if (powerup.name == "MetaMarble")
+        {
+            metalMarbleSprite.Enable();
+        }
+
         PickUpPowerUp?.Invoke(this, new OnApplyPowerUp
         {
             powerup = powerup
@@ -665,6 +673,7 @@ public class MarbleController : MonoBehaviour
         // wait for effect to finish
         yield return new WaitForSeconds(powerup.duration);
         hasPowerup = false;
+        metalMarbleSprite.Disable();
         powerup.Remove(this);
     }
     
