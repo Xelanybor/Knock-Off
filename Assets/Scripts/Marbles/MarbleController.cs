@@ -108,8 +108,6 @@ public class MarbleController : MonoBehaviour
     // Interior Values
 
     private Vector2 movementInput;
-
-    public bool hasPowerup = false;
     private float flickBufferTimer = 0;
     private float flickMovementLockoutTimer = 0;
     private int flickChargeLevel = -1; // The current charge level of the flick. -1 means the marble is not flicking
@@ -151,6 +149,11 @@ public class MarbleController : MonoBehaviour
     {
         public int stockCount;
     }
+
+    // powerups
+    public bool hasPowerup = false; 
+    private Coroutine activePowerupCoroutine;
+    private PowerupEffect currentPowerup;
 
     // Audio
     [SerializeField] private AudioClip flickSound;
@@ -584,8 +587,20 @@ public class MarbleController : MonoBehaviour
             // play opponent marble mock sound
             Invoke("PlayTauntSound", 0.2f);
             // reset powerup if had one
+            if (hasPowerup)
+            {
+                if (activePowerupCoroutine != null)
+                {
+                    StopCoroutine(activePowerupCoroutine);
+                    activePowerupCoroutine = null;
+                }
 
-            
+                // undo the state changes
+                currentPowerup.Remove(this);
+                // reset state variables
+                hasPowerup = false;
+                currentPowerup = null;
+            }
         }
 
         // On collision with another marble
@@ -664,12 +679,23 @@ public class MarbleController : MonoBehaviour
 
     public void ApplyPowerup(PowerupEffect powerup)
     {
+        // set variables
         hasPowerup = true;
+        currentPowerup = powerup;
+
         PickUpPowerUp?.Invoke(this, new OnApplyPowerUp
         {
             powerup = powerup
         });
-        StartCoroutine(PowerupCoroutine(powerup));
+
+        // stop existing
+        if (activePowerupCoroutine != null)
+        {
+            StopCoroutine(activePowerupCoroutine);
+        }
+
+        // start the new power-up coroutine
+        activePowerupCoroutine = StartCoroutine(PowerupCoroutine(powerup));
     }
 
     private IEnumerator PowerupCoroutine(PowerupEffect powerup)
@@ -680,6 +706,8 @@ public class MarbleController : MonoBehaviour
         yield return new WaitForSeconds(powerup.duration);
         hasPowerup = false;
         powerup.Remove(this);
+        currentPowerup = null;
+        activePowerupCoroutine = null;
     }
     
     // Drawing the flick trajectory
