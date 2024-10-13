@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject NoPlayerLobbyUI;
     [SerializeField] private GameObject BotLobbyUI;
     [SerializeField] private GameObject StartBannerUI;
+    [SerializeField] private GameObject EndScreenUI;
 
     [SerializeField] private List<Sprite> characterSprites;
     [SerializeField] private List<string> characterNames;
@@ -112,7 +113,8 @@ public class GameManager : MonoBehaviour
         Lobby,
         Game,
         MapSelection,
-        Tutorial
+        Tutorial,
+        GameOver,
     }
 
     public GameState currentState;
@@ -185,6 +187,7 @@ public class GameManager : MonoBehaviour
             case GameState.Game:
                 CheckForMarbleDeath();
                 ZoomerMethod();
+                CheckForWinCondition();
                 break;
             case GameState.Tutorial:
                 // Add tutorial handling logic here when necessary
@@ -195,6 +198,7 @@ public class GameManager : MonoBehaviour
 
     private void CheckScene(Scene current, Scene next)
     {
+        Debug.Log("Scene changed from " + current.name + " to " + next.name);
         // Determine the game state based on the next scene's name
         switch (next.name)
         {
@@ -673,6 +677,10 @@ public class GameManager : MonoBehaviour
 
     private void Player_RequestRemoveBot(object sender, MarbleController.OnRemoveBot e)
     {
+        if (currentState != GameState.Lobby)
+        {
+            return;
+        }
         // Check if possible to remove bot
         if (players.Count < 2)
         {
@@ -838,6 +846,7 @@ public class GameManager : MonoBehaviour
 
     private void DontDestroyPlayerObjects()
     {
+        if (players == null) return;
         foreach (var player in players)
         {
             DontDestroyOnLoad(player.parent);
@@ -1097,12 +1106,86 @@ public class GameManager : MonoBehaviour
             MarbleController mc = player.marbleController;
             if (mc.dead)
             {
-                mc.dead = false;
-                mc.ResetPercentage();
-                RespawnMarble(player);
+                // Check if they have stocks, if they do, respawn them.
+                if (mc.stockCount > 0)
+                {
+                    mc.dead = false;
+                    mc.ResetPercentage();
+                    RespawnMarble(player);
+                }
+                
             }
         }
     }
+
+    public void CheckForWinCondition()
+    {
+        int remainingPlayers = 0;
+        PlayerInfo winner = null;
+
+        foreach (var player in players)
+        {
+            if (player.marbleController.stockCount > 0)
+            {
+                remainingPlayers++;
+                winner = player; // Keep track of the last player with stock
+            }
+        }
+
+        if (remainingPlayers == 1 && winner != null)
+        {
+            SetGameState(GameState.GameOver);
+            foreach (var player in players)
+            {
+                FreezePlayerPosition(player);
+                if (!player.AmBot)
+                {
+                    player.playerInput.SwitchCurrentActionMap("UI");
+                }
+                DrawEndScreen(winner);
+            }
+        }
+    }
+
+    private void DrawEndScreen(PlayerInfo winner)
+    {
+        // Display the EndScreenBanner with the winner's name
+        // Instantiate the EndScreenBanner prefab
+        GameObject endScreenBanner = Instantiate(EndScreenUI, new Vector3(0, 0, 0), Quaternion.identity);
+        // Set the winner's name on the banner
+        // Grab the WinnerText object by name
+        // WinnerText is a child of TextHolder, which is a child of EndScreenBanner
+        Transform winnerText = endScreenBanner.transform.Find("TextHolder/WinnerText");
+        // Get the WinnerSprite object, a child of EndScreenBanner which is a SpriteRenderer
+        Transform winnerSprite = endScreenBanner.transform.Find("WinnerSprite");
+        // Set the winner's sprite
+        winnerSprite.GetComponent<SpriteRenderer>().sprite = winner.playerSprite;
+        // Get the Text component from the WinnerText object
+        TMP_Text winnerTextComponent = winnerText.GetComponent<TMP_Text>();
+        winnerTextComponent.text = winner.name + " wins!";
+        winner.marbleController.isWinner = true;
+    
+   }
+
+    public void AcceptWin(MarbleController mc)
+    {
+        if (currentState != GameState.GameOver) return;
+        if (mc == null) return;
+
+        // Reset the game state
+        SetGameState(GameState.MainMenu);
+        // Destroy the player objects.
+        foreach (var player in players)
+        {
+            Destroy(player.parent);
+        }
+        players.Clear();
+        // Ensure music is destroyed.
+        Destroy(GameObject.Find("MusicManager"));
+        // Do not destroy the game manager!
+        SceneManager.LoadScene(0);
+    }
+
 
     public void ZoomerMethod()
     {
@@ -1121,6 +1204,8 @@ public class GameManager : MonoBehaviour
 
     private void RespawnMarble(PlayerInfo player)
     {
+        if (currentState != GameState.Game) return;
+        if (player == null) return;
         GameObject map = GameObject.FindGameObjectWithTag("Map");
         Map mapComponent = map.GetComponent<Map>();
         List<Vector3> respawnLocations = mapComponent.getPlayerSpawnPoints();

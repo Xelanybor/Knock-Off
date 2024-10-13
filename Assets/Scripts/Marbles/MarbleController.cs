@@ -65,6 +65,7 @@ public class MarbleController : MonoBehaviour
     public bool match_can_begin = false;
     public bool start_match = false;
     public bool dead = false;
+    public bool isWinner = false;
 
     public string selectedMap = "Random";
     public bool voted = false;
@@ -832,6 +833,14 @@ public class MarbleController : MonoBehaviour
         if (context.started)
         {
             GameManager.Instance.ConfirmVote(this);
+        }
+    }
+
+    public void OnAcceptWin(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            GameManager.Instance.AcceptWin(this);
         }
     }
 
