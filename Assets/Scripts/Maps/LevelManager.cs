@@ -13,6 +13,7 @@ public class CustomArenaDict
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private CustomArenaDict[] prefabList;
+    [SerializeField] private Camera mainCamera;
 
     void Awake()
     {
@@ -29,7 +30,10 @@ public class LevelManager : MonoBehaviour
         }
         if (chosenPrefab != null)
         {
-            Instantiate(chosenPrefab);
+            GameObject map = Instantiate(chosenPrefab);
+            Parallax parallax = map.GetComponentInChildren<Parallax>();
+            parallax.mainCamera = Camera.main;
+
         } else
         {
             Debug.LogError("Key for prefab level not in list!");
