@@ -659,6 +659,11 @@ public class MarbleController : MonoBehaviour
             metalMarbleSprite.Enable();
         }
 
+        if (powerup.name == "BigMarble")
+        {
+            transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        }
+
         PickUpPowerUp?.Invoke(this, new OnApplyPowerUp
         {
             powerup = powerup
@@ -674,6 +679,7 @@ public class MarbleController : MonoBehaviour
         yield return new WaitForSeconds(powerup.duration);
         hasPowerup = false;
         metalMarbleSprite.Disable();
+        transform.localScale = new Vector3(1f, 1f, 1f);
         powerup.Remove(this);
     }
     

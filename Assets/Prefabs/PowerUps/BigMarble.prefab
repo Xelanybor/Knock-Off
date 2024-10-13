@@ -147,5 +147,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f7a9d7e7387f1d4cb4bd841740c8534, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  powerupEffect: {fileID: 11400000, guid: 0900c4499e3615d44ba84b2c05be62e7, type: 2}
+  powerupEffect: {fileID: 11400000, guid: 9b5d4dd114ccc854a97f16700cbc67cf, type: 2}
   powerupConsumed: {fileID: 8300000, guid: b7db2b75a7678294386f5cb37cc2f073, type: 3}
