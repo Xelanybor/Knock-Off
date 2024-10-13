@@ -3,7 +3,7 @@ using TMPro;
 using Unity.VisualScripting;
 using System.Linq;
 using System.Collections;
-
+using System;
 public class StockContainer : MonoBehaviour
 {
     // StockContainer is assigned to each player.
@@ -17,6 +17,13 @@ public class StockContainer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI percentageText;
     [SerializeField] public int stockCount;
     [SerializeField] public float percentage;
+    // dimensions of face image, initialized to start values
+    private float faceImagePosX = -5.8124f;
+    private float faceImagePosY = 0.51781f;
+    private float faceScaleX = 3.5f;
+    private float faceScaleY = 6.5f;
+    [SerializeField] private Sprite stunnedFace;
+    [SerializeField] private Sprite defaultFace;
     // We also get a percentage counter from the marble.
 
     private string name;
@@ -27,6 +34,35 @@ public class StockContainer : MonoBehaviour
         this.name = name;
         playerNameText.text = name;
 
+    }
+
+    public IEnumerator setFaceStunned(int duration)
+    {
+        Transform faceTransform = transform.Find("Face");
+        SpriteRenderer spriteRenderer = faceTransform.GetComponent<SpriteRenderer>();
+        // disable animation
+        Animator animator = faceTransform.GetComponent<Animator>();
+        animator.enabled = false;
+        // update sprite
+        spriteRenderer.sprite = stunnedFace;
+        // update dimensions
+        updateFaceDimensions(faceTransform, -6.8974f, 2.61f, faceScaleX, faceScaleY);
+        // wait
+        yield return new WaitForSeconds(duration);
+
+        // change back to the original face
+        spriteRenderer.sprite = defaultFace;
+        // update dimensions
+        updateFaceDimensions(faceTransform, faceImagePosX, faceImagePosY, faceScaleX, faceScaleY);
+        animator.enabled = true;
+    }
+
+    public void updateFaceDimensions(Transform transform, float posX, float posY, float scaleX, float scaleY)
+    {
+        Debug.Log(transform.localPosition);
+        transform.localPosition = new Vector3(posX, posY, 0f);
+
+        //transform.Scale = new Vector3(scaleX, scaleY, 1f);
     }
 
     // Also sets Mini Stock Icon
@@ -57,6 +93,11 @@ public class StockContainer : MonoBehaviour
         playerNameText.color = Color.white;
         // Make the border color the same as the player's color
         playerNameText.outlineColor = color;
+    }
+
+    public void OnDamageFaceUpdate(object sender, EventArgs e)
+    {
+        StartCoroutine(setFaceStunned(1));
     }
 
 

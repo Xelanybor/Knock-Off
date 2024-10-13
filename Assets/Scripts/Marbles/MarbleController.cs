@@ -112,8 +112,6 @@ public class MarbleController : MonoBehaviour
     // Interior Values
 
     private Vector2 movementInput;
-
-    public bool hasPowerup = false;
     private float flickBufferTimer = 0;
     private float flickMovementLockoutTimer = 0;
     private int flickChargeLevel = -1; // The current charge level of the flick. -1 means the marble is not flicking
@@ -156,6 +154,11 @@ public class MarbleController : MonoBehaviour
         public int stockCount;
     }
 
+    // powerups
+    public bool hasPowerup = false; 
+    private Coroutine activePowerupCoroutine;
+    private PowerupEffect currentPowerup;
+
     // Audio
     [SerializeField] private AudioClip flickSound;
     [SerializeField] private AudioClip dashSound;
@@ -171,11 +174,16 @@ public class MarbleController : MonoBehaviour
     // collision with ground objects
     [SerializeField] private AudioClip groundCollision;
 
+    [SerializeField] private AudioClip[] deathSounds;
+    [SerializeField] private AudioClip[] tauntSounds;
+    [SerializeField] private AudioClip gameOverSound;
     // particles and flash effects
     [SerializeField] private ParticleSystem damageParticles;
     private ParticleSystem damageParticleInstance;
     private DamageFlash damageFlash;
 
+
+    public event EventHandler OnDamageFaceUpdate;
 
     // MODIFIABLE STATS
 
@@ -556,6 +564,11 @@ public class MarbleController : MonoBehaviour
 
     }
 
+    private void PlayTauntSound()
+    {
+        SoundFXManager.Instance.PlayRandomSoundFXClip(tauntSounds, gameObject.transform, 0.2f);
+    }
+
     // Collision Methods
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -573,7 +586,27 @@ public class MarbleController : MonoBehaviour
         {
             this.stockCount = this.stockCount - 1;
             this.dead = true;
-            
+
+            // play marble death sound
+            SoundFXManager.Instance.PlayRandomSoundFXClip(deathSounds, gameObject.transform, 0.2f);
+
+            // play opponent marble mock sound
+            Invoke("PlayTauntSound", 0.2f);
+            // reset powerup if had one
+            if (hasPowerup)
+            {
+                if (activePowerupCoroutine != null)
+                {
+                    StopCoroutine(activePowerupCoroutine);
+                    activePowerupCoroutine = null;
+                }
+
+                // undo the state changes
+                currentPowerup.Remove(this);
+                // reset state variables
+                hasPowerup = false;
+                currentPowerup = null;
+            }
         }
 
         // On collision with another marble
@@ -626,7 +659,7 @@ public class MarbleController : MonoBehaviour
                     SoundFXManager.Instance.PlayRandomSoundFXClip(mildCollisionSounds, gameObject.transform, 0.4f);
                     SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
                 }
-                
+                OnDamageFaceUpdate?.Invoke(this, EventArgs.Empty);
                 SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
                 // particles
                 SpawnDamageParticles(attackDirection);
@@ -651,7 +684,9 @@ public class MarbleController : MonoBehaviour
 
     public void ApplyPowerup(PowerupEffect powerup)
     {
+        // set variables
         hasPowerup = true;
+        currentPowerup = powerup;
 
         // Yes the metal marble name has a spelling mistake, but I'm too afraid to rename it now
         if (powerup.name == "MetaMarble")
@@ -668,7 +703,15 @@ public class MarbleController : MonoBehaviour
         {
             powerup = powerup
         });
-        StartCoroutine(PowerupCoroutine(powerup));
+
+        // stop existing
+        if (activePowerupCoroutine != null)
+        {
+            StopCoroutine(activePowerupCoroutine);
+        }
+
+        // start the new power-up coroutine
+        activePowerupCoroutine = StartCoroutine(PowerupCoroutine(powerup));
     }
 
     private IEnumerator PowerupCoroutine(PowerupEffect powerup)
@@ -681,6 +724,8 @@ public class MarbleController : MonoBehaviour
         metalMarbleSprite.Disable();
         transform.localScale = new Vector3(1f, 1f, 1f);
         powerup.Remove(this);
+        currentPowerup = null;
+        activePowerupCoroutine = null;
     }
     
     // Drawing the flick trajectory

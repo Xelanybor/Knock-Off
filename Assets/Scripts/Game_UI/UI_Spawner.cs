@@ -63,6 +63,7 @@ public class UI_Spawner : MonoBehaviour
             players[i].marbleController.OnPercentageChange += stockContainer.PercentageUpdater;
             players[i].marbleController.PickUpPowerUp += stockContainer.ShowPowerUp;
             players[i].marbleController.OnStockChange += stockContainer.UpdateMiniStock;
+            players[i].marbleController.OnDamageFaceUpdate += stockContainer.OnDamageFaceUpdate;
             stockContainer.setPlayerName(players[i].name);
             stockContainer.setPercentage(players[i].marbleController.GetPercentage());
             stockContainer.setPlayerIcon(players[i].marbleController.transform.Find("Sprite").GetComponent<SpriteRenderer>().sprite);

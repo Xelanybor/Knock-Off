@@ -36,7 +36,7 @@ public class LevelManager : MonoBehaviour
 
         } else
         {
-            Debug.LogError("Key for prefab level not in list!");
+            Instantiate(prefabList[0].value);
         }
 
         PlayerPrefs.DeleteKey("Map");
