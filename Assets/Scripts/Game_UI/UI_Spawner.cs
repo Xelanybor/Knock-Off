@@ -24,7 +24,10 @@ public class UI_Spawner : MonoBehaviour
     public void OnDestroy()
     {
         // Unsubscribe from the GameManager's PlayerListChanged event
-        GameManager.Instance.PlayerInformationChange -= SpawnPlayerGameUI;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.PlayerInformationChange -= SpawnPlayerGameUI;
+        }
     }
 
 

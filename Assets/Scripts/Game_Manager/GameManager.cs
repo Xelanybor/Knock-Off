@@ -144,14 +144,22 @@ public class GameManager : MonoBehaviour
 #endif
     }
 
+    public void OnDestroy()
+    {
+        // Unsubscribe the CheckScene method from the activeSceneChanged event
+        SceneManager.activeSceneChanged -= CheckScene;
+    }
+
 
     public static void EnsureExists()
     {
         if (Instance == null)
         {
+            Debug.Log("Null");
             GameObject gameManagerObject = new GameObject("GameManager");
             Instance = gameManagerObject.AddComponent<GameManager>();
         }
+        Debug.Log("Not destroyed");
     }
 
 
@@ -159,11 +167,13 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null)
         {
+            Debug.Log("EnsureSingleton");
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
         {
+            Debug.Log("Bad Instantiation, destroying.");
             Destroy(gameObject);
         }
     }
@@ -1112,6 +1122,13 @@ public class GameManager : MonoBehaviour
                     mc.dead = false;
                     mc.ResetPercentage();
                     RespawnMarble(player);
+                } else
+                {
+                    // Move them off screen
+                    mc.isWinner = false;
+                    mc.transform.position = new Vector3(1000, 0, 0);
+                    FreezePlayerPosition(player);
+                    
                 }
                 
             }
@@ -1182,6 +1199,9 @@ public class GameManager : MonoBehaviour
         players.Clear();
         // Ensure music is destroyed.
         Destroy(GameObject.Find("MusicManager"));
+        Destroy(gameObject);
+        Instance = null;
+
         // Do not destroy the game manager!
         SceneManager.LoadScene(0);
     }

@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.InputSystem;
-using UnityEditor.SearchService;
 
 public class MarbleController : MonoBehaviour
 {
@@ -639,6 +638,7 @@ public class MarbleController : MonoBehaviour
         // On collision with a kill zone
         if (collision.gameObject.CompareTag("KillZone"))
         {
+            Debug.Log("Death");
             Die();
         }
 
