@@ -495,6 +495,7 @@ public class MarbleController : MonoBehaviour
             chargeSource = SoundFXManager.Instance.PlaySoundFXClip(chargeSound, gameObject.transform, 0.1f);
         }
         chargingFlick = true;
+        momentum = 0;
         rb.linearVelocity *= FLICK_SLOWDOWN;
         rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
         flickChargeLevel = 0;
@@ -510,11 +511,6 @@ public class MarbleController : MonoBehaviour
     {
         if (!chargingFlick) return;
         SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.2f);
-        // stop audio
-        if (chargeSource != null)
-        {
-            SoundFXManager.Instance.StopSound(chargeSource);
-        }
 
         // decrement flickCounter by the cost of the charge
         float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];
@@ -522,16 +518,9 @@ public class MarbleController : MonoBehaviour
         if (flickCounter < 0)
             flickCounter = 0;
 
-        // update flickbar UI
-        OnEnergyUpdate?.Invoke(this, new OnUpdateEventArgs
-        {
-            progressNormalized = flickCounter / flickCounterMax
-        });
 
         rb.linearVelocity = Vector2.zero;
-        rb.gravityScale = 1;
         rb.AddForce(movementInput * FLICK_FORCE[flickChargeLevel] * stats["FLICK_FORCE_MULTIPLIER"], ForceMode2D.Impulse);
-        chargingFlick = false;
 
         // Reset the flick direction buffer
         movementInput = Vector2.zero;
@@ -542,6 +531,30 @@ public class MarbleController : MonoBehaviour
         // Set the marble's momentum (temporary value until we add flick charge levels)
         momentum = FLICK_MOMENTUM[flickChargeLevel] * stats["FLICK_MOMENTUM_MULTIPLIER"];
 
+        StopChargingFlick();
+    }
+
+    public void StopChargingFlick()
+    {
+
+        // Method called both when a flick is released and when a flick is interrupted
+
+        if (!chargingFlick) return;
+        chargingFlick = false;
+        rb.gravityScale = 1;
+
+        // stop audio
+        if (chargeSource != null)
+        {
+            SoundFXManager.Instance.StopSound(chargeSource);
+        }
+
+        // update flickbar UI
+        OnEnergyUpdate?.Invoke(this, new OnUpdateEventArgs
+        {
+            progressNormalized = flickCounter / flickCounterMax
+        });
+
         // Reset the flick charge
         flickChargeTimer = 0;
         flickChargeLevel = -1;
@@ -551,6 +564,7 @@ public class MarbleController : MonoBehaviour
         {   
             chargeLevel = 0
         });
+
     }
 
     public void Dash()
@@ -645,6 +659,13 @@ public class MarbleController : MonoBehaviour
             }
             else
             {
+
+                if (chargingFlick)
+                {
+                    // Marble gets interrupted if charging a flick
+                    StopChargingFlick();
+                }
+
                 // The other marble is the attacker
                 rb.linearVelocity = Vector2.zero;
 
