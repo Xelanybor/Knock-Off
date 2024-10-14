@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.InputSystem;
+using UnityEditor.SearchService;
 
 public class MarbleController : MonoBehaviour
 {
@@ -322,6 +323,15 @@ public class MarbleController : MonoBehaviour
     void Update()
     {
 
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        // Extra check for the marble being dead
+        // In case the marble quantum tunnels through the kill collider
+        if (sceneName == "Arena" && (Mathf.Abs(transform.position.x) > 15 || Mathf.Abs(transform.position.y - 5) > 10))
+        {
+            Die();
+        }
+
         // Reset momentum if needed
         // Done it this way because resetting momentum in OnCollisionEnter2D causes inconsistent behavior due to
         // each marble's collision methods being called asynchronously. Instead of resetting momentum in the collision
@@ -473,6 +483,9 @@ public class MarbleController : MonoBehaviour
         // I've implemented it like this rather than directly doing a ground check to make it easier to add a double jump later if we decide to
         if (!canJump) return;
 
+        // Can't jump while charging a flick
+        if (chargingFlick) return;
+
         // Reset the vertical velocity to 0 to make the jump feel snappier
         rb.linearVelocityY = 0;
         rb.AddForce(Vector2.up * JUMP_FORCE * stats["JUMP_FORCE_MULTIPLIER"], ForceMode2D.Impulse);
@@ -492,6 +505,7 @@ public class MarbleController : MonoBehaviour
             chargeSource = SoundFXManager.Instance.PlaySoundFXClip(chargeSound, gameObject.transform, 0.1f);
         }
         chargingFlick = true;
+        momentum = 0;
         rb.linearVelocity *= FLICK_SLOWDOWN;
         rb.gravityScale = FLICK_SLOWDOWN * FLICK_SLOWDOWN;
         flickChargeLevel = 0;
@@ -507,11 +521,6 @@ public class MarbleController : MonoBehaviour
     {
         if (!chargingFlick) return;
         SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.2f);
-        // stop audio
-        if (chargeSource != null)
-        {
-            SoundFXManager.Instance.StopSound(chargeSource);
-        }
 
         // decrement flickCounter by the cost of the charge
         float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];
@@ -519,16 +528,9 @@ public class MarbleController : MonoBehaviour
         if (flickCounter < 0)
             flickCounter = 0;
 
-        // update flickbar UI
-        OnEnergyUpdate?.Invoke(this, new OnUpdateEventArgs
-        {
-            progressNormalized = flickCounter / flickCounterMax
-        });
 
         rb.linearVelocity = Vector2.zero;
-        rb.gravityScale = 1;
         rb.AddForce(movementInput * FLICK_FORCE[flickChargeLevel] * stats["FLICK_FORCE_MULTIPLIER"], ForceMode2D.Impulse);
-        chargingFlick = false;
 
         // Reset the flick direction buffer
         movementInput = Vector2.zero;
@@ -539,6 +541,30 @@ public class MarbleController : MonoBehaviour
         // Set the marble's momentum (temporary value until we add flick charge levels)
         momentum = FLICK_MOMENTUM[flickChargeLevel] * stats["FLICK_MOMENTUM_MULTIPLIER"];
 
+        StopChargingFlick();
+    }
+
+    public void StopChargingFlick()
+    {
+
+        // Method called both when a flick is released and when a flick is interrupted
+
+        if (!chargingFlick) return;
+        chargingFlick = false;
+        rb.gravityScale = 1;
+
+        // stop audio
+        if (chargeSource != null)
+        {
+            SoundFXManager.Instance.StopSound(chargeSource);
+        }
+
+        // update flickbar UI
+        OnEnergyUpdate?.Invoke(this, new OnUpdateEventArgs
+        {
+            progressNormalized = flickCounter / flickCounterMax
+        });
+
         // Reset the flick charge
         flickChargeTimer = 0;
         flickChargeLevel = -1;
@@ -548,6 +574,7 @@ public class MarbleController : MonoBehaviour
         {   
             chargeLevel = 0
         });
+
     }
 
     public void Dash()
@@ -570,22 +597,9 @@ public class MarbleController : MonoBehaviour
         SoundFXManager.Instance.PlayRandomSoundFXClip(tauntSounds, gameObject.transform, 0.2f);
     }
 
-    // Collision Methods
-
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void Die()
     {
-        // On collision with the map geometry
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            canJump = true;
-            canDash = true;
-            SoundFXManager.Instance.PlaySoundFXClip(groundCollision, gameObject.transform, 0.2f);
-        }
-
-        // On collision with a kill zone
-        if (collision.gameObject.CompareTag("KillZone"))
-        {
-            this.stockCount = this.stockCount - 1;
+        this.stockCount = this.stockCount - 1;
             this.dead = true;
 
             // play marble death sound
@@ -608,6 +622,24 @@ public class MarbleController : MonoBehaviour
                 hasPowerup = false;
                 currentPowerup = null;
             }
+    }
+
+    // Collision Methods
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // On collision with the map geometry
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            canJump = true;
+            canDash = true;
+            SoundFXManager.Instance.PlaySoundFXClip(groundCollision, gameObject.transform, 0.2f);
+        }
+
+        // On collision with a kill zone
+        if (collision.gameObject.CompareTag("KillZone"))
+        {
+            Die();
         }
 
         // On collision with another marble
@@ -642,6 +674,13 @@ public class MarbleController : MonoBehaviour
             }
             else
             {
+
+                if (chargingFlick)
+                {
+                    // Marble gets interrupted if charging a flick
+                    StopChargingFlick();
+                }
+
                 // The other marble is the attacker
                 rb.linearVelocity = Vector2.zero;
 
@@ -671,6 +710,8 @@ public class MarbleController : MonoBehaviour
 
             // Apply the force
             force /= 1 + stats["KNOCKBACK_RESISTANCE"] - otherMarbleController.GetStat("EXTRA_KNOCKBACK_DEALT"); // Apply knockback resistance
+            // force = Mathf.Clamp(force, 0, 100f);
+            // Debug.Log(force);
             rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 
             // Set a flag to reset momentum on the next update
