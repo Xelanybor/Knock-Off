@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.InputSystem;
+using UnityEditor.SearchService;
 
 public class MarbleController : MonoBehaviour
 {
@@ -322,6 +323,15 @@ public class MarbleController : MonoBehaviour
     void Update()
     {
 
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        // Extra check for the marble being dead
+        // In case the marble quantum tunnels through the kill collider
+        if (sceneName == "Arena" && (Mathf.Abs(transform.position.x) > 15 || Mathf.Abs(transform.position.y - 5) > 10))
+        {
+            Die();
+        }
+
         // Reset momentum if needed
         // Done it this way because resetting momentum in OnCollisionEnter2D causes inconsistent behavior due to
         // each marble's collision methods being called asynchronously. Instead of resetting momentum in the collision
@@ -587,22 +597,9 @@ public class MarbleController : MonoBehaviour
         SoundFXManager.Instance.PlayRandomSoundFXClip(tauntSounds, gameObject.transform, 0.2f);
     }
 
-    // Collision Methods
-
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void Die()
     {
-        // On collision with the map geometry
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            canJump = true;
-            canDash = true;
-            SoundFXManager.Instance.PlaySoundFXClip(groundCollision, gameObject.transform, 0.2f);
-        }
-
-        // On collision with a kill zone
-        if (collision.gameObject.CompareTag("KillZone"))
-        {
-            this.stockCount = this.stockCount - 1;
+        this.stockCount = this.stockCount - 1;
             this.dead = true;
 
             // play marble death sound
@@ -625,6 +622,24 @@ public class MarbleController : MonoBehaviour
                 hasPowerup = false;
                 currentPowerup = null;
             }
+    }
+
+    // Collision Methods
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // On collision with the map geometry
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            canJump = true;
+            canDash = true;
+            SoundFXManager.Instance.PlaySoundFXClip(groundCollision, gameObject.transform, 0.2f);
+        }
+
+        // On collision with a kill zone
+        if (collision.gameObject.CompareTag("KillZone"))
+        {
+            Die();
         }
 
         // On collision with another marble
@@ -695,6 +710,8 @@ public class MarbleController : MonoBehaviour
 
             // Apply the force
             force /= 1 + stats["KNOCKBACK_RESISTANCE"] - otherMarbleController.GetStat("EXTRA_KNOCKBACK_DEALT"); // Apply knockback resistance
+            // force = Mathf.Clamp(force, 0, 100f);
+            // Debug.Log(force);
             rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 
             // Set a flag to reset momentum on the next update
