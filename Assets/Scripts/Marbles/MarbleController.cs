@@ -473,6 +473,9 @@ public class MarbleController : MonoBehaviour
         // I've implemented it like this rather than directly doing a ground check to make it easier to add a double jump later if we decide to
         if (!canJump) return;
 
+        // Can't jump while charging a flick
+        if (chargingFlick) return;
+
         // Reset the vertical velocity to 0 to make the jump feel snappier
         rb.linearVelocityY = 0;
         rb.AddForce(Vector2.up * JUMP_FORCE * stats["JUMP_FORCE_MULTIPLIER"], ForceMode2D.Impulse);
