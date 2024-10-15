@@ -276,7 +276,7 @@ public class MarbleController : MonoBehaviour
             case "RUSTY":
                 SetStats(new Dictionary<string, float> {
                     {"ACCELERATION_MULTIPLIER", 0.8f},        // - acceleration
-                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0.5f},   // + damage resistance
+                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0.25f},   // + damage resistance
                     }); 
                 break;
         }
@@ -687,7 +687,7 @@ public class MarbleController : MonoBehaviour
                 force = (enemyMomentum - effectiveMomentum) * 1.5f * Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f);
 
                 // Apply damage to the marble
-                float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
+                float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 - stats["PERCENTAGE_DAMAGE_RESISTANCE"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
                 percentage += damage;
                 // choose collision sound effect to apply
                 if (damage > 0 && damage <= 50)
