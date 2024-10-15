@@ -15,7 +15,7 @@ public class BotController : MonoBehaviour
     private float flickChargeTimer = 0; // Timer for the flick charge
 
     private bool isFlicking = false; // Whether the bot is currently flicking
-    private bool isTargetingMarble = false; // Whether the bot is targeting another marble
+    private Transform targetedMarbleTransform = null; // The marble the bot is currently targeting. Null if the bot is not targeting a marble
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -48,9 +48,17 @@ public class BotController : MonoBehaviour
             if (flickChargeTimer <= 0)
             {
                 marble.ReleaseFlick();
+                targetedMarbleTransform = null;
                 marble.MovementInput(Vector2.zero);
                 isFlicking = false;
             }
+        }
+
+        // Track the targeted marble
+        if (targetedMarbleTransform != null)
+        {
+            Vector3 direction = (targetedMarbleTransform.position - marbleTransform.position).normalized;
+            marble.MovementInput(new Vector2(direction.x, direction.y));
         }
 
         // Recover from being knocked off the map
@@ -69,15 +77,13 @@ public class BotController : MonoBehaviour
                 marble.StartChargingFlick();
             }
         }
+        // Start aiming at another marble and charging a flick
         else if (!isFlicking && flickCooldownTimer <= 0)
         {
-            Transform closestPlayerTransform = GameManager.Instance.GetClosestPlayerTransform(marble);
-            Vector3 direction = (closestPlayerTransform.position - marbleTransform.position).normalized;
-            marble.MovementInput(new Vector2(direction.x, direction.y));
+            targetedMarbleTransform = GameManager.Instance.GetClosestPlayerTransform(marble);
 
             flickChargeTimer = FLICK_CHARGE_TIME;
             isFlicking = true;
-            isTargetingMarble = true;
             flickCooldownTimer = FLICK_COOLDOWN;
             marble.StartChargingFlick();
         }
