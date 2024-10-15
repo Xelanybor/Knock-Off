@@ -3,6 +3,9 @@ Daniel Gordon	GRDDAN017
 Alex Smith	SMTALE028
 Marc Levin	LVNMAR013
 
+Unity Version Used:
+6000.0.18f1
+
 Assets Used:
 Sounds:
 	- Death and powerup sounds (FREE): made using ChipTone
