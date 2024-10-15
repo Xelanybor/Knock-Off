@@ -617,9 +617,11 @@ public class MarbleController : MonoBehaviour
                     StopCoroutine(activePowerupCoroutine);
                     activePowerupCoroutine = null;
                 }
+                metalMarbleSprite.Disable();
+                transform.localScale = new Vector3(1f, 1f, 1f);
 
-                // undo the state changes
-                currentPowerup.Remove(this);
+            // undo the state changes
+            currentPowerup.Remove(this);
                 // reset state variables
                 hasPowerup = false;
                 currentPowerup = null;
