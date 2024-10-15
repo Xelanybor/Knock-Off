@@ -26,6 +26,9 @@ public class StockContainer : MonoBehaviour
     [SerializeField] private Sprite defaultFace;
     // We also get a percentage counter from the marble.
 
+    private Coroutine animatePowerUpCoroutine;
+    private bool isAnimatingPowerUpBubbles = false;
+
     private string name;
     private Sprite icon;
 
@@ -99,10 +102,31 @@ public class StockContainer : MonoBehaviour
         StartCoroutine(setFaceStunned(1));
     }
 
+    // Boolean variable to track whether the power-up animation is currently running
+
+    public void OnPowerUpChecker(object sender, MarbleController.OnPowerUpStatus status)
+    {
+        if (!status.hasPowerup && isAnimatingPowerUpBubbles)
+        {
+            // Stop the coroutine if it's running
+            if (animatePowerUpCoroutine != null)
+            {
+                StopCoroutine(animatePowerUpCoroutine);
+                animatePowerUpCoroutine = null;
+            }
+
+            // Reset the bubble animations (make sure to clear them visually)
+            StopPowerUpBubbles();
+            isAnimatingPowerUpBubbles = false;
+        }
+    }
 
     public void ShowPowerUp(object sender, MarbleController.OnApplyPowerUp onPickUp)
     {
-        StartCoroutine(AnimatePowerUpBubbles(onPickUp.powerup.duration));
+        // Start the coroutine and keep a reference to it
+        animatePowerUpCoroutine = StartCoroutine(AnimatePowerUpBubbles(onPickUp.powerup.duration));
+
+        // Apply the power-up decal sprite
         Transform powerupDecal = transform.Find("PowerUpDecal");
         SpriteRenderer spriteRenderer = powerupDecal.GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = onPickUp.powerup.prefab.GetComponent<SpriteRenderer>().sprite;
@@ -110,6 +134,8 @@ public class StockContainer : MonoBehaviour
 
     private IEnumerator AnimatePowerUpBubbles(float duration)
     {
+        isAnimatingPowerUpBubbles = true;  // Set the animation flag to true
+
         // Find the bubbles by name
         Transform mini_bubble = transform.Find("MiniPowerUpBubble");
         Transform micro_bubble = transform.Find("MicroPowerUpBubble");
@@ -130,7 +156,50 @@ public class StockContainer : MonoBehaviour
         yield return StartCoroutine(FadeOutSprite(power_bubble, 0.4f));  // Fade out power bubble
         yield return StartCoroutine(FadeOutSprite(mini_bubble, 0.4f));   // Fade out mini bubble
         yield return StartCoroutine(FadeOutSprite(micro_bubble, 0.4f));  // Fade out micro bubble
+
+        isAnimatingPowerUpBubbles = false;  // Reset the animation flag
+        animatePowerUpCoroutine = null;     // Mark coroutine as finished
     }
+
+    // A helper method to stop the bubble animations instantly
+    private void StopPowerUpBubbles()
+    {
+        // Find the bubbles by name
+        Transform mini_bubble = transform.Find("MiniPowerUpBubble");
+        Transform micro_bubble = transform.Find("MicroPowerUpBubble");
+        Transform power_bubble = transform.Find("PowerUpBubble");
+        Transform powerup = transform.Find("PowerUpDecal");
+
+        // Set all bubbles to invisible or clear their sprites
+        SetSpriteVisibility(micro_bubble, false);
+        SetSpriteVisibility(mini_bubble, false);
+        SetSpriteVisibility(power_bubble, false);
+        SetSpriteVisibility(powerup, false);
+    }
+
+
+    // Helper method to set sprite visibility (by enabling/disabling sprite renderer)
+    private void SetSpriteVisibility(Transform bubble, bool visible)
+    {
+        if (bubble != null)
+        {
+            SpriteRenderer spriteRenderer = bubble.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                if (!visible)
+                {
+                    // Set alpha to 0 (fully transparent)
+                    spriteRenderer.color = new Color(1f, 1f, 1f, 0f);
+                }
+                else
+                {
+                    // Set alpha to 1 (fully visible)
+                    spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+                }
+            }
+        }
+    }
+
 
     // Helper coroutine for fading in the bubbles (adjusting SpriteRenderer alpha)
     private IEnumerator FadeInSprite(Transform bubble, float duration)
