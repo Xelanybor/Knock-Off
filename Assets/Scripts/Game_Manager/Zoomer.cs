@@ -17,7 +17,16 @@ public class CameraZoomController : MonoBehaviour
 
     private void Update()
     {
-        AdjustCameraZoom();
+        // Center the camera on game over
+        if (GameManager.Instance.currentState == GameManager.GameState.GameOver) ResetCamera();
+        // Otherwise center the camera on the marbles
+        else AdjustCameraZoom();
+    }
+
+    private void ResetCamera()
+    {
+        mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, 8f, Time.deltaTime * zoomSpeed);
+        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(0, 0, -10), Time.deltaTime * zoomSpeed);
     }
 
     private void AdjustCameraZoom()
