@@ -59,7 +59,6 @@ public class StockContainer : MonoBehaviour
 
     public void updateFaceDimensions(Transform transform, float posX, float posY, float scaleX, float scaleY)
     {
-        Debug.Log(transform.localPosition);
         transform.localPosition = new Vector3(posX, posY, 0f);
 
         //transform.Scale = new Vector3(scaleX, scaleY, 1f);

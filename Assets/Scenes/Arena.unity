@@ -593,6 +593,7 @@ MonoBehaviour:
     value: {fileID: 5827241809358586600, guid: 44eada89161f2e64997afe5337e69bca, type: 3}
   - key: CLASSROOM
     value: {fileID: 5827241809358586600, guid: 2eed3e118de133647845a4bb2c0ddb48, type: 3}
+  mainCamera: {fileID: 519420031}
 --- !u!1 &1434760050
 GameObject:
   m_ObjectHideFlags: 0

@@ -42,18 +42,37 @@ public class CameraZoomController : MonoBehaviour
 
     private Bounds GetMarbleBounds()
     {
-        if (MarbleTransforms.Length == 1)
-            return new Bounds(MarbleTransforms[0].position, Vector3.zero);
+        if (MarbleTransforms == null || MarbleTransforms.Length == 0)
+            return new Bounds(Vector3.zero, Vector3.zero);
 
-        // Create an initial bounds set around the first marble
-        Bounds bounds = new Bounds(MarbleTransforms[0].position, Vector3.zero);
-
-        // Expand the bounds to include all marbles
-        for (int i = 1; i < MarbleTransforms.Length; i++)
+        // Find the first valid transform
+        Transform firstValidTransform = null;
+        foreach (var marbleTransform in MarbleTransforms)
         {
-            bounds.Encapsulate(MarbleTransforms[i].position);
+            if (marbleTransform != null)
+            {
+                firstValidTransform = marbleTransform;
+                break;
+            }
+        }
+
+        // If no valid transforms were found, return empty bounds
+        if (firstValidTransform == null)
+            return new Bounds(Vector3.zero, Vector3.zero);
+
+        // Create an initial bounds set around the first valid marble
+        Bounds bounds = new Bounds(firstValidTransform.position, Vector3.zero);
+
+        // Expand the bounds to include all valid marbles
+        foreach (var marbleTransform in MarbleTransforms)
+        {
+            if (marbleTransform != null)
+            {
+                bounds.Encapsulate(marbleTransform.position);
+            }
         }
 
         return bounds;
     }
+
 }

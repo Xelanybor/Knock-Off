@@ -41,4 +41,9 @@ public class LevelManager : MonoBehaviour
 
         PlayerPrefs.DeleteKey("Map");
     }
+
+    private void Start()
+    {
+        
+    }
 }

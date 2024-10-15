@@ -328,7 +328,10 @@ public class MarbleController : MonoBehaviour
         // In case the marble quantum tunnels through the kill collider
         if (sceneName == "Arena" && (Mathf.Abs(transform.position.x) > 15 || Mathf.Abs(transform.position.y - 5) > 10))
         {
-            Die();
+            if (GameManager.Instance.currentState == GameManager.GameState.Game)
+            {
+                Die();
+            }
         }
 
         // Reset momentum if needed

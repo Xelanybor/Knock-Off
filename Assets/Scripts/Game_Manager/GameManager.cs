@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
 
 
 
-    public static Dictionary<string, int> mapVotes = new Dictionary<string, int>
+    public Dictionary<string, int> mapVotes = new Dictionary<string, int>
 {
         {"Random", 0 },
     { "Attic", 0 },
@@ -192,7 +192,6 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.MapSelection:
                 // Add map selection handling logic here when necessary
-                HandleMapSelection();
                 break;
             case GameState.Game:
                 CheckForMarbleDeath();
@@ -510,10 +509,7 @@ public class GameManager : MonoBehaviour
 
     #region Map Selector Management
 
-    private void HandleMapSelection()
-    {
-        
-    }
+ 
 
     public void MoveMarbleOverMap(MarbleController controller, Vector3 navigationDirection)
     {
@@ -921,6 +917,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         Debug.Log("Voting End");
+        Debug.Log(mapVotes);
         // Get the map with the most votes, if there is a tie, select randomly, if Random is selected, select randomly.
         string selectedMap = "Random";
         int maxVotes = 0;
@@ -975,7 +972,7 @@ public class GameManager : MonoBehaviour
             if (player.AmBot)
             {
                 // We move them off the screen and continue.
-                player.marbleController.transform.position = new Vector3(1000, 0, 0);
+                player.marbleController.transform.position = new Vector3(0, 0, -1000);
                 player.marbleController.voted = true;
                 // Freeze their RB 
                 FreezePlayerPosition(player);
@@ -1197,12 +1194,10 @@ public class GameManager : MonoBehaviour
             Destroy(player.parent);
         }
         players.Clear();
+        // Clear the "Map" string from playerprefs.
         // Ensure music is destroyed.
-        Destroy(GameObject.Find("MusicManager"));
         Destroy(gameObject);
         Instance = null;
-
-        // Do not destroy the game manager!
         SceneManager.LoadScene(0);
     }
 
