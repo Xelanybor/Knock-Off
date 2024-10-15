@@ -15,6 +15,7 @@ public class BotController : MonoBehaviour
     private float flickChargeTimer = 0; // Timer for the flick charge
 
     private bool isFlicking = false; // Whether the bot is currently flicking
+    private bool isTargetingMarble = false; // Whether the bot is targeting another marble
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -68,6 +69,17 @@ public class BotController : MonoBehaviour
                 marble.StartChargingFlick();
             }
         }
-        
+        else if (!isFlicking && flickCooldownTimer <= 0)
+        {
+            Transform closestPlayerTransform = GameManager.Instance.GetClosestPlayerTransform(marble);
+            Vector3 direction = (closestPlayerTransform.position - marbleTransform.position).normalized;
+            marble.MovementInput(new Vector2(direction.x, direction.y));
+
+            flickChargeTimer = FLICK_CHARGE_TIME;
+            isFlicking = true;
+            isTargetingMarble = true;
+            flickCooldownTimer = FLICK_COOLDOWN;
+            marble.StartChargingFlick();
+        }
     }
 }
