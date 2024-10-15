@@ -103,6 +103,9 @@ public class StockContainer : MonoBehaviour
     public void ShowPowerUp(object sender, MarbleController.OnApplyPowerUp onPickUp)
     {
         StartCoroutine(AnimatePowerUpBubbles(onPickUp.powerup.duration));
+        Transform powerupDecal = transform.Find("PowerUpDecal");
+        SpriteRenderer spriteRenderer = powerupDecal.GetComponent<SpriteRenderer>();
+        spriteRenderer.sprite = onPickUp.powerup.prefab.GetComponent<SpriteRenderer>().sprite;
     }
 
     private IEnumerator AnimatePowerUpBubbles(float duration)
@@ -111,21 +114,22 @@ public class StockContainer : MonoBehaviour
         Transform mini_bubble = transform.Find("MiniPowerUpBubble");
         Transform micro_bubble = transform.Find("MicroPowerUpBubble");
         Transform power_bubble = transform.Find("PowerUpBubble");
+        Transform powerup = transform.Find("PowerUpDecal");
 
         // Perform fading animations in sequence
         yield return StartCoroutine(FadeInSprite(micro_bubble, 0.3f));  // Fade in micro bubble
         yield return StartCoroutine(FadeInSprite(mini_bubble, 0.4f));   // Fade in mini bubble
         yield return StartCoroutine(FadeInSprite(power_bubble, 0.6f));  // Fade in power bubble
+        yield return StartCoroutine(FadeInSprite(powerup, 0.1f));
 
         // Wait for the power-up effect to end (based on the power-up duration)
         yield return new WaitForSeconds(duration);
 
         // Clear all bubbles after the effect ends
-
+        yield return StartCoroutine(FadeOutSprite(powerup, 0.1f));
         yield return StartCoroutine(FadeOutSprite(power_bubble, 0.4f));  // Fade out power bubble
         yield return StartCoroutine(FadeOutSprite(mini_bubble, 0.4f));   // Fade out mini bubble
         yield return StartCoroutine(FadeOutSprite(micro_bubble, 0.4f));  // Fade out micro bubble
-
     }
 
     // Helper coroutine for fading in the bubbles (adjusting SpriteRenderer alpha)
@@ -151,6 +155,7 @@ public class StockContainer : MonoBehaviour
         spriteRenderer.color = targetColor;
     }
 
+
     // Helper coroutine for fading out the bubbles (adjusting SpriteRenderer alpha)
     private IEnumerator FadeOutSprite(Transform bubble, float duration)
     {
@@ -173,9 +178,6 @@ public class StockContainer : MonoBehaviour
         // Ensure the alpha is fully set to 0 at the end
         spriteRenderer.color = targetColor;
     }
-
-
-
 
 
     private void setMiniStock(Sprite icon)
@@ -239,7 +241,7 @@ public class StockContainer : MonoBehaviour
 
 
 
-    
+
 
     public void setPercentage(float percentage)
     {
@@ -299,13 +301,13 @@ public class StockContainer : MonoBehaviour
         Transform mini_bubble = transform.Find("MiniPowerUpBubble");
         Transform micro_bubble = transform.Find("MicroPowerUpBubble");
         Transform power_bubble = transform.Find("PowerUpBubble");
+        Transform powerup_decal = transform.Find("PowerUpDecal");
 
         // Make them all invisible, set their alpha to 0.
         mini_bubble.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
         micro_bubble.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
         power_bubble.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
-
-
+        powerup_decal.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
     }
 
     public void PercentageUpdater(object sender, MarbleController.OnPercentageChangeArg changeArg)
