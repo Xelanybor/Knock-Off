@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -54,38 +55,60 @@ public class BotController : MonoBehaviour
             }
         }
 
+        // Recover from being knocked off the map
+        if (Mathf.Abs(marbleTransform.position.x) > 9f || marbleTransform.position.y < -5f) GetBackOntoMap();
+        // Avoid other players if low on flick resource
+        else if (marble.flickCounter < 3f)
+        {
+            Transform nearestPlayerTransform = GameManager.Instance.GetClosestPlayerTransform(marble);
+            if (Vector3.Distance(nearestPlayerTransform.position, marbleTransform.position) < 2f) AvoidOtherPlayers();
+            else StandStill();
+        }
+        // Start aiming at another marble and charging a flick
+        else AttackNearerstMarble();
+    }
+
+    private void GetBackOntoMap() {
+        float x = marbleTransform.position.x > 0 ? -1 : 1;
+        float y = Mathf.Max(-marbleTransform.position.y, 0.4f);
+        marble.MovementInput(new Vector2(x, y));
+
+        // Dash if possible, otherwise charge a flick
+        if (marble.CanDash())
+        {
+            marble.Dash();
+            flickCooldownTimer = FLICK_COOLDOWN + Random.Range(-1f, 1f);
+        }
+        else if (!isFlicking)
+        {
+            flickChargeTimer = FLICK_CHARGE_TIME;
+            isFlicking = true;
+            flickCooldownTimer = FLICK_COOLDOWN + Random.Range(-1f, 1f);
+            marble.StartChargingFlick();
+        }
+    }
+    private void AvoidOtherPlayers() {
+        Vector3 direction = (marbleTransform.position - GameManager.Instance.GetClosestPlayerTransform(marble).position).normalized;
+        marble.MovementInput(new Vector2(direction.x, direction.y));
+    }
+    private void AttackNearerstMarble() {
+
         // Track the targeted marble
         if (targetedMarbleTransform != null)
         {
             Vector3 direction = (targetedMarbleTransform.position - marbleTransform.position).normalized;
             marble.MovementInput(new Vector2(direction.x, direction.y));
         }
-
-        // Recover from being knocked off the map
-        if (Mathf.Abs(marbleTransform.position.x) > 9f && !isFlicking && (flickCooldownTimer <= 0 || marble.CanDash()))
-        {
-            float x = marbleTransform.position.x > 0 ? -1 : 1;
-            float y = Mathf.Max(-marbleTransform.position.y, 0.4f);
-            marble.MovementInput(new Vector2(x, y));
-
-            if (marble.CanDash()) marble.Dash();
-            else
-            {
-                flickChargeTimer = FLICK_CHARGE_TIME;
-                isFlicking = true;
-                flickCooldownTimer = FLICK_COOLDOWN;
-                marble.StartChargingFlick();
-            }
-        }
-        // Start aiming at another marble and charging a flick
         else if (!isFlicking && flickCooldownTimer <= 0)
         {
             targetedMarbleTransform = GameManager.Instance.GetClosestPlayerTransform(marble);
 
             flickChargeTimer = FLICK_CHARGE_TIME;
             isFlicking = true;
-            flickCooldownTimer = FLICK_COOLDOWN;
+            flickCooldownTimer = FLICK_COOLDOWN + Random.Range(-1f, 1f);
             marble.StartChargingFlick();
         }
     }
+    private void StandStill() {}
+
 }
