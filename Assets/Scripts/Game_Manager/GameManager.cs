@@ -207,7 +207,7 @@ public class GameManager : MonoBehaviour
         // Determine the game state based on the next scene's name
         switch (next.name)
         {
-            case "MainMenu":
+            case "MainMenuScene":
                 SetGameState(GameState.MainMenu);
                 break;
             case "Lobby":
