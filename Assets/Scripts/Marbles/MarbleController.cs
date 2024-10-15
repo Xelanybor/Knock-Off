@@ -529,7 +529,7 @@ public class MarbleController : MonoBehaviour
     public void ReleaseFlick()
     {
         if (!chargingFlick) return;
-        SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.2f);
+        SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.3f);
 
         // decrement flickCounter by the cost of the charge
         float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];
@@ -603,7 +603,7 @@ public class MarbleController : MonoBehaviour
 
     private void PlayTauntSound()
     {
-        SoundFXManager.Instance.PlayRandomSoundFXClip(tauntSounds, gameObject.transform, 0.2f);
+        SoundFXManager.Instance.PlayRandomSoundFXClip(tauntSounds, gameObject.transform, 0.4f);
     }
 
     private void Die()
@@ -616,7 +616,7 @@ public class MarbleController : MonoBehaviour
             this.dead = true;
 
             // play marble death sound
-            SoundFXManager.Instance.PlayRandomSoundFXClip(deathSounds, gameObject.transform, 0.2f);
+            SoundFXManager.Instance.PlayRandomSoundFXClip(deathSounds, gameObject.transform, 0.5f);
 
             // play opponent marble mock sound
             Invoke("PlayTauntSound", 0.2f);
@@ -719,7 +719,7 @@ public class MarbleController : MonoBehaviour
                     SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
                 }
                 OnDamageFaceUpdate?.Invoke(this, EventArgs.Empty);
-                SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
+                SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.35f);
                 // particles
                 SpawnDamageParticles(attackDirection);
                 damageFlash.CallDamageFlash();

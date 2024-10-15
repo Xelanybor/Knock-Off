@@ -19,7 +19,7 @@ public class PowerUp : MonoBehaviour
         if (player_controller != null && !player_controller.hasPowerup)
         {
             player_controller.ApplyPowerup(powerupEffect);
-            SoundFXManager.Instance.PlaySoundFXClip(powerupConsumed, gameObject.transform, 0.5f);
+            SoundFXManager.Instance.PlaySoundFXClip(powerupConsumed, gameObject.transform, 0.65f);
             Destroy(gameObject);
         }
     }
