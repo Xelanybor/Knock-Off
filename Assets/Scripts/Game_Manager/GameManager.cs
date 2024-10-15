@@ -690,6 +690,11 @@ public class GameManager : MonoBehaviour
         }
 
         players.Add(newPlayer);
+        if (players.Count == 4)
+        {
+            // Disable joining on the PIM (Player Input Manager)
+            GetComponent<PlayerInputManager>().DisableJoining();
+        }
     }
 
     // Bot Management.
@@ -713,6 +718,10 @@ public class GameManager : MonoBehaviour
             newPlayer.parent = bot;
             newPlayer.marbleController.ready = true;
             players.Add(newPlayer);
+            if (players.Count == 4)
+            {
+                GetComponent<PlayerInputManager>().DisableJoining();
+            }
 
 
         }
@@ -738,6 +747,11 @@ public class GameManager : MonoBehaviour
                 break;
             }
         }
+        if (players.Count < 4)
+        {
+            GetComponent<PlayerInputManager>().EnableJoining();
+        }
+
     }
 
 
