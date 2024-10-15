@@ -638,7 +638,6 @@ public class MarbleController : MonoBehaviour
         // On collision with a kill zone
         if (collision.gameObject.CompareTag("KillZone"))
         {
-            Debug.Log("Death");
             Die();
         }
 
@@ -711,7 +710,6 @@ public class MarbleController : MonoBehaviour
             // Apply the force
             force /= 1 + stats["KNOCKBACK_RESISTANCE"] - otherMarbleController.GetStat("EXTRA_KNOCKBACK_DEALT"); // Apply knockback resistance
             // force = Mathf.Clamp(force, 0, 100f);
-            // Debug.Log(force);
             rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 
             // Set a flag to reset momentum on the next update

@@ -155,11 +155,9 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null)
         {
-            Debug.Log("Null");
             GameObject gameManagerObject = new GameObject("GameManager");
             Instance = gameManagerObject.AddComponent<GameManager>();
         }
-        Debug.Log("Not destroyed");
     }
 
 
@@ -167,13 +165,11 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null)
         {
-            Debug.Log("EnsureSingleton");
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
         {
-            Debug.Log("Bad Instantiation, destroying.");
             Destroy(gameObject);
         }
     }
@@ -208,7 +204,6 @@ public class GameManager : MonoBehaviour
 
     private void CheckScene(Scene current, Scene next)
     {
-        Debug.Log("Scene changed from " + current.name + " to " + next.name);
         // Determine the game state based on the next scene's name
         switch (next.name)
         {
@@ -699,7 +694,6 @@ public class GameManager : MonoBehaviour
         }
 
         players.Add(newPlayer);
-        // Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
     }
 
     // Bot Management.
@@ -715,7 +709,6 @@ public class GameManager : MonoBehaviour
                 playerSprite = null,
                 AmBot = true
             };
-            // Debug.Log($"Bot {newPlayer.playerIndex} joined the game!");
             // Instantiate bot prefab
             GameObject bot = Instantiate(BotPrefab, new Vector3(0,0,0), Quaternion.identity);
             newPlayer.marbleController = bot.GetComponent<MarbleController>();
@@ -927,7 +920,6 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        Debug.Log("Voting End");
         // Get the map with the most votes, if there is a tie, select randomly, if Random is selected, select randomly.
         string selectedMap = "Random";
         int maxVotes = 0;
