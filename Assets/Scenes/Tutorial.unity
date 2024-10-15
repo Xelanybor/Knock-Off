@@ -459,7 +459,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 190.78, y: 92.84}
+  m_AnchoredPosition: {x: 231, y: 92.84}
   m_SizeDelta: {x: 318.14, y: 185.68}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &128537656
@@ -705,7 +705,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -143.99995, y: -140.99998}
+  m_AnchoredPosition: {x: -192.5, y: -138.2}
   m_SizeDelta: {x: 51.33, y: 46.59}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &169397255
@@ -1437,7 +1437,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -229, y: 80.3}
+  m_AnchoredPosition: {x: -233.7, y: 90.299995}
   m_SizeDelta: {x: 50, y: 54.76}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &394489875
@@ -1671,12 +1671,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Every successfull collision causes damage. The greater your damage percentage
+  m_text: 'Each successful collision causes damage. The greater your damage percentage
     meter, the more knockback you take.
 
 
     You start with 3 lives, losing one
-    ever time you fall off the arena. The last one standing wins!'
+    ever time you fall off the arena. The last player standing wins!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc06d125b4e329c418679c6937fc16e2, type: 2}
   m_sharedMaterial: {fileID: -4381754781251112478, guid: dc06d125b4e329c418679c6937fc16e2, type: 2}
@@ -2264,7 +2264,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Press            to dash in the direction you were moving in.
+  m_text: Press            to dash in the direction you were moving in to evade opponents.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc06d125b4e329c418679c6937fc16e2, type: 2}
   m_sharedMaterial: {fileID: -4381754781251112478, guid: dc06d125b4e329c418679c6937fc16e2, type: 2}
@@ -3113,7 +3113,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -144, y: -141}
+  m_AnchoredPosition: {x: -192.50008, y: -138.20001}
   m_SizeDelta: {x: 51.33, y: 46.59}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1471532750
@@ -3386,7 +3386,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -229, y: 80.3}
+  m_AnchoredPosition: {x: -233.7, y: 90.3}
   m_SizeDelta: {x: 50, y: 54.76}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1530392066
@@ -4437,7 +4437,7 @@ MonoBehaviour:
   m_text: 'Hold the          button to charge a flick and aim with
 
     Release to
-    inflict damage to opponents! Each charge decreases your charge bar.'
+    inflict damage to opponents! Each flick charge decreases your charge bar.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc06d125b4e329c418679c6937fc16e2, type: 2}
   m_sharedMaterial: {fileID: -4381754781251112478, guid: dc06d125b4e329c418679c6937fc16e2, type: 2}
@@ -4502,7 +4502,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -47.353577, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -4573,7 +4573,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Powerups spawn at random across the maps. Run into them to collect them.
+  m_text: Collectable powerups spawn at random across each map.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc06d125b4e329c418679c6937fc16e2, type: 2}
   m_sharedMaterial: {fileID: -4381754781251112478, guid: dc06d125b4e329c418679c6937fc16e2, type: 2}
@@ -4811,8 +4811,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

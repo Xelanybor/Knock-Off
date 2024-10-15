@@ -12,7 +12,7 @@ public class InputManager : MonoBehaviour
     private int length;         // number of choices
     private int counter;        // current choice
 
-    private float inputCooldown = 1f;  // cooldown for updating info
+    private float inputCooldown = 0.5f;  // cooldown for updating info
     private float lastInputTime;         // last input time
     void Start()
     {
