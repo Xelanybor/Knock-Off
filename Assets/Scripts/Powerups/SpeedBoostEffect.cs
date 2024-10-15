@@ -7,8 +7,9 @@ public class SpeedBoostEffect : PowerupEffect
     public void OnEnable()
     {
         statModifier = new Dictionary<string, float>{
-            {"MAX_SPEED_MULTIPLIER", 2f},
-            {"JUMP_FORCE_MULTIPLIER", 2f }
+            {"MAX_SPEED_MULTIPLIER", 1.0f },
+            {"ACCELERATION_MULTIPLIER", 1.0f },
+            {"JUMP_FORCE_MULTIPLIER", 0.4f }
         };
     }
 }

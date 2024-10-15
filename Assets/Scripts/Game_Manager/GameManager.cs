@@ -155,11 +155,9 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null)
         {
-            Debug.Log("Null");
             GameObject gameManagerObject = new GameObject("GameManager");
             Instance = gameManagerObject.AddComponent<GameManager>();
         }
-        Debug.Log("Not destroyed");
     }
 
 
@@ -167,13 +165,11 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null)
         {
-            Debug.Log("EnsureSingleton");
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
         {
-            Debug.Log("Bad Instantiation, destroying.");
             Destroy(gameObject);
         }
     }
@@ -207,7 +203,6 @@ public class GameManager : MonoBehaviour
 
     private void CheckScene(Scene current, Scene next)
     {
-        Debug.Log("Scene changed from " + current.name + " to " + next.name);
         // Determine the game state based on the next scene's name
         switch (next.name)
         {
@@ -371,6 +366,44 @@ public class GameManager : MonoBehaviour
         noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
     }
 
+    private void UpdatePlayerLobbyUIText(GameObject playerLobbyUI, PlayerInfo playerInfo, int playerIndex)
+    {
+        MarbleController mc = playerInfo.marbleController;
+        TMP_Text[] labels = playerLobbyUI.GetComponentsInChildren<TMP_Text>();
+
+        foreach (var label in labels)
+        {
+            if (label.name == "ReadyStatus")
+            {
+                // Update the ready status
+                label.text = mc.ready ? "Ready!" : "Not Ready";
+                label.color = mc.ready ? Color.green : Color.gray;
+            }
+            else if (label.name == "ReadyTooltip")
+            {
+                // Update the ready/unready prompt
+                label.text = mc.ready ? "Press      to unready" : "Press      to ready up!";
+            }
+            else if (label.name == "PlayerIndicator")
+            {
+                label.text = playerInfo.name;
+            }
+            else if (label.name == "MarbleName")
+            {
+                label.text = characterInfo[mc.characterIndex].name;
+            }
+            else if (label.name == "MarbleBuffs")
+            {
+                label.text = "▲ " + string.Join("\n▲ ", characterInfo[mc.characterIndex].buffs);
+            }
+            else if (label.name == "MarbleNerfs")
+            {
+                label.text = "▼ " + string.Join("\n▼ ", characterInfo[mc.characterIndex].debuffs);
+            }
+
+        }
+    }
+
     private void UpdatePlayerLobbyUIColour(GameObject playerLobbyUI, PlayerInfo playerInfo)
     {
         MarbleController mc = playerInfo.marbleController;
@@ -386,6 +419,12 @@ public class GameManager : MonoBehaviour
         {
             if (colourComponents.Contains(sprite.name))
             sprite.color = playerInfo.color;
+
+            // Update ready/unready button prompts
+            else if (sprite.transform.parent.name == "B Button") sprite.enabled = mc.ready;
+            else if (sprite.transform.parent.name == "A Button") sprite.enabled = !mc.ready;
+            else if (sprite.transform.parent.name == "Arrows") sprite.enabled = !mc.ready;
+            
         }
 
         string[] colourTexts = {
@@ -651,7 +690,6 @@ public class GameManager : MonoBehaviour
         }
 
         players.Add(newPlayer);
-        // Debug.Log($"Player {newPlayer.playerIndex} joined the game!");
     }
 
     // Bot Management.
@@ -667,7 +705,6 @@ public class GameManager : MonoBehaviour
                 playerSprite = null,
                 AmBot = true
             };
-            // Debug.Log($"Bot {newPlayer.playerIndex} joined the game!");
             // Instantiate bot prefab
             GameObject bot = Instantiate(BotPrefab, new Vector3(0,0,0), Quaternion.identity);
             newPlayer.marbleController = bot.GetComponent<MarbleController>();
@@ -795,43 +832,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-    private void UpdatePlayerLobbyUIText(GameObject playerLobbyUI, PlayerInfo playerInfo, int playerIndex)
-    {
-        MarbleController mc = playerInfo.marbleController;
-        TMP_Text[] labels = playerLobbyUI.GetComponentsInChildren<TMP_Text>();
-
-        foreach (var label in labels)
-        {
-            if (label.name == "ReadyToolTip")
-            {
-                // Update the ready status
-                label.text = mc.ready ? "Ready!" : "Not Ready";
-            }
-            else if (label.name == "ReadyStatus")
-            {
-                // Update the ready/unready prompt
-                label.text = mc.ready ? "Press B/Esc to unready." : "Press A/Space to ready up!";
-            }
-            else if (label.name == "PlayerIndicator")
-            {
-                label.text = playerInfo.name;
-            }
-            else if (label.name == "MarbleName")
-            {
-                label.text = characterInfo[mc.characterIndex].name;
-            }
-            else if (label.name == "MarbleBuffs")
-            {
-                label.text = "▲ " + string.Join("\n▲ ", characterInfo[mc.characterIndex].buffs);
-            }
-            else if (label.name == "MarbleNerfs")
-            {
-                label.text = "▼ " + string.Join("\n▼ ", characterInfo[mc.characterIndex].debuffs);
-            }
-        }
-    }
-
     // NOTE: This used to start the actual game, but now we make it load the map selection.
     public void BeginMapVote()
     {
@@ -916,8 +916,6 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        Debug.Log("Voting End");
-        Debug.Log(mapVotes);
         // Get the map with the most votes, if there is a tie, select randomly, if Random is selected, select randomly.
         string selectedMap = "Random";
         int maxVotes = 0;

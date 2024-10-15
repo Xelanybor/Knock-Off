@@ -74,7 +74,7 @@ public class MarbleController : MonoBehaviour
     // Flick Counter variables
     public float flickCounter = 0f;            // Current flick energy
     public float flickCounterMax = 5f;         // Maximum flick energy
-    public float flickCounterRegenRate = 1f;   // Energy regenerated per second
+    public float flickCounterRegenRate = 1.25f;   // Energy regenerated per second
 
     // Events for communicating and updating flick bar
     public event EventHandler<OnUpdateEventArgs> OnEnergyUpdate;        // increment over time and decrement when release flick
@@ -251,8 +251,8 @@ public class MarbleController : MonoBehaviour
         {
             case "CAT":
                 SetStats(new Dictionary<string, float> {
-                    {"DASH_TIME_MULTIPLIER", 0.5f},     // + quicker dash
-                    {"DASH_DISTANCE_MULTIPLIER", 1.2f}, // + further dash
+                    {"DASH_TIME_MULTIPLIER", 0.9f},     // + quicker dash
+                    {"DASH_DISTANCE_MULTIPLIER", 1.1f}, // + further dash
                     {"KNOCKBACK_RESISTANCE", -0.2f},     // - less knockback resistance
                     });
                 break;
@@ -276,7 +276,7 @@ public class MarbleController : MonoBehaviour
             case "RUSTY":
                 SetStats(new Dictionary<string, float> {
                     {"ACCELERATION_MULTIPLIER", 0.8f},        // - acceleration
-                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0.5f},   // + damage resistance
+                    {"PERCENTAGE_DAMAGE_RESISTANCE", 0.25f},   // + damage resistance
                     }); 
                 break;
         }
@@ -587,7 +587,7 @@ public class MarbleController : MonoBehaviour
         canDash = false;
 
         // Calculate the dash velocity (movementInput is already normalized)
-        dashVelocity = movementInput * DASH_DISTANCE * stats["DASH_DISTANCE_MULTIPLIER"] / dashTimer;
+        dashVelocity = DASH_DISTANCE * stats["DASH_DISTANCE_MULTIPLIER"] * movementInput / dashTimer;
         rb.gravityScale = 0;
         rb.linearVelocity = dashVelocity;
         momentum = 0;
@@ -641,7 +641,6 @@ public class MarbleController : MonoBehaviour
         // On collision with a kill zone
         if (collision.gameObject.CompareTag("KillZone"))
         {
-            Debug.Log("Death");
             Die();
         }
 
@@ -690,7 +689,7 @@ public class MarbleController : MonoBehaviour
                 force = (enemyMomentum - effectiveMomentum) * 1.5f * Mathf.Pow(PERCENTAGE_SCALE, oldPercentage / 100f);
 
                 // Apply damage to the marble
-                float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 + stats["EXTRA_PERCENTAGE_DAMAGE_DEALT"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
+                float damage = (enemyMomentum - effectiveMomentum) * DAMAGE_TO_PERCENTAGE * (1 - stats["PERCENTAGE_DAMAGE_RESISTANCE"] + otherMarbleController.GetStat("EXTRA_PERCENTAGE_DAMAGE_DEALT"));
                 percentage += damage;
                 // choose collision sound effect to apply
                 if (damage > 0 && damage <= 50)
@@ -714,7 +713,6 @@ public class MarbleController : MonoBehaviour
             // Apply the force
             force /= 1 + stats["KNOCKBACK_RESISTANCE"] - otherMarbleController.GetStat("EXTRA_KNOCKBACK_DEALT"); // Apply knockback resistance
             // force = Mathf.Clamp(force, 0, 100f);
-            // Debug.Log(force);
             rb.AddForce((transform.position - otherTransform.position).normalized * force, ForceMode2D.Impulse);
 
             // Set a flag to reset momentum on the next update

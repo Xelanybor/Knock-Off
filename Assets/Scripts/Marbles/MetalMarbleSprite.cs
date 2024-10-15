@@ -23,7 +23,6 @@ public class MetalMarbleSprite : MonoBehaviour
     // Function to set the marble as metal
     public void Enable()
     {
-        Debug.Log("Metal Marble Enabled");
         active = true;
         spriteRenderer.enabled = true;
     }
