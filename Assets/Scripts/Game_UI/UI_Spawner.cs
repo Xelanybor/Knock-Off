@@ -87,7 +87,6 @@ public class UI_Spawner : MonoBehaviour
 
     public void SpawnPlayerGameUI(object sender, GameManager.PlayerListArg playerList)
     {
-        Debug.Log("Firing Spawn Event");
       if (players.Count == 0)
         {
             players = playerList.PlayerList;
