@@ -74,7 +74,7 @@ public class MarbleController : MonoBehaviour
     // Flick Counter variables
     public float flickCounter = 0f;            // Current flick energy
     public float flickCounterMax = 5f;         // Maximum flick energy
-    public float flickCounterRegenRate = 1f;   // Energy regenerated per second
+    public float flickCounterRegenRate = 1.25f;   // Energy regenerated per second
 
     // Events for communicating and updating flick bar
     public event EventHandler<OnUpdateEventArgs> OnEnergyUpdate;        // increment over time and decrement when release flick
