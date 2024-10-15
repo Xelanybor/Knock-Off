@@ -18,3 +18,5 @@ Textures:
 	- Controller icons pack by NullSave (FREE):https://www.nullsave.com/controller-icons/
 	- Wood (FREE): https://capronvitrified.com/product-details/glazed-porcelain-vitrified-tiles/195-x-1200-mm/wooden-series/3005-r1
 	- Paper (FREE): https://unsplash.com/photos/a-black-and-white-photo-of-a-piece-of-paper-t6w_PBhYuDI
+	- Cork (FREE): https://www.istockphoto.com/photos/cork?page=2
+	- Marbles (FREE): https://www.reddit.com/r/coolguides/comments/18lz9vk/a_cool_guide_to_types_of_marbles/
