@@ -156,7 +156,14 @@ public class MarbleController : MonoBehaviour
     }
 
     // powerups
-    public bool hasPowerup = false; 
+    public bool hasPowerup = false;
+
+    public class OnPowerUpStatus : EventArgs
+    {
+        public bool hasPowerup;
+    }
+    public event EventHandler<OnPowerUpStatus> onPowerUpBool;
+
     private Coroutine activePowerupCoroutine;
     private PowerupEffect currentPowerup;
 
@@ -522,7 +529,7 @@ public class MarbleController : MonoBehaviour
     public void ReleaseFlick()
     {
         if (!chargingFlick) return;
-        SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.2f);
+        SoundFXManager.Instance.PlaySoundFXClip(flickSound, gameObject.transform, 0.3f);
 
         // decrement flickCounter by the cost of the charge
         float cost = FLICK_CHARGE_COSTS[flickChargeLevel+1];
@@ -596,16 +603,20 @@ public class MarbleController : MonoBehaviour
 
     private void PlayTauntSound()
     {
-        SoundFXManager.Instance.PlayRandomSoundFXClip(tauntSounds, gameObject.transform, 0.2f);
+        SoundFXManager.Instance.PlayRandomSoundFXClip(tauntSounds, gameObject.transform, 0.4f);
     }
 
     private void Die()
     {
+        if (this.stockCount <= 0)
+        {
+            return;
+        }
         this.stockCount = this.stockCount - 1;
             this.dead = true;
 
             // play marble death sound
-            SoundFXManager.Instance.PlayRandomSoundFXClip(deathSounds, gameObject.transform, 0.2f);
+            SoundFXManager.Instance.PlayRandomSoundFXClip(deathSounds, gameObject.transform, 0.5f);
 
             // play opponent marble mock sound
             Invoke("PlayTauntSound", 0.2f);
@@ -617,12 +628,18 @@ public class MarbleController : MonoBehaviour
                     StopCoroutine(activePowerupCoroutine);
                     activePowerupCoroutine = null;
                 }
+                metalMarbleSprite.Disable();
+                transform.localScale = new Vector3(1f, 1f, 1f);
 
-                // undo the state changes
-                currentPowerup.Remove(this);
+            // undo the state changes
+            currentPowerup.Remove(this);
                 // reset state variables
                 hasPowerup = false;
-                currentPowerup = null;
+                onPowerUpBool?.Invoke(this, new OnPowerUpStatus
+                {
+                    hasPowerup = false
+                });
+            currentPowerup = null;
             }
     }
 
@@ -702,7 +719,7 @@ public class MarbleController : MonoBehaviour
                     SoundFXManager.Instance.PlaySoundFXClip(hardCollisionSound, gameObject.transform, 0.8f);
                 }
                 OnDamageFaceUpdate?.Invoke(this, EventArgs.Empty);
-                SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.2f);
+                SoundFXManager.Instance.PlayRandomSoundFXClip(damageVoiceLines, gameObject.transform, 0.35f);
                 // particles
                 SpawnDamageParticles(attackDirection);
                 damageFlash.CallDamageFlash();
@@ -729,6 +746,10 @@ public class MarbleController : MonoBehaviour
     {
         // set variables
         hasPowerup = true;
+        onPowerUpBool?.Invoke(this, new OnPowerUpStatus
+        {
+            hasPowerup = true
+        });
         currentPowerup = powerup;
 
         // Yes the metal marble name has a spelling mistake, but I'm too afraid to rename it now
@@ -764,6 +785,10 @@ public class MarbleController : MonoBehaviour
         // wait for effect to finish
         yield return new WaitForSeconds(powerup.duration);
         hasPowerup = false;
+        onPowerUpBool?.Invoke(this, new OnPowerUpStatus
+        {
+            hasPowerup = false
+        });
         metalMarbleSprite.Disable();
         transform.localScale = new Vector3(1f, 1f, 1f);
         powerup.Remove(this);
@@ -893,6 +918,7 @@ public class MarbleController : MonoBehaviour
 
     public void OnRequestAddBot(InputAction.CallbackContext context)
     {
+        if (GameManager.Instance.currentState != GameManager.GameState.Lobby) return;
         if (context.started)
         {
             AddBot?.Invoke(this, new OnAddBot
@@ -904,6 +930,7 @@ public class MarbleController : MonoBehaviour
 
     public void OnRequestRemoveBot(InputAction.CallbackContext context)
     {
+        if (GameManager.Instance.currentState != GameManager.GameState.Lobby) return;
         if (context.started)
         {
             RemoveBot?.Invoke(this, new OnRemoveBot

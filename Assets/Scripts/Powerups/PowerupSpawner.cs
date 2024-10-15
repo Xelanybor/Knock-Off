@@ -89,7 +89,7 @@ public class PowerUpSpawner : MonoBehaviour
     {
         float elapsedTime = 0f;
         Color originalColour = powerupRenderer.color + new Color(0f, 0f, 0f, 1f);
-        SoundFXManager.Instance.PlayRandomSoundFXClip(FadeInSounds, gameObject.transform, 0.35f);
+        SoundFXManager.Instance.PlayRandomSoundFXClip(FadeInSounds, gameObject.transform, 0.625f);
 
         // Debug.Log("Powerup spawning...");
 
@@ -118,7 +118,7 @@ public class PowerUpSpawner : MonoBehaviour
         Color originalColour = powerupRenderer.color;
         // Debug.Log("Powerup blinking.");
         // start blinking for a few seconds
-        fadeOutSource = SoundFXManager.Instance.PlaySoundFXClip(FadeOutSound, gameObject.transform, 0.2f);
+        fadeOutSource = SoundFXManager.Instance.PlaySoundFXClip(FadeOutSound, gameObject.transform, 0.5f);
         while (elapsedTime < blinkDestroyDuration)
         {
             if (currentPowerUp != null)
