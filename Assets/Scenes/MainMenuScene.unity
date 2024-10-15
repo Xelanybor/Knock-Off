@@ -265,19 +265,19 @@ PrefabInstance:
     - target: {fileID: 267078494423209854, guid: c7ff8601239b531489642ae2f5f9a1ee, type: 3}
       propertyPath: BotLobbyUI
       value: 
-      objectReference: {fileID: 9126572185111864833, guid: cb16cc8649394f244b77b8136307d29b, type: 3}
+      objectReference: {fileID: 9126572185111864833, guid: 30bcfbee32879d0438be9f6a826357d7, type: 3}
     - target: {fileID: 267078494423209854, guid: c7ff8601239b531489642ae2f5f9a1ee, type: 3}
       propertyPath: PlayerLobbyUI
       value: 
-      objectReference: {fileID: 9126572185111864833, guid: f49a2f8013339644aba6ee5d7314ee3c, type: 3}
+      objectReference: {fileID: 9126572185111864833, guid: 8468ba895babfe048bcb6475c8de0b2c, type: 3}
     - target: {fileID: 267078494423209854, guid: c7ff8601239b531489642ae2f5f9a1ee, type: 3}
       propertyPath: StartBannerUI
       value: 
-      objectReference: {fileID: 7270144442255831564, guid: 1d111b8ee2b2a5546b9f1bc9177df199, type: 3}
+      objectReference: {fileID: 7270144442255831564, guid: 1512737dd56af35459e89d600b74cb41, type: 3}
     - target: {fileID: 267078494423209854, guid: c7ff8601239b531489642ae2f5f9a1ee, type: 3}
       propertyPath: NoPlayerLobbyUI
       value: 
-      objectReference: {fileID: 4997263528236107159, guid: 57d167777c77ced4588e72002cd281a7, type: 3}
+      objectReference: {fileID: 4997263528236107159, guid: f9fee9e4c4da2ee4ea7c52c98c8e5ad0, type: 3}
     - target: {fileID: 2865442364677508064, guid: c7ff8601239b531489642ae2f5f9a1ee, type: 3}
       propertyPath: m_Enabled
       value: 0
