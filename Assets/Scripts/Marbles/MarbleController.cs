@@ -649,7 +649,7 @@ public class MarbleController : MonoBehaviour
         {
             Transform otherTransform = collision.gameObject.transform;
             MarbleController otherMarbleController = collision.gameObject.GetComponent<MarbleController>();
-            // Get the marbles' effective momentum
+            // Get the marbles' effective momentumscale
             float effectiveMomentum = GetEffectiveMomentum(otherTransform.position);
             float enemyMomentum = otherMarbleController.GetEffectiveMomentum(transform.position);
 
@@ -801,6 +801,11 @@ public class MarbleController : MonoBehaviour
     }
 
     // Getters and Setters
+
+    public bool CanDash()
+    {
+        return canDash;
+    }
 
     public float GetMomentum()
     {

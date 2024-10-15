@@ -52,15 +52,21 @@ public class BotController : MonoBehaviour
             }
         }
 
-        if (Mathf.Abs(marbleTransform.position.x) > 8.5f && !isFlicking && flickCooldownTimer <= 0)
+        // Recover from being knocked off the map
+        if (Mathf.Abs(marbleTransform.position.x) > 9f && !isFlicking && (flickCooldownTimer <= 0 || marble.CanDash()))
         {
-            float direction = marbleTransform.position.x > 0 ? -1 : 1;
-            marble.MovementInput(new Vector2(direction, 0.4f));
-            flickChargeTimer = FLICK_CHARGE_TIME;
-            isFlicking = true;
-            flickCooldownTimer = FLICK_COOLDOWN;
-            marble.StartChargingFlick();
+            float x = marbleTransform.position.x > 0 ? -1 : 1;
+            float y = Mathf.Max(-marbleTransform.position.y, 0.4f);
+            marble.MovementInput(new Vector2(x, y));
 
+            if (marble.CanDash()) marble.Dash();
+            else
+            {
+                flickChargeTimer = FLICK_CHARGE_TIME;
+                isFlicking = true;
+                flickCooldownTimer = FLICK_COOLDOWN;
+                marble.StartChargingFlick();
+            }
         }
         
     }
