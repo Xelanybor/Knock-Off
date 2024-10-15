@@ -251,8 +251,8 @@ public class MarbleController : MonoBehaviour
         {
             case "CAT":
                 SetStats(new Dictionary<string, float> {
-                    {"DASH_TIME_MULTIPLIER", 0.5f},     // + quicker dash
-                    {"DASH_DISTANCE_MULTIPLIER", 1.2f}, // + further dash
+                    {"DASH_TIME_MULTIPLIER", 0.9f},     // + quicker dash
+                    {"DASH_DISTANCE_MULTIPLIER", 1.1f}, // + further dash
                     {"KNOCKBACK_RESISTANCE", -0.2f},     // - less knockback resistance
                     });
                 break;
@@ -584,7 +584,7 @@ public class MarbleController : MonoBehaviour
         canDash = false;
 
         // Calculate the dash velocity (movementInput is already normalized)
-        dashVelocity = movementInput * DASH_DISTANCE * stats["DASH_DISTANCE_MULTIPLIER"] / dashTimer;
+        dashVelocity = DASH_DISTANCE * stats["DASH_DISTANCE_MULTIPLIER"] * movementInput / dashTimer;
         rb.gravityScale = 0;
         rb.linearVelocity = dashVelocity;
         momentum = 0;
