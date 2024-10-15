@@ -372,6 +372,44 @@ public class GameManager : MonoBehaviour
         noPlayerLobbyRect.localScale = new Vector3(120f, 120f, 1f);
     }
 
+    private void UpdatePlayerLobbyUIText(GameObject playerLobbyUI, PlayerInfo playerInfo, int playerIndex)
+    {
+        MarbleController mc = playerInfo.marbleController;
+        TMP_Text[] labels = playerLobbyUI.GetComponentsInChildren<TMP_Text>();
+
+        foreach (var label in labels)
+        {
+            if (label.name == "ReadyStatus")
+            {
+                // Update the ready status
+                label.text = mc.ready ? "Ready!" : "Not Ready";
+                label.color = mc.ready ? Color.green : Color.gray;
+            }
+            else if (label.name == "ReadyTooltip")
+            {
+                // Update the ready/unready prompt
+                label.text = mc.ready ? "Press      to unready" : "Press      to ready up!";
+            }
+            else if (label.name == "PlayerIndicator")
+            {
+                label.text = playerInfo.name;
+            }
+            else if (label.name == "MarbleName")
+            {
+                label.text = characterInfo[mc.characterIndex].name;
+            }
+            else if (label.name == "MarbleBuffs")
+            {
+                label.text = "▲ " + string.Join("\n▲ ", characterInfo[mc.characterIndex].buffs);
+            }
+            else if (label.name == "MarbleNerfs")
+            {
+                label.text = "▼ " + string.Join("\n▼ ", characterInfo[mc.characterIndex].debuffs);
+            }
+
+        }
+    }
+
     private void UpdatePlayerLobbyUIColour(GameObject playerLobbyUI, PlayerInfo playerInfo)
     {
         MarbleController mc = playerInfo.marbleController;
@@ -387,6 +425,12 @@ public class GameManager : MonoBehaviour
         {
             if (colourComponents.Contains(sprite.name))
             sprite.color = playerInfo.color;
+
+            // Update ready/unready button prompts
+            else if (sprite.transform.parent.name == "B Button") sprite.enabled = mc.ready;
+            else if (sprite.transform.parent.name == "A Button") sprite.enabled = !mc.ready;
+            else if (sprite.transform.parent.name == "Arrows") sprite.enabled = !mc.ready;
+            
         }
 
         string[] colourTexts = {
@@ -796,43 +840,6 @@ public class GameManager : MonoBehaviour
             Destroy(spawnedBanner);
             spawnedBanner = null;
             BeginMapVote();
-        }
-    }
-
-
-    private void UpdatePlayerLobbyUIText(GameObject playerLobbyUI, PlayerInfo playerInfo, int playerIndex)
-    {
-        MarbleController mc = playerInfo.marbleController;
-        TMP_Text[] labels = playerLobbyUI.GetComponentsInChildren<TMP_Text>();
-
-        foreach (var label in labels)
-        {
-            if (label.name == "ReadyToolTip")
-            {
-                // Update the ready status
-                label.text = mc.ready ? "Ready!" : "Not Ready";
-            }
-            else if (label.name == "ReadyStatus")
-            {
-                // Update the ready/unready prompt
-                label.text = mc.ready ? "Press B/Esc to unready." : "Press A/Space to ready up!";
-            }
-            else if (label.name == "PlayerIndicator")
-            {
-                label.text = playerInfo.name;
-            }
-            else if (label.name == "MarbleName")
-            {
-                label.text = characterInfo[mc.characterIndex].name;
-            }
-            else if (label.name == "MarbleBuffs")
-            {
-                label.text = "▲ " + string.Join("\n▲ ", characterInfo[mc.characterIndex].buffs);
-            }
-            else if (label.name == "MarbleNerfs")
-            {
-                label.text = "▼ " + string.Join("\n▼ ", characterInfo[mc.characterIndex].debuffs);
-            }
         }
     }
 
