@@ -333,7 +333,7 @@ public class MarbleController : MonoBehaviour
 
         // Extra check for the marble being dead
         // In case the marble quantum tunnels through the kill collider
-        if (sceneName == "Arena" && (Mathf.Abs(transform.position.x) > 100 || Mathf.Abs(transform.position.y) > 100))
+        if (sceneName == "Arena" && (Mathf.Abs(transform.position.x) > 80 || Mathf.Abs(transform.position.y) > 50))
         {
             if (GameManager.Instance.currentState == GameManager.GameState.Game)
             {
@@ -666,7 +666,7 @@ public class MarbleController : MonoBehaviour
         {
             Transform otherTransform = collision.gameObject.transform;
             MarbleController otherMarbleController = collision.gameObject.GetComponent<MarbleController>();
-            // Get the marbles' effective momentum
+            // Get the marbles' effective momentumscale
             float effectiveMomentum = GetEffectiveMomentum(otherTransform.position);
             float enemyMomentum = otherMarbleController.GetEffectiveMomentum(transform.position);
 
@@ -826,6 +826,11 @@ public class MarbleController : MonoBehaviour
     }
 
     // Getters and Setters
+
+    public bool CanDash()
+    {
+        return canDash;
+    }
 
     public float GetMomentum()
     {

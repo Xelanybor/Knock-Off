@@ -819,6 +819,21 @@ public class GameManager : MonoBehaviour
             bannerShowing = false;
         }
     }
+
+    public Transform GetClosestPlayerTransform(MarbleController m)
+    {
+        Transform closestPlayerTransform = null;
+        float closestDistance = float.MaxValue;
+        foreach (var player in players)
+        {
+            if (player.marbleController == m) continue;
+            float distance = Vector3.Distance(player.marbleController.transform.position, m.transform.position);
+            closestDistance = Mathf.Min(distance, closestDistance);
+            if (distance == closestDistance) closestPlayerTransform = player.marbleController.transform;
+        }
+        return closestPlayerTransform;
+    }
+
     #endregion
 
     #region Game Start and Transition
