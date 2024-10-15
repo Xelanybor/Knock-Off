@@ -333,7 +333,7 @@ public class MarbleController : MonoBehaviour
 
         // Extra check for the marble being dead
         // In case the marble quantum tunnels through the kill collider
-        if (sceneName == "Arena" && (Mathf.Abs(transform.position.x) > 100 || Mathf.Abs(transform.position.y) > 100))
+        if (sceneName == "Arena" && (Mathf.Abs(transform.position.x) > 80 || Mathf.Abs(transform.position.y) > 50))
         {
             if (GameManager.Instance.currentState == GameManager.GameState.Game)
             {
