@@ -788,7 +788,6 @@ public class GameManager : MonoBehaviour
     {
         if (!bannerShowing)
         {
-            Canvas canvas = GameObject.FindWithTag("Canvas").GetComponent<Canvas>();
             Canvas bannerCanvas = GameObject.FindWithTag("TextCanvas").GetComponent<Canvas>();
             spawnedBanner = Instantiate(StartBannerUI, bannerCanvas.transform);
             spawnedBanner.transform.position += new Vector3(0, -2f, 0);
