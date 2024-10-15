@@ -30,7 +30,7 @@ public class ButtonSelector : MonoBehaviour
         if (context.performed)
         {
             activeButton.onClick.Invoke();
-            SoundFXManager.Instance.PlaySoundFXClip(selectSound, gameObject.transform, 0.3f);
+            SoundFXManager.Instance.PlaySoundFXClip(selectSound, gameObject.transform, 0.7f);
         }
     } 
 
@@ -46,8 +46,8 @@ public class ButtonSelector : MonoBehaviour
                 int change = direction.y > 0 ? -1 : 1; // Up decreases index, Down increases
                 selectedButtonIndex += change;
                 // play sound
-                if (change == 1) { SoundFXManager.Instance.PlaySoundFXClip(moveDownSound, gameObject.transform, 0.3f); }
-                else { SoundFXManager.Instance.PlaySoundFXClip(moveUpSound, gameObject.transform, 0.3f);}
+                if (change == 1) { SoundFXManager.Instance.PlaySoundFXClip(moveDownSound, gameObject.transform, 0.6f); }
+                else { SoundFXManager.Instance.PlaySoundFXClip(moveUpSound, gameObject.transform, 0.6f);}
 
                 // Correct wraparound logic
                 if (selectedButtonIndex < 0)
